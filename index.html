@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -20,11 +20,18 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
     <script>
+        // Restaura as preferências antes do render para evitar piscar branco
+        const savedTheme = localStorage.getItem('couple_app_theme') || 'rosa';
+        const isDark = localStorage.getItem('couple_app_dark') === 'true';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        if(isDark) document.documentElement.classList.add('dark');
+
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        brand: { light: '#ffe4e6', DEFAULT: '#fb7185', dark: '#be123c' }
+                        brand: { light: 'var(--brand-light)', DEFAULT: 'var(--brand)', dark: 'var(--brand-dark)' }
                     },
                     fontFamily: { sans: ['Inter', 'sans-serif'] }
                 }
@@ -35,18 +42,29 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Kalam:wght@400;700&display=swap');
 
-        body { margin: 0; padding: 0; background-color: #f8fafc; }
+        /* TEMAS DE CORES PASTÉIS */
+        :root { --brand-light: #ffe4e6; --brand: #fb7185; --brand-dark: #be123c; }
+        :root[data-theme="lilas"] { --brand-light: #f3e8ff; --brand: #c084fc; --brand-dark: #7e22ce; }
+        :root[data-theme="azul"] { --brand-light: #dbeafe; --brand: #60a5fa; --brand-dark: #1d4ed8; }
+        :root[data-theme="verde"] { --brand-light: #d1fae5; --brand: #34d399; --brand-dark: #047857; }
+        :root[data-theme="amarelo"] { --brand-light: #fef3c7; --brand: #fbbf24; --brand-dark: #b45309; }
+
+        body { margin: 0; padding: 0; }
         #map { width: 100%; height: 100%; z-index: 1; }
+
+        /* Dark Mode Map Invert */
+        html.dark .leaflet-layer, html.dark .leaflet-control-zoom-in, html.dark .leaflet-control-zoom-out { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
 
         .font-journal { font-family: 'Kalam', cursive; }
 
         .custom-heart-marker { display: flex; justify-content: center; align-items: center; background: none; border: none; cursor: pointer; pointer-events: auto !important; z-index: 1000 !important;}
-        .custom-heart-marker i { color: #fb7185; font-size: 28px; filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.3)); transition: transform 0.2s; pointer-events: none !important; }
-        .custom-heart-marker:hover i { transform: scale(1.2); color: #be123c; }
+        .custom-heart-marker i { color: var(--brand); font-size: 28px; filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.3)); transition: transform 0.2s; pointer-events: none !important; }
+        .custom-heart-marker:hover i { transform: scale(1.2); color: var(--brand-dark); }
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        html.dark ::-webkit-scrollbar-thumb { background: #475569; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -57,254 +75,253 @@
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         .leaflet-control-zoom { border: none !important; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important; }
-        .leaflet-control-zoom-in, .leaflet-control-zoom-out { background-color: white !important; color: #333 !important; border-radius: 8px !important; margin-bottom: 5px !important; }
+        .leaflet-control-zoom-in, .leaflet-control-zoom-out { color: #333 !important; border-radius: 8px !important; margin-bottom: 5px !important; }
         
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         
         .polaroid-frame { background: white; padding: 10px 10px 30px 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-radius: 4px; transition: transform 0.3s; position: relative;}
+        html.dark .polaroid-frame { background: #1e293b; box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 1px solid #334155; }
         .polaroid-frame.rotated-left { transform: rotate(-2deg); }
         .polaroid-frame.rotated-right { transform: rotate(3deg); }
         .polaroid-frame:hover { transform: scale(1.05) rotate(0deg); z-index: 20; }
         
-        .tape {
-            position: absolute; top: -10px; left: 50%; transform: translateX(-50%) rotate(-2deg);
-            width: 80px; height: 25px; background-color: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1); backdrop-filter: blur(2px); z-index: 10; border-radius: 2px;
-        }
+        .tape { position: absolute; top: -10px; left: 50%; transform: translateX(-50%) rotate(-2deg); width: 80px; height: 25px; background-color: rgba(255, 255, 255, 0.4); box-shadow: 0 1px 3px rgba(0,0,0,0.1); backdrop-filter: blur(2px); z-index: 10; border-radius: 2px; }
+        html.dark .tape { background-color: rgba(255, 255, 255, 0.1); box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
 
         .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        html.dark .glass-panel { background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.1); }
     </style>
 </head>
-<body class="flex flex-col h-[100dvh] text-slate-800 antialiased overflow-hidden relative">
+<body class="flex flex-col h-[100dvh] text-slate-800 dark:text-slate-100 antialiased overflow-hidden relative bg-slate-50 dark:bg-slate-900 transition-colors">
 
-    <!-- Tela de Login -->
-    <div id="loginScreen" class="fixed inset-0 z-[10000] bg-slate-50 flex flex-col items-center justify-center p-6 slide-up">
-        <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm flex flex-col items-center border border-slate-100">
-            <div class="w-20 h-20 bg-brand-light rounded-full text-brand flex items-center justify-center text-4xl mb-4 shadow-inner">
+    <!-- STREAMING_CHUNK:Tela de Login -->
+    <div id="loginScreen" class="fixed inset-0 z-[10000] bg-slate-50 dark:bg-slate-900 flex flex-col items-center justify-center p-6 slide-up">
+        <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-xl w-full max-w-sm flex flex-col items-center border border-slate-100 dark:border-slate-700">
+            <div class="w-20 h-20 bg-brand-light dark:bg-brand/20 rounded-full text-brand flex items-center justify-center text-4xl mb-4 shadow-inner">
                 <i class="fa-solid fa-heart"></i>
             </div>
-            <h1 class="text-2xl font-black text-slate-800 mb-2">Quem está acessando?</h1>
-            <p class="text-sm text-slate-500 mb-8 text-center font-medium">Precisamos saber para organizar as contas e as notas dos filmes!</p>
+            <h1 class="text-2xl font-black text-slate-800 dark:text-white mb-2">Quem está acessando?</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-8 text-center font-medium">Precisamos saber para organizar as contas e as notas dos filmes!</p>
             
             <div class="flex gap-6 w-full justify-center">
                 <button onclick="loginAs('Luiz')" class="flex flex-col items-center gap-3 hover:scale-105 active:scale-95 transition-transform group">
-                    <div class="w-24 h-24 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center text-5xl shadow-md border-4 border-white group-hover:border-blue-100 transition-colors">
+                    <div class="w-24 h-24 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-500 flex items-center justify-center text-5xl shadow-md border-4 border-white dark:border-slate-800 group-hover:border-blue-100 dark:group-hover:border-blue-800 transition-colors">
                         <i class="fa-solid fa-user-astronaut"></i>
                     </div>
-                    <span class="font-bold text-slate-700 text-lg">Luiz</span>
+                    <span class="font-bold text-slate-700 dark:text-slate-200 text-lg">Luiz</span>
                 </button>
                 <button onclick="loginAs('Matheus')" class="flex flex-col items-center gap-3 hover:scale-105 active:scale-95 transition-transform group">
-                    <div class="w-24 h-24 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center text-5xl shadow-md border-4 border-white group-hover:border-emerald-100 transition-colors">
+                    <div class="w-24 h-24 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500 flex items-center justify-center text-5xl shadow-md border-4 border-white dark:border-slate-800 group-hover:border-emerald-100 dark:group-hover:border-emerald-800 transition-colors">
                         <i class="fa-solid fa-user-ninja"></i>
                     </div>
-                    <span class="font-bold text-slate-700 text-lg">Matheus</span>
+                    <span class="font-bold text-slate-700 dark:text-slate-200 text-lg">Matheus</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Estrutura Principal -->
-    <main class="flex-1 relative overflow-hidden bg-slate-50">
+    <!-- STREAMING_CHUNK:Estrutura Principal -->
+    <main class="flex-1 relative overflow-hidden bg-slate-50 dark:bg-slate-900 transition-colors">
         
         <!-- ABA 1: MAPA -->
         <div id="tab-map" class="absolute inset-0 z-10 transition-opacity duration-300">
             <div id="map"></div>
 
-            <button onclick="locateUser()" class="absolute bottom-6 right-4 z-[400] w-12 h-12 bg-white rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] flex items-center justify-center text-slate-600 hover:text-brand hover:scale-105 transition-all">
+            <button onclick="locateUser()" class="absolute bottom-6 right-4 z-[400] w-12 h-12 bg-white dark:bg-slate-800 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-brand dark:hover:text-brand hover:scale-105 transition-all">
                 <i class="fa-solid fa-location-crosshairs text-xl"></i>
             </button>
 
+            <!-- UI Flutuante Superior do Mapa -->
             <div class="absolute top-4 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-auto z-[400] flex justify-between md:justify-center items-center pointer-events-none gap-4">
                 <button onclick="toggleMenu()" class="pointer-events-auto glass-panel w-12 h-12 rounded-2xl shadow-lg flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors">
                     <i class="fa-solid fa-images text-xl"></i>
                 </button>
                 <div class="glass-panel px-6 py-3 rounded-2xl shadow-lg flex items-center gap-3 pointer-events-auto">
-                    <div class="w-10 h-10 rounded-full bg-brand-light flex items-center justify-center text-brand">
+                    <div class="w-10 h-10 rounded-full bg-brand-light dark:bg-brand/20 flex items-center justify-center text-brand">
                         <i class="fa-solid fa-map-location-dot text-lg"></i>
                     </div>
                     <div class="flex flex-col">
-                        <h1 class="text-lg font-bold text-slate-800 leading-tight">Nosso Mapa</h1>
-                        <p class="text-xs text-slate-500 font-medium">Bem-vindo, <span id="loggedUserDisplay" class="font-bold text-brand"></span>! <i class="fa-solid fa-heart text-brand ml-1"></i></p>
+                        <h1 class="text-lg font-bold text-slate-800 dark:text-white leading-tight">Nosso Mapa</h1>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Bem-vindo, <span id="loggedUserDisplay" class="font-bold text-brand"></span>! <i class="fa-solid fa-heart text-brand ml-1"></i></p>
                     </div>
                 </div>
                 <div class="w-12 md:hidden pointer-events-none"></div>
             </div>
 
-            <div id="helpToast" class="absolute top-24 left-1/2 -translate-x-1/2 z-[400] bg-slate-800 text-white px-4 py-2 rounded-full shadow-lg text-sm font-medium opacity-90 transition-opacity duration-500 pointer-events-none">
+            <div id="helpToast" class="absolute top-24 left-1/2 -translate-x-1/2 z-[400] bg-slate-800 dark:bg-slate-700 text-white px-4 py-2 rounded-full shadow-lg text-sm font-medium opacity-90 transition-opacity duration-500 pointer-events-none">
                 Toque no mapa para adicionar uma memória.
             </div>
         </div>
 
         <!-- ABA 2: FILMES 🍿 -->
-        <div id="tab-movies" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 overflow-y-auto">
-            
+        <div id="tab-movies" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                        Filmes <i class="fa-solid fa-popcorn text-brand"></i>
-                    </h1>
-                </div>
+                <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Filmes <i class="fa-solid fa-popcorn text-brand"></i></h1>
                 <div class="flex gap-2">
-                    <button onclick="pickRandomItem('movie')" class="bg-indigo-50 text-indigo-600 w-12 h-12 rounded-full shadow-sm flex items-center justify-center hover:bg-indigo-100 hover:scale-105 transition-all" title="Sortear Filme Aleatório">
-                        <i class="fa-solid fa-dice text-xl"></i>
-                    </button>
-                    <button onclick="openExploreModal('movie')" class="bg-brand text-white w-12 h-12 rounded-full shadow-lg shadow-brand/30 flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all">
-                        <i class="fa-solid fa-plus text-xl"></i>
-                    </button>
+                    <button onclick="pickRandomItem('movie')" class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 w-12 h-12 rounded-full shadow-sm flex items-center justify-center hover:bg-indigo-100 dark:hover:bg-indigo-900/50 hover:scale-105 transition-all" title="Sortear Filme Aleatório"><i class="fa-solid fa-dice text-xl"></i></button>
+                    <button onclick="openExploreModal('movie')" class="bg-brand text-white w-12 h-12 rounded-full shadow-lg shadow-brand/30 flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all"><i class="fa-solid fa-plus text-xl"></i></button>
                 </div>
             </div>
 
-            <div id="moviesNotification" class="hidden bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-2xl mb-4 flex items-center justify-between shadow-sm cursor-pointer hover:bg-rose-100 transition-colors" onclick="setFilter('movie', 'watched')">
+            <div id="moviesNotification" class="hidden bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800/50 text-rose-700 dark:text-rose-400 p-3 rounded-2xl mb-4 flex items-center justify-between shadow-sm cursor-pointer transition-colors" onclick="setFilter('movie', 'watched')">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center shrink-0">
-                        <i class="fa-solid fa-bell text-rose-500 animate-bounce"></i>
-                    </div>
+                    <div class="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center shrink-0"><i class="fa-solid fa-bell text-rose-500 dark:text-rose-400 animate-bounce"></i></div>
                     <span id="moviesNotificationText" class="text-sm font-bold leading-tight">Avaliações pendentes!</span>
                 </div>
                 <i class="fa-solid fa-chevron-right text-xs opacity-50 pl-2"></i>
             </div>
 
-            <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 mb-6 flex flex-col gap-3">
+            <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 mb-6 flex flex-col gap-3">
                 <div class="relative w-full">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" id="search-movie" placeholder="Buscar no nosso acervo..." onkeyup="renderGrid('movie')" class="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-brand/20 text-sm font-medium">
+                    <input type="text" id="search-movie" placeholder="Buscar no nosso acervo..." onkeyup="renderGrid('movie')" class="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border-none focus:ring-2 focus:ring-brand/20 text-sm font-medium dark:text-white">
                 </div>
                 <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                    <button onclick="setFilter('movie', 'all')" id="btn-movie-all" class="px-4 py-1.5 rounded-full bg-slate-800 text-white text-xs font-bold shadow-sm whitespace-nowrap transition-colors">Todos</button>
-                    <button onclick="setFilter('movie', 'trending')" id="btn-movie-trending" class="px-4 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-bold whitespace-nowrap transition-colors"><i class="fa-solid fa-fire text-orange-500 mr-1"></i> Em Alta</button>
-                    <button onclick="setFilter('movie', 'want')" id="btn-movie-want" class="px-4 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-bold whitespace-nowrap transition-colors text-blue-600">Queremos</button>
-                    <button onclick="setFilter('movie', 'watched')" id="btn-movie-watched" class="px-4 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-bold whitespace-nowrap transition-colors text-emerald-600">Assistidos</button>
+                    <button onclick="setFilter('movie', 'all')" id="btn-movie-all" class="px-4 py-1.5 rounded-full bg-slate-800 dark:bg-white text-white dark:text-slate-800 text-xs font-bold shadow-sm whitespace-nowrap transition-colors">Todos</button>
+                    <button onclick="setFilter('movie', 'trending')" id="btn-movie-trending" class="px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold whitespace-nowrap transition-colors"><i class="fa-solid fa-fire text-orange-500 mr-1"></i> Em Alta</button>
+                    <button onclick="setFilter('movie', 'want')" id="btn-movie-want" class="px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-blue-600 dark:text-blue-400 text-xs font-bold whitespace-nowrap transition-colors">Queremos</button>
+                    <button onclick="setFilter('movie', 'watched')" id="btn-movie-watched" class="px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 text-xs font-bold whitespace-nowrap transition-colors">Assistidos</button>
                 </div>
             </div>
 
             <div id="grid-movie" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-10"></div>
-            
-            <div id="empty-movie" class="hidden flex-col items-center justify-center text-slate-400 mt-10 gap-4">
-                <i class="fa-solid fa-film text-6xl opacity-30"></i>
-                <p class="text-center font-medium">Nenhum filme por aqui.</p>
+            <div id="empty-movie" class="hidden flex-col items-center justify-center text-slate-400 dark:text-slate-500 mt-10 gap-4">
+                <i class="fa-solid fa-film text-6xl opacity-30"></i><p class="text-center font-medium">Nenhum filme por aqui.</p>
             </div>
         </div>
 
         <!-- ABA 2.5: SÉRIES 📺 -->
-        <div id="tab-shows" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 overflow-y-auto">
-            
+        <div id="tab-shows" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                        Séries <i class="fa-solid fa-tv text-brand"></i>
-                    </h1>
-                </div>
+                <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Séries <i class="fa-solid fa-tv text-brand"></i></h1>
                 <div class="flex gap-2">
-                    <button onclick="pickRandomItem('tv')" class="bg-indigo-50 text-indigo-600 w-12 h-12 rounded-full shadow-sm flex items-center justify-center hover:bg-indigo-100 hover:scale-105 transition-all" title="Sortear Série Aleatória">
-                        <i class="fa-solid fa-dice text-xl"></i>
-                    </button>
-                    <button onclick="openExploreModal('tv')" class="bg-brand text-white w-12 h-12 rounded-full shadow-lg shadow-brand/30 flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all">
-                        <i class="fa-solid fa-plus text-xl"></i>
-                    </button>
+                    <button onclick="pickRandomItem('tv')" class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 w-12 h-12 rounded-full shadow-sm flex items-center justify-center hover:bg-indigo-100 hover:scale-105 transition-all"><i class="fa-solid fa-dice text-xl"></i></button>
+                    <button onclick="openExploreModal('tv')" class="bg-brand text-white w-12 h-12 rounded-full shadow-lg shadow-brand/30 flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all"><i class="fa-solid fa-plus text-xl"></i></button>
                 </div>
             </div>
 
-            <div id="showsNotification" class="hidden bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-2xl mb-4 flex items-center justify-between shadow-sm cursor-pointer hover:bg-rose-100 transition-colors" onclick="setFilter('tv', 'watched')">
+            <div id="showsNotification" class="hidden bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800/50 text-rose-700 dark:text-rose-400 p-3 rounded-2xl mb-4 flex items-center justify-between shadow-sm cursor-pointer transition-colors" onclick="setFilter('tv', 'watched')">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center shrink-0">
-                        <i class="fa-solid fa-bell text-rose-500 animate-bounce"></i>
-                    </div>
+                    <div class="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center shrink-0"><i class="fa-solid fa-bell text-rose-500 dark:text-rose-400 animate-bounce"></i></div>
                     <span id="showsNotificationText" class="text-sm font-bold leading-tight">Avaliações pendentes!</span>
                 </div>
                 <i class="fa-solid fa-chevron-right text-xs opacity-50 pl-2"></i>
             </div>
 
-            <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 mb-6 flex flex-col gap-3">
+            <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 mb-6 flex flex-col gap-3">
                 <div class="relative w-full">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" id="search-tv" placeholder="Buscar nas nossas séries..." onkeyup="renderGrid('tv')" class="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-brand/20 text-sm font-medium">
+                    <input type="text" id="search-tv" placeholder="Buscar nas nossas séries..." onkeyup="renderGrid('tv')" class="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border-none focus:ring-2 focus:ring-brand/20 text-sm font-medium dark:text-white">
                 </div>
                 <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                    <button onclick="setFilter('tv', 'all')" id="btn-tv-all" class="px-4 py-1.5 rounded-full bg-slate-800 text-white text-xs font-bold shadow-sm whitespace-nowrap transition-colors">Todas</button>
-                    <button onclick="setFilter('tv', 'trending')" id="btn-tv-trending" class="px-4 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-bold whitespace-nowrap transition-colors"><i class="fa-solid fa-fire text-orange-500 mr-1"></i> Em Alta</button>
-                    <button onclick="setFilter('tv', 'want')" id="btn-tv-want" class="px-4 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-bold whitespace-nowrap transition-colors text-blue-600">Queremos</button>
-                    <button onclick="setFilter('tv', 'watched')" id="btn-tv-watched" class="px-4 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-bold whitespace-nowrap transition-colors text-emerald-600">Assistidas</button>
+                    <button onclick="setFilter('tv', 'all')" id="btn-tv-all" class="px-4 py-1.5 rounded-full bg-slate-800 dark:bg-white text-white dark:text-slate-800 text-xs font-bold shadow-sm whitespace-nowrap transition-colors">Todas</button>
+                    <button onclick="setFilter('tv', 'trending')" id="btn-tv-trending" class="px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold whitespace-nowrap transition-colors"><i class="fa-solid fa-fire text-orange-500 mr-1"></i> Em Alta</button>
+                    <button onclick="setFilter('tv', 'want')" id="btn-tv-want" class="px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-blue-600 dark:text-blue-400 text-xs font-bold whitespace-nowrap transition-colors">Queremos</button>
+                    <button onclick="setFilter('tv', 'watched')" id="btn-tv-watched" class="px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 text-xs font-bold whitespace-nowrap transition-colors">Assistidas</button>
                 </div>
             </div>
 
             <div id="grid-tv" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-10"></div>
-            
-            <div id="empty-tv" class="hidden flex-col items-center justify-center text-slate-400 mt-10 gap-4">
-                <i class="fa-solid fa-tv text-6xl opacity-30"></i>
-                <p class="text-center font-medium">Nenhuma série por aqui.</p>
+            <div id="empty-tv" class="hidden flex-col items-center justify-center text-slate-400 dark:text-slate-500 mt-10 gap-4">
+                <i class="fa-solid fa-tv text-6xl opacity-30"></i><p class="text-center font-medium">Nenhuma série por aqui.</p>
             </div>
         </div>
 
         <!-- ABA 3: NOSSAS CONTAS -->
-        <div id="tab-finances" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 overflow-y-auto">
+        <div id="tab-finances" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                        Contas <i class="fa-solid fa-file-invoice-dollar text-brand"></i>
-                    </h1>
-                </div>
+                <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Contas <i class="fa-solid fa-file-invoice-dollar text-brand"></i></h1>
                 <div class="flex gap-2">
-                    <button onclick="clearFinancesHistory()" class="bg-white text-slate-400 border border-slate-200 w-12 h-12 rounded-full shadow-sm flex items-center justify-center hover:text-red-500 transition-all" title="Limpar Histórico Pago">
-                        <i class="fa-solid fa-broom text-xl"></i>
-                    </button>
-                    <button onclick="openFinanceModal()" class="bg-brand text-white w-12 h-12 rounded-full shadow-lg shadow-brand/30 flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all">
-                        <i class="fa-solid fa-plus text-xl"></i>
-                    </button>
+                    <button onclick="clearFinancesHistory()" class="bg-white dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 w-12 h-12 rounded-full shadow-sm flex items-center justify-center hover:text-red-500 transition-all"><i class="fa-solid fa-broom text-xl"></i></button>
+                    <button onclick="openFinanceModal()" class="bg-brand text-white w-12 h-12 rounded-full shadow-lg shadow-brand/30 flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all"><i class="fa-solid fa-plus text-xl"></i></button>
                 </div>
             </div>
             
             <div class="grid grid-cols-2 gap-3 mb-6">
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center relative overflow-hidden">
-                    <div class="absolute -right-2 -top-2 text-slate-100 text-5xl opacity-50"><i class="fa-solid fa-user-astronaut"></i></div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center text-center relative overflow-hidden">
+                    <div class="absolute -right-2 -top-2 text-slate-100 dark:text-slate-700 text-5xl opacity-50"><i class="fa-solid fa-user-astronaut"></i></div>
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 relative z-10">Luiz deve:</span>
-                    <span id="fin-luiz-owes" class="text-xl md:text-2xl font-bold text-red-500 relative z-10">R$ 0,00</span>
+                    <span id="fin-luiz-owes" class="text-xl md:text-2xl font-bold text-red-500 dark:text-red-400 relative z-10">R$ 0,00</span>
                 </div>
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center relative overflow-hidden">
-                    <div class="absolute -right-2 -top-2 text-slate-100 text-5xl opacity-50"><i class="fa-solid fa-user-ninja"></i></div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center text-center relative overflow-hidden">
+                    <div class="absolute -right-2 -top-2 text-slate-100 dark:text-slate-700 text-5xl opacity-50"><i class="fa-solid fa-user-ninja"></i></div>
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 relative z-10">Matheus deve:</span>
-                    <span id="fin-matheus-owes" class="text-xl md:text-2xl font-bold text-red-500 relative z-10">R$ 0,00</span>
+                    <span id="fin-matheus-owes" class="text-xl md:text-2xl font-bold text-red-500 dark:text-red-400 relative z-10">R$ 0,00</span>
                 </div>
             </div>
 
             <div class="flex flex-col gap-3 mb-4 shrink-0">
                 <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                     <button onclick="setFinFilter('all')" id="fin-filter-all" class="px-4 py-2 rounded-full bg-brand text-white text-sm font-bold shadow-md whitespace-nowrap transition-colors">Todas</button>
-                    <button onclick="setFinFilter('pending')" id="fin-filter-pending" class="px-4 py-2 rounded-full bg-white text-slate-600 border border-slate-200 text-sm font-bold whitespace-nowrap transition-colors">Pendentes</button>
-                    <button onclick="setFinFilter('paid')" id="fin-filter-paid" class="px-4 py-2 rounded-full bg-white text-slate-600 border border-slate-200 text-sm font-bold whitespace-nowrap transition-colors">Pagas</button>
+                    <button onclick="setFinFilter('pending')" id="fin-filter-pending" class="px-4 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-sm font-bold whitespace-nowrap transition-colors">Pendentes</button>
+                    <button onclick="setFinFilter('paid')" id="fin-filter-paid" class="px-4 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-sm font-bold whitespace-nowrap transition-colors">Pagas</button>
                 </div>
             </div>
 
             <div id="financesList" class="flex flex-col gap-3 pb-10"></div>
-            
-            <div id="financesEmpty" class="hidden flex-col items-center justify-center text-slate-400 mt-10 gap-4">
-                <i class="fa-solid fa-piggy-bank text-6xl opacity-30"></i>
-                <p class="text-center font-medium">Nenhuma conta por aqui.</p>
+            <div id="financesEmpty" class="hidden flex-col items-center justify-center text-slate-400 dark:text-slate-500 mt-10 gap-4">
+                <i class="fa-solid fa-piggy-bank text-6xl opacity-30"></i><p class="text-center font-medium">Nenhuma conta por aqui.</p>
             </div>
         </div>
 
-        <!-- ABA 4: NOSSO TEMPO -->
-        <div id="tab-time" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 overflow-y-auto">
+        <!-- STREAMING_CHUNK:Nova Aba Agenda -->
+        <!-- ABA 4: AGENDA 📅 -->
+        <div id="tab-calendar" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                        Nosso Tempo <i class="fa-solid fa-clock text-brand"></i>
-                    </h1>
-                </div>
-                <button onclick="openTimeSettings()" class="bg-white text-slate-400 w-10 h-10 rounded-full shadow-sm flex items-center justify-center hover:text-brand border border-slate-200 transition-all">
-                    <i class="fa-solid fa-pen"></i>
+                <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Agenda <i class="fa-solid fa-calendar-days text-brand"></i></h1>
+                <button onclick="openAddEventModal()" class="bg-brand text-white w-12 h-12 rounded-full shadow-lg shadow-brand/30 flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all">
+                    <i class="fa-solid fa-plus text-xl"></i>
                 </button>
             </div>
             
+            <!-- Calendário Mensal -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-4 mb-6">
+                <div class="flex justify-between items-center mb-4 px-2">
+                    <button onclick="changeMonth(-1)" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"><i class="fa-solid fa-chevron-left"></i></button>
+                    <h2 id="calendar-month-year" class="font-bold text-lg text-slate-800 dark:text-white capitalize"></h2>
+                    <button onclick="changeMonth(1)" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+                
+                <div class="grid grid-cols-7 gap-1 text-center mb-2">
+                    <div class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Dom</div>
+                    <div class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Seg</div>
+                    <div class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Ter</div>
+                    <div class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Qua</div>
+                    <div class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Qui</div>
+                    <div class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Sex</div>
+                    <div class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Sáb</div>
+                </div>
+                
+                <div id="calendar-grid" class="grid grid-cols-7 gap-1 text-center"></div>
+            </div>
+            
+            <!-- Lista Próximos -->
+            <div>
+                <h3 class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Próximos Compromissos</h3>
+                <div id="upcoming-events-list" class="flex flex-col gap-3 pb-10"></div>
+                <div id="upcoming-events-empty" class="hidden flex-col items-center justify-center text-slate-400 dark:text-slate-500 mt-6 gap-2">
+                    <i class="fa-regular fa-calendar-xmark text-4xl opacity-30"></i><p class="text-sm font-medium">Nada agendado por enquanto.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 5: NOSSO TEMPO -->
+        <div id="tab-time" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Nosso Tempo <i class="fa-solid fa-clock text-brand"></i></h1>
+                <button onclick="openTimeSettings()" class="bg-white dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 w-10 h-10 rounded-full shadow-sm flex items-center justify-center hover:text-brand transition-all"><i class="fa-solid fa-pen"></i></button>
+            </div>
+            
             <div id="time-display-area" class="flex flex-col items-center justify-center gap-6 mt-4">
-                <div id="card-conhecemos" class="hidden bg-white w-full rounded-3xl shadow-sm border border-slate-100 p-6 flex-col items-center relative overflow-hidden">
-                    <div class="absolute -top-4 -right-4 text-brand/10 text-6xl"><i class="fa-solid fa-calendar-check"></i></div>
-                    <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 z-10">Nos conhecemos há</h2>
+                <div id="card-conhecemos" class="hidden bg-white dark:bg-slate-800 w-full rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 flex-col items-center relative overflow-hidden">
+                    <div class="absolute -top-4 -right-4 text-brand/10 dark:text-brand/5 text-6xl"><i class="fa-solid fa-calendar-check"></i></div>
+                    <h2 class="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 z-10">Nos conhecemos há</h2>
                     <div id="counter-conhecemos" class="grid grid-cols-4 gap-2 md:gap-4 w-full z-10"></div>
-                    <p id="lbl-conhecemos" class="text-xs text-slate-400 mt-4 font-medium z-10"></p>
+                    <p id="lbl-conhecemos" class="text-xs text-slate-400 dark:text-slate-500 mt-4 font-medium z-10"></p>
                 </div>
 
-                <div id="card-namoro" class="hidden bg-brand w-full rounded-3xl shadow-lg border border-brand-dark p-6 flex-col items-center relative overflow-hidden">
+                <div id="card-namoro" class="hidden bg-brand dark:bg-brand-dark w-full rounded-3xl shadow-lg border border-brand-dark p-6 flex-col items-center relative overflow-hidden">
                     <div class="absolute -top-4 -right-4 text-white/10 text-6xl"><i class="fa-solid fa-heart"></i></div>
                     <h2 class="text-sm font-bold text-white/80 uppercase tracking-widest mb-4 z-10">Namoramos há</h2>
                     <div id="counter-namoro" class="grid grid-cols-4 gap-2 md:gap-4 w-full z-10"></div>
@@ -312,86 +329,109 @@
                 </div>
             </div>
             
-            <div id="time-empty-state" class="hidden flex-col items-center justify-center text-slate-400 mt-20 gap-4">
+            <div id="time-empty-state" class="hidden flex-col items-center justify-center text-slate-400 dark:text-slate-500 mt-20 gap-4">
                 <i class="fa-solid fa-calendar-heart text-6xl opacity-30"></i>
                 <p class="text-center font-medium">Configure as datas de vocês<br>clicando no lápis acima!</p>
             </div>
         </div>
-
     </main>
 
-    <!-- Barra de Navegação -->
-    <nav class="fixed bottom-0 w-full h-16 bg-white border-t border-slate-200 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] flex justify-around items-center z-[500] px-1 pb-safe">
-        <button id="nav-btn-map" onclick="switchTab('map')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-brand transition-colors relative">
-            <i class="fa-solid fa-map text-xl"></i>
-            <span class="text-[9px] font-bold uppercase tracking-wide">Diário</span>
+    <!-- Barra de Navegação (6 ícones) -->
+    <nav class="fixed bottom-0 w-full h-16 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] flex justify-around items-center z-[500] px-1 pb-safe transition-colors">
+        <button id="nav-btn-map" onclick="switchTab('map')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-brand transition-colors relative group">
+            <i class="fa-solid fa-map text-lg group-hover:scale-110 transition-transform"></i>
+            <span class="text-[8px] font-bold uppercase tracking-wide">Diário</span>
         </button>
-        <button id="nav-btn-movies" onclick="switchTab('movies')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand transition-colors relative">
-            <i class="fa-solid fa-clapperboard text-xl"></i>
-            <span class="text-[9px] font-bold uppercase tracking-wide">Filmes</span>
-            <span id="navMovieBadge" class="hidden absolute top-2 right-[20%] w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
+        <button id="nav-btn-movies" onclick="switchTab('movies')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
+            <i class="fa-solid fa-clapperboard text-lg group-hover:scale-110 transition-transform"></i>
+            <span class="text-[8px] font-bold uppercase tracking-wide">Filmes</span>
+            <span id="navMovieBadge" class="hidden absolute top-2 right-[20%] w-2 h-2 bg-red-500 rounded-full border border-white dark:border-slate-800 animate-pulse"></span>
         </button>
-        <button id="nav-btn-shows" onclick="switchTab('shows')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand transition-colors relative">
-            <i class="fa-solid fa-tv text-xl"></i>
-            <span class="text-[9px] font-bold uppercase tracking-wide">Séries</span>
-            <span id="navShowBadge" class="hidden absolute top-2 right-[20%] w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
+        <button id="nav-btn-shows" onclick="switchTab('shows')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
+            <i class="fa-solid fa-tv text-lg group-hover:scale-110 transition-transform"></i>
+            <span class="text-[8px] font-bold uppercase tracking-wide">Séries</span>
+            <span id="navShowBadge" class="hidden absolute top-2 right-[20%] w-2 h-2 bg-red-500 rounded-full border border-white dark:border-slate-800 animate-pulse"></span>
         </button>
-        <button id="nav-btn-finances" onclick="switchTab('finances')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand transition-colors relative">
-            <i class="fa-solid fa-file-invoice-dollar text-xl"></i>
-            <span class="text-[9px] font-bold uppercase tracking-wide">Contas</span>
+        <button id="nav-btn-finances" onclick="switchTab('finances')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
+            <i class="fa-solid fa-file-invoice-dollar text-lg group-hover:scale-110 transition-transform"></i>
+            <span class="text-[8px] font-bold uppercase tracking-wide">Contas</span>
         </button>
-        <button id="nav-btn-time" onclick="switchTab('time')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand transition-colors relative">
-            <i class="fa-solid fa-clock text-xl"></i>
-            <span class="text-[9px] font-bold uppercase tracking-wide">Tempo</span>
+        <button id="nav-btn-calendar" onclick="switchTab('calendar')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
+            <i class="fa-solid fa-calendar-days text-lg group-hover:scale-110 transition-transform"></i>
+            <span class="text-[8px] font-bold uppercase tracking-wide">Agenda</span>
+        </button>
+        <button id="nav-btn-time" onclick="switchTab('time')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
+            <i class="fa-solid fa-clock text-lg group-hover:scale-110 transition-transform"></i>
+            <span class="text-[8px] font-bold uppercase tracking-wide">Tempo</span>
         </button>
     </nav>
 
     <!-- Overlay Escuro Global -->
-    <div id="modalOverlay" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[999]" onclick="closeAllPanels()"></div>
+    <div id="modalOverlay" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[999]" onclick="closeAllPanels()"></div>
 
-    <!-- Menu Diário Mapa (Life is Strange Album) -->
-    <div id="mainMenu" class="fixed top-0 left-0 w-full md:w-[450px] h-full bg-[#f4f1ea] shadow-[10px_0_30px_rgba(0,0,0,0.15)] z-[1000] flex flex-col transition-transform duration-300 -translate-x-full border-r border-[#e0d6c8]">
+    <!-- STREAMING_CHUNK:Menu Principal & Personalização -->
+    <!-- Menu Diário Mapa (Life is Strange Album + Configurações) -->
+    <div id="mainMenu" class="fixed top-0 left-0 w-full md:w-[450px] h-full bg-[#f4f1ea] dark:bg-[#1a1c23] shadow-[10px_0_30px_rgba(0,0,0,0.15)] z-[1000] flex flex-col transition-transform duration-300 -translate-x-full border-r border-[#e0d6c8] dark:border-[#2d303b]">
+        <!-- Textura de papel no fundo -->
         <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: url('data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100\' height=\'100\' filter=\'url(%23noise)\' opacity=\'0.5\'/%3E%3C/svg%3E'); mix-blend-mode: multiply;"></div>
         
-        <div class="flex justify-between items-center p-5 border-b border-[#e0d6c8] bg-[#efeade] pt-8 relative z-10 shadow-sm">
-            <div class="absolute -top-2 left-4 w-20 h-4 bg-white/40 -rotate-2 shadow-sm"></div>
-            <h2 class="text-3xl font-journal font-bold text-slate-800 flex items-center gap-3">
+        <div class="flex justify-between items-center p-5 border-b border-[#e0d6c8] dark:border-[#2d303b] bg-[#efeade] dark:bg-[#22242e] pt-8 relative z-10 shadow-sm">
+            <div class="absolute -top-2 left-4 w-20 h-4 bg-white/40 dark:bg-white/10 -rotate-2 shadow-sm"></div>
+            <h2 class="text-3xl font-journal font-bold text-slate-800 dark:text-slate-100 flex items-center gap-3">
                 <i class="fa-solid fa-camera-retro text-brand text-2xl"></i> Álbum
             </h2>
             <div class="flex gap-2">
-                <button onclick="toggleAlbumView()" id="btnToggleAlbum" class="w-10 h-10 rounded-full bg-white shadow-sm text-slate-600 flex items-center justify-center transition-all hover:scale-105" title="Mudar visualização">
+                <button onclick="toggleAlbumView()" id="btnToggleAlbum" class="w-10 h-10 rounded-full bg-white dark:bg-slate-700 shadow-sm text-slate-600 dark:text-slate-200 flex items-center justify-center transition-all hover:scale-105" title="Mudar visualização">
                     <i class="fa-solid fa-book-open"></i>
                 </button>
-                <button onclick="toggleMenu()" class="w-10 h-10 rounded-full bg-white/50 hover:bg-white text-slate-600 flex items-center justify-center transition-colors">
+                <button onclick="toggleMenu()" class="w-10 h-10 rounded-full bg-white/50 dark:bg-slate-700/50 hover:bg-white dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 flex items-center justify-center transition-colors">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
         </div>
         
-        <div class="p-4 bg-[#efeade] border-b border-[#e0d6c8] z-10 flex gap-2">
+        <div class="p-4 bg-[#efeade] dark:bg-[#22242e] border-b border-[#e0d6c8] dark:border-[#2d303b] z-10 flex gap-2">
             <div class="relative flex-1">
                 <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" id="searchAlbum" placeholder="Buscar lugar, nota..." onkeyup="renderMemoryList()" class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-[#e0d6c8] focus:outline-none focus:border-brand bg-[#fdfdfb] font-journal text-lg">
+                <input type="text" id="searchAlbum" placeholder="Buscar lugar, nota..." onkeyup="renderMemoryList()" class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-[#e0d6c8] dark:border-slate-600 focus:outline-none focus:border-brand bg-[#fdfdfb] dark:bg-slate-800 dark:text-white font-journal text-lg">
             </div>
-            <select id="filterAlbumYear" onchange="renderMemoryList()" class="w-24 px-2 py-2.5 rounded-xl border border-[#e0d6c8] bg-[#fdfdfb] font-journal text-lg focus:outline-none focus:border-brand text-slate-600">
+            <select id="filterAlbumYear" onchange="renderMemoryList()" class="w-24 px-2 py-2.5 rounded-xl border border-[#e0d6c8] dark:border-slate-600 bg-[#fdfdfb] dark:bg-slate-800 dark:text-white font-journal text-lg focus:outline-none focus:border-brand text-slate-600">
                 <option value="all">Ano</option>
             </select>
         </div>
         
         <div id="memoryList" class="flex-1 overflow-y-auto p-4 pt-6 z-10 relative"></div>
         
-        <div class="p-4 bg-[#efeade] border-t border-[#e0d6c8] z-10">
-            <button onclick="logout()" class="w-full text-slate-500 hover:text-slate-800 bg-white/50 hover:bg-white text-sm font-semibold flex items-center justify-center gap-2 py-3 rounded-xl transition-colors">
+        <!-- Área de Personalização -->
+        <div class="p-4 bg-[#efeade] dark:bg-[#22242e] border-t border-[#e0d6c8] dark:border-[#2d303b] z-10 flex flex-col gap-4">
+            <div>
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 block text-center">Personalizar Cores</span>
+                <div class="flex gap-4 justify-center">
+                    <button onclick="setAppColor('rosa')" class="w-8 h-8 rounded-full bg-[#fb7185] border-2 border-transparent focus:border-slate-800 dark:focus:border-white transition-transform hover:scale-110 shadow-sm"></button>
+                    <button onclick="setAppColor('lilas')" class="w-8 h-8 rounded-full bg-[#c084fc] border-2 border-transparent focus:border-slate-800 dark:focus:border-white transition-transform hover:scale-110 shadow-sm"></button>
+                    <button onclick="setAppColor('azul')" class="w-8 h-8 rounded-full bg-[#60a5fa] border-2 border-transparent focus:border-slate-800 dark:focus:border-white transition-transform hover:scale-110 shadow-sm"></button>
+                    <button onclick="setAppColor('verde')" class="w-8 h-8 rounded-full bg-[#34d399] border-2 border-transparent focus:border-slate-800 dark:focus:border-white transition-transform hover:scale-110 shadow-sm"></button>
+                    <button onclick="setAppColor('amarelo')" class="w-8 h-8 rounded-full bg-[#fbbf24] border-2 border-transparent focus:border-slate-800 dark:focus:border-white transition-transform hover:scale-110 shadow-sm"></button>
+                </div>
+            </div>
+            <div class="flex justify-between items-center bg-white dark:bg-slate-800 px-4 py-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+                <span class="text-sm font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2"><i class="fa-solid fa-moon"></i> Modo Escuro</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="darkModeToggle" class="sr-only peer" onchange="toggleDarkMode()">
+                  <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-500 peer-checked:bg-brand"></div>
+                </label>
+            </div>
+            <button onclick="logout()" class="w-full text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white bg-white/50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 text-sm font-semibold flex items-center justify-center gap-2 py-3 rounded-xl transition-colors border border-slate-200 dark:border-slate-700">
                 <i class="fa-solid fa-right-from-bracket"></i> Trocar de Usuário
             </button>
         </div>
     </div>
 
-    <!-- Painel de Adicionar/Ver Memória (Mapa) -->
-    <div id="memoryPanel" class="hidden fixed bottom-0 left-0 right-0 md:bottom-auto md:top-0 md:right-0 md:left-auto w-full md:w-[400px] h-[85vh] md:h-[100dvh] bg-white md:rounded-l-2xl rounded-t-3xl shadow-2xl z-[1000] flex flex-col slide-up transition-transform duration-300">
-        <div class="flex justify-between items-center p-5 border-b border-slate-100 shrink-0">
-            <h2 id="panelTitle" class="text-xl font-bold text-slate-800">Nova Memória</h2>
-            <button onclick="closePanel()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center">
+    <!-- Painel Nova Memória Mapa -->
+    <div id="memoryPanel" class="hidden fixed bottom-0 left-0 right-0 md:bottom-auto md:top-0 md:right-0 md:left-auto w-full md:w-[400px] h-[85vh] md:h-[100dvh] bg-white dark:bg-slate-900 md:rounded-l-2xl rounded-t-3xl shadow-2xl z-[1000] flex flex-col slide-up transition-transform duration-300">
+        <div class="flex justify-between items-center p-5 border-b border-slate-100 dark:border-slate-800 shrink-0">
+            <h2 id="panelTitle" class="text-xl font-bold text-slate-800 dark:text-white">Nova Memória</h2>
+            <button onclick="closePanel()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
@@ -401,18 +441,18 @@
                 <input type="hidden" id="latInput">
                 <input type="hidden" id="lngInput">
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Onde estávamos?</label>
-                    <input type="text" id="placeName" required placeholder="Ex: Jardim Botânico..." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Onde estávamos?</label>
+                    <input type="text" id="placeName" required placeholder="Ex: Jardim Botânico..." class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white">
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Quando foi?</label>
-                    <input type="date" id="dateInput" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Quando foi?</label>
+                    <input type="date" id="dateInput" required class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white">
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Nossa Foto</label>
-                    <div class="relative w-full h-40 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 hover:bg-slate-100 flex flex-col items-center justify-center cursor-pointer overflow-hidden group" onclick="document.getElementById('photoInput').click()">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Nossa Foto</label>
+                    <div class="relative w-full h-40 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 flex flex-col items-center justify-center cursor-pointer overflow-hidden group" onclick="document.getElementById('photoInput').click()">
                         <input type="file" id="photoInput" accept="image/*" class="hidden" onchange="previewMapImage(event)">
-                        <div id="uploadPlaceholder" class="flex flex-col items-center justify-center text-slate-500">
+                        <div id="uploadPlaceholder" class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400">
                             <i class="fa-solid fa-camera text-3xl mb-2"></i>
                             <span class="text-sm font-medium">Toque para anexar</span>
                         </div>
@@ -423,83 +463,80 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Notinha</label>
-                    <textarea id="notesInput" rows="3" placeholder="Foi incrível porque..." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50 resize-none font-journal text-lg"></textarea>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Notinha</label>
+                    <textarea id="notesInput" rows="3" placeholder="Foi incrível porque..." class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white resize-none font-journal text-lg"></textarea>
                 </div>
                 <button type="submit" class="mt-4 w-full bg-brand text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-[0.98] transition-transform">
-                    <i class="fa-solid fa-heart"></i> Salvar Memória no Álbum
+                    <i class="fa-solid fa-heart"></i> Salvar Memória
                 </button>
             </form>
 
             <div id="memoryView" class="hidden flex-col gap-5 items-center">
                 <div class="polaroid-frame rotated-right w-full mt-4">
                     <div class="tape"></div>
-                    <div id="viewImageContainer" class="w-full aspect-square bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200 mb-4"></div>
+                    <div id="viewImageContainer" class="w-full aspect-square bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border border-slate-200 dark:border-slate-700 mb-4"></div>
                     <div class="px-2">
-                        <h3 id="viewTitle" class="text-3xl font-journal font-bold text-slate-800 leading-none"></h3>
-                        <p id="viewDate" class="font-journal text-slate-500 text-lg mt-1"></p>
-                        <p id="viewNotes" class="font-journal text-slate-700 leading-tight mt-4 text-xl"></p>
+                        <h3 id="viewTitle" class="text-3xl font-journal font-bold text-slate-800 dark:text-slate-200 leading-none"></h3>
+                        <p id="viewDate" class="font-journal text-slate-500 dark:text-slate-400 text-lg mt-1"></p>
+                        <p id="viewNotes" class="font-journal text-slate-700 dark:text-slate-300 leading-tight mt-4 text-xl"></p>
                     </div>
                 </div>
 
-                <button onclick="deleteCurrentMemory()" class="mt-6 w-full text-slate-400 hover:text-red-500 bg-slate-50 border border-slate-100 text-sm font-semibold flex items-center justify-center gap-2 py-3 rounded-xl transition-colors">
+                <button onclick="deleteCurrentMemory()" class="mt-6 w-full text-slate-400 hover:text-red-500 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-sm font-semibold flex items-center justify-center gap-2 py-3 rounded-xl transition-colors">
                     <i class="fa-solid fa-trash-can"></i> Rasgar esta foto
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Modais Universais: Explorar, Salvar Item, Visualizar Item -->
+    <!-- STREAMING_CHUNK:Modais Secundários (Filmes, Séries, Contas, Agenda, Tempo) -->
+    
+    <!-- Modal Explorar/Busca -->
     <div id="exploreModal" class="hidden fixed inset-0 z-[1000] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeExploreModal()"></div>
         
-        <div class="relative bg-slate-50 w-full max-w-lg h-[85vh] md:h-[650px] rounded-3xl flex flex-col slide-up overflow-hidden shadow-2xl">
-            <div class="p-5 border-b border-slate-200 bg-white flex justify-between items-center shrink-0">
-                <h3 id="exploreTitle" class="font-bold text-lg text-slate-800">Descobrir 🧭</h3>
-                <button onclick="closeExploreModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
+        <div class="relative bg-slate-50 dark:bg-slate-900 w-full max-w-lg h-[85vh] md:h-[650px] rounded-3xl flex flex-col slide-up overflow-hidden shadow-2xl">
+            <div class="p-5 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex justify-between items-center shrink-0">
+                <h3 id="exploreTitle" class="font-bold text-lg text-slate-800 dark:text-white">Descobrir 🧭</h3>
+                <button onclick="closeExploreModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
-            <div class="p-4 bg-white shadow-sm shrink-0">
-                <div id="tmdbConfigArea" class="hidden mb-4 p-4 bg-slate-100 rounded-xl border border-slate-200 text-sm">
-                    <p class="font-bold text-slate-700 mb-1"><i class="fa-solid fa-key text-brand"></i> Chave do TMDb</p>
+            <div class="p-4 bg-white dark:bg-slate-800 shadow-sm shrink-0">
+                <div id="tmdbConfigArea" class="hidden mb-4 p-4 bg-slate-100 dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-600 text-sm">
+                    <p class="font-bold text-slate-700 dark:text-slate-200 mb-1"><i class="fa-solid fa-key text-brand"></i> Chave do TMDb</p>
                     <div class="flex gap-2">
-                        <input type="text" id="apiKeyInput" placeholder="API Key (v3 auth)..." class="flex-1 px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:border-brand text-xs">
+                        <input type="text" id="apiKeyInput" placeholder="API Key (v3 auth)..." class="flex-1 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-white focus:outline-none focus:border-brand text-xs">
                         <button onclick="saveApiKey()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg font-bold text-xs transition-colors">Salvar</button>
                     </div>
                 </div>
 
                 <div class="relative">
-                    <input type="text" id="apiSearchInput" placeholder="Buscar título..." class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 bg-slate-50 transition-all text-sm font-medium" onkeyup="if(event.key === 'Enter') searchAPI()">
+                    <input type="text" id="apiSearchInput" placeholder="Buscar título..." class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 bg-slate-50 dark:bg-slate-900 dark:text-white transition-all text-sm font-medium" onkeyup="if(event.key === 'Enter') searchAPI()">
                     <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
                 </div>
                 <div class="flex justify-between items-center mt-3">
-                    <p class="text-xs text-slate-500 font-medium ml-1">Deixe vazio e busque para ver em alta.</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium ml-1">Vazio + Buscar = Em Alta.</p>
                     <div class="flex gap-2">
-                        <button onclick="toggleApiKeyConfig()" class="w-10 h-10 bg-slate-50 text-slate-400 border border-slate-200 hover:text-slate-600 rounded-xl flex items-center justify-center transition-colors shadow-sm" title="Configurar API"><i class="fa-solid fa-gear"></i></button>
+                        <button onclick="toggleApiKeyConfig()" class="w-10 h-10 bg-slate-50 dark:bg-slate-700 text-slate-400 dark:text-slate-300 border border-slate-200 dark:border-slate-600 rounded-xl flex items-center justify-center transition-colors shadow-sm" title="Configurar API"><i class="fa-solid fa-gear"></i></button>
                         <button onclick="searchAPI()" class="bg-brand hover:bg-brand-dark text-white px-5 rounded-xl font-semibold transition-colors shadow-md text-sm">Buscar</button>
                     </div>
                 </div>
             </div>
             
-            <div id="apiSearchResults" class="flex-1 overflow-y-auto p-4 flex flex-col gap-3 no-scrollbar pb-10">
-                <div class="text-center text-slate-400 mt-10">
-                    <i class="fa-solid fa-compass text-5xl mb-4 opacity-30"></i>
-                    <p class="font-medium text-sm">Busque pelo nome ou clique para ver sucessos.</p>
-                </div>
-            </div>
+            <div id="apiSearchResults" class="flex-1 overflow-y-auto p-4 flex flex-col gap-3 no-scrollbar pb-10"></div>
         </div>
     </div>
 
+    <!-- Modal Salvar Item -->
     <div id="saveItemModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeSaveItemModal()"></div>
         
-        <div class="relative bg-white w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto no-scrollbar pb-6">
+        <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto no-scrollbar pb-6 border border-slate-800">
             <button onclick="closeSaveItemModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 z-20 backdrop-blur-sm"><i class="fa-solid fa-xmark"></i></button>
             
             <div id="smHeader" class="w-full h-48 bg-slate-800 relative shrink-0">
                 <img id="smHeroImage" src="" class="w-full h-full object-cover opacity-60">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
-                
                 <button id="smTrailerBtn" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-brand/90 hover:bg-brand text-white rounded-full flex items-center justify-center text-lg shadow-[0_0_20px_rgba(251,113,133,0.5)] transition-all hover:scale-110 backdrop-blur-sm" onclick="playTrailer()"><i class="fa-solid fa-play ml-1"></i></button>
 
                 <div class="absolute bottom-4 left-4 right-4 flex gap-3 items-end z-10">
@@ -515,19 +552,16 @@
             </div>
 
             <div class="p-5 pt-4">
-                
-                <div id="smExtendedInfo" class="hidden border-b border-slate-100 pb-5 mb-5">
-                    <p class="text-[13px] text-slate-500 italic mb-4 line-clamp-2 leading-relaxed" id="smTagline"></p>
-                    
+                <div id="smExtendedInfo" class="hidden border-b border-slate-100 dark:border-slate-800 pb-5 mb-5">
+                    <p class="text-[13px] text-slate-500 dark:text-slate-400 italic mb-4 line-clamp-2 leading-relaxed" id="smTagline"></p>
                     <div id="smProvidersArea" class="hidden mb-4">
                         <span class="font-bold uppercase tracking-wider text-[10px] text-slate-400 block mb-2">Disponível em:</span>
                         <div id="smProvidersLogos" class="flex gap-2 flex-wrap"></div>
                     </div>
-
                     <div class="flex flex-col gap-3">
-                        <div class="flex items-center gap-2 text-sm text-slate-700">
+                        <div class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
                             <span class="font-bold uppercase tracking-wider text-[10px] text-slate-400 w-14" id="smDirectorLabel">Direção</span>
-                            <span id="smDirector" class="font-semibold text-slate-800 truncate"></span>
+                            <span id="smDirector" class="font-semibold text-slate-800 dark:text-white truncate"></span>
                         </div>
                         <div>
                             <span class="font-bold uppercase tracking-wider text-[10px] text-slate-400 block mb-2">Elenco Principal</span>
@@ -536,15 +570,15 @@
                     </div>
                 </div>
 
-                <div class="flex gap-2 p-1 bg-slate-100 rounded-xl mb-6">
-                    <button id="sm-btn-want" onclick="setItemStatus('want')" class="flex-1 py-2.5 rounded-lg text-sm font-bold bg-white text-brand shadow-sm transition-all">Queremos</button>
-                    <button id="sm-btn-watched" onclick="setItemStatus('watched')" class="flex-1 py-2.5 rounded-lg text-sm font-bold text-slate-500 hover:text-slate-700 transition-all">Já Assistimos</button>
+                <div class="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl mb-6">
+                    <button id="sm-btn-want" onclick="setItemStatus('want')" class="flex-1 py-2.5 rounded-lg text-sm font-bold bg-white dark:bg-slate-700 text-brand shadow-sm transition-all">Queremos</button>
+                    <button id="sm-btn-watched" onclick="setItemStatus('watched')" class="flex-1 py-2.5 rounded-lg text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-slate-700 transition-all">Já Assistimos</button>
                 </div>
 
                 <div id="sm-watched-fields" class="hidden flex-col gap-4 mb-6">
                     <div class="bg-brand-light/20 p-4 rounded-xl border border-brand/10 text-center">
                         <label class="block text-xs font-bold text-brand uppercase tracking-wider mb-2">Sua Nota Inicial</label>
-                        <div class="flex justify-center gap-3 text-4xl text-slate-200 drop-shadow-sm" id="starRatingContainer">
+                        <div class="flex justify-center gap-3 text-4xl text-slate-200 dark:text-slate-700 drop-shadow-sm" id="starRatingContainer">
                             <i class="fa-solid fa-star cursor-pointer transition-transform hover:scale-110" onclick="setRating(1)"></i>
                             <i class="fa-solid fa-star cursor-pointer transition-transform hover:scale-110" onclick="setRating(2)"></i>
                             <i class="fa-solid fa-star cursor-pointer transition-transform hover:scale-110" onclick="setRating(3)"></i>
@@ -555,22 +589,22 @@
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 pl-1">Quando?</label>
-                            <input type="date" id="smDate" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50 text-slate-600 text-sm font-medium">
+                            <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 pl-1">Quando?</label>
+                            <input type="date" id="smDate" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white text-sm font-medium">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 pl-1">Lista Especial?</label>
-                            <input type="text" id="smList" placeholder="Ex: Favoritos" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50 text-slate-600 text-sm font-medium">
+                            <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 pl-1">Lista Especial?</label>
+                            <input type="text" id="smList" placeholder="Ex: Favoritos" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white text-sm font-medium">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 pl-1">O que achou?</label>
-                        <textarea id="smReview" rows="2" placeholder="Foi incrível..." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50 resize-none text-sm font-medium"></textarea>
+                        <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 pl-1">O que achou?</label>
+                        <textarea id="smReview" rows="2" placeholder="Foi incrível..." class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white resize-none text-sm font-medium"></textarea>
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 pl-1">Foto Nossa (Polaroid)</label>
+                        <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 pl-1">Foto Nossa (Polaroid)</label>
                         <div class="relative w-full h-32 rounded-xl border-2 border-dashed border-brand/30 bg-brand-light/10 hover:bg-brand-light/20 flex flex-col items-center justify-center cursor-pointer overflow-hidden group transition-colors" onclick="document.getElementById('smPhotoInput').click()">
                             <input type="file" id="smPhotoInput" accept="image/*" class="hidden" onchange="previewItemImage(event)">
                             <div id="smUploadPlaceholder" class="flex flex-col items-center justify-center text-brand/60">
@@ -589,19 +623,18 @@
         </div>
     </div>
 
+    <!-- Modal Visualizar Item -->
     <div id="viewItemModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeViewItemModal()"></div>
         
-        <div class="relative bg-white w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto no-scrollbar pb-6">
+        <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto no-scrollbar pb-6 border border-slate-800">
             
             <button onclick="closeViewItemModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 z-20 backdrop-blur-sm"><i class="fa-solid fa-xmark"></i></button>
             
             <div id="vmHeader" class="w-full h-64 bg-slate-800 relative shrink-0">
                 <img id="vmHeroImage" src="" class="w-full h-full object-cover opacity-60">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
-                
                 <button id="vmTrailerBtn" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-brand/90 hover:bg-brand text-white rounded-full flex items-center justify-center text-xl shadow-[0_0_20px_rgba(251,113,133,0.5)] transition-all hover:scale-110 backdrop-blur-sm" onclick="playTrailer()"><i class="fa-solid fa-play ml-1"></i></button>
-
                 <div class="absolute bottom-4 left-4 right-4 z-10">
                     <span id="vmStatusBadge" class="inline-block px-3 py-1 rounded-full text-[10px] font-bold mb-2 bg-white/20 text-white backdrop-blur shadow-sm uppercase tracking-widest border border-white/30"></span>
                     <h2 id="vmTitle" class="text-2xl font-bold text-white leading-tight drop-shadow-md"></h2>
@@ -613,19 +646,18 @@
             </div>
 
             <div class="p-6 pt-5">
-                
-                <div id="vmExtendedInfo" class="hidden border-b border-slate-100 pb-5 mb-5">
-                    <p class="text-[13px] text-slate-500 italic mb-4 line-clamp-3 leading-relaxed" id="vmTagline"></p>
+                <div id="vmExtendedInfo" class="hidden border-b border-slate-100 dark:border-slate-800 pb-5 mb-5">
+                    <p class="text-[13px] text-slate-500 dark:text-slate-400 italic mb-4 line-clamp-3 leading-relaxed" id="vmTagline"></p>
                     
-                    <div id="vmProvidersArea" class="hidden mb-4 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <div id="vmProvidersArea" class="hidden mb-4 bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
                         <span class="font-bold uppercase tracking-wider text-[10px] text-brand block mb-2"><i class="fa-solid fa-display mr-1"></i> Assista no Brasil em:</span>
                         <div id="vmProvidersLogos" class="flex gap-2 flex-wrap"></div>
                     </div>
 
                     <div class="flex flex-col gap-3">
-                        <div class="flex items-center gap-2 text-sm text-slate-700">
+                        <div class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
                             <span class="font-bold uppercase tracking-wider text-[10px] text-slate-400 w-14" id="vmDirectorLabel">Direção</span>
-                            <span id="vmDirector" class="font-semibold text-slate-800 truncate"></span>
+                            <span id="vmDirector" class="font-semibold text-slate-800 dark:text-white truncate"></span>
                         </div>
                         <div>
                             <span class="font-bold uppercase tracking-wider text-[10px] text-slate-400 block mb-2">Elenco Principal</span>
@@ -633,22 +665,22 @@
                         </div>
                         
                         <div id="vmMovieDataArea" class="hidden grid grid-cols-2 gap-2 mt-2">
-                            <div class="bg-slate-50 p-2 rounded-lg border border-slate-100 text-center">
+                            <div class="bg-slate-50 dark:bg-slate-800 p-2 rounded-lg border border-slate-100 dark:border-slate-700 text-center">
                                 <span class="font-bold uppercase tracking-wider text-[9px] text-slate-400 block mb-0.5">Orçamento</span>
-                                <span id="vmBudget" class="text-[11px] font-bold text-slate-700"></span>
+                                <span id="vmBudget" class="text-[11px] font-bold text-slate-700 dark:text-slate-300"></span>
                             </div>
-                            <div class="bg-slate-50 p-2 rounded-lg border border-slate-100 text-center">
+                            <div class="bg-slate-50 dark:bg-slate-800 p-2 rounded-lg border border-slate-100 dark:border-slate-700 text-center">
                                 <span class="font-bold uppercase tracking-wider text-[9px] text-slate-400 block mb-0.5">Bilheteria</span>
                                 <span id="vmRevenue" class="text-[11px] font-bold text-emerald-600"></span>
                             </div>
                         </div>
                         
                         <div id="vmTvDataArea" class="hidden grid grid-cols-2 gap-2 mt-2">
-                            <div class="bg-slate-50 p-2 rounded-lg border border-slate-100 text-center">
+                            <div class="bg-slate-50 dark:bg-slate-800 p-2 rounded-lg border border-slate-100 dark:border-slate-700 text-center">
                                 <span class="font-bold uppercase tracking-wider text-[9px] text-slate-400 block mb-0.5">Temporadas</span>
-                                <span id="vmSeasons" class="text-[11px] font-bold text-slate-700"></span>
+                                <span id="vmSeasons" class="text-[11px] font-bold text-slate-700 dark:text-slate-300"></span>
                             </div>
-                            <div class="bg-slate-50 p-2 rounded-lg border border-slate-100 text-center">
+                            <div class="bg-slate-50 dark:bg-slate-800 p-2 rounded-lg border border-slate-100 dark:border-slate-700 text-center">
                                 <span class="font-bold uppercase tracking-wider text-[9px] text-slate-400 block mb-0.5">Status</span>
                                 <span id="vmTvStatus" class="text-[11px] font-bold text-blue-600"></span>
                             </div>
@@ -657,9 +689,9 @@
                 </div>
 
                 <div id="vmWatchedInfo" class="hidden flex-col gap-4">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
                         <div class="flex gap-1 text-2xl text-yellow-400 drop-shadow-sm" id="vmStars"></div>
-                        <div class="text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100"><i class="fa-regular fa-calendar text-brand mr-1"></i> <span id="vmDate"></span></div>
+                        <div class="text-xs font-bold text-slate-500 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-700"><i class="fa-regular fa-calendar text-brand mr-1"></i> <span id="vmDate"></span></div>
                     </div>
                     
                     <div id="vmReviewsContainer" class="flex flex-col gap-3"></div>
@@ -675,24 +707,24 @@
                     <div id="vmPendingArea" class="hidden flex-col gap-3 p-5 bg-brand-light/20 border border-brand/20 rounded-2xl mt-2 relative overflow-hidden">
                         <div class="absolute -right-4 -bottom-4 text-brand-dark/5 text-6xl"><i class="fa-solid fa-star"></i></div>
                         <h4 class="font-bold text-brand-dark text-sm relative z-10 text-center uppercase tracking-widest"><i class="fa-solid fa-bell animate-pulse mr-1"></i> Sua vez, <span class="logged-user-name"></span>!</h4>
-                        <div class="flex justify-center gap-3 text-4xl text-slate-300 relative z-10 my-2" id="pendingStarContainer">
+                        <div class="flex justify-center gap-3 text-4xl text-slate-300 dark:text-slate-600 relative z-10 my-2" id="pendingStarContainer">
                             <i class="fa-solid fa-star cursor-pointer transition-transform hover:scale-110" onclick="setPendingRating(1)"></i>
                             <i class="fa-solid fa-star cursor-pointer transition-transform hover:scale-110" onclick="setPendingRating(2)"></i>
                             <i class="fa-solid fa-star cursor-pointer transition-transform hover:scale-110" onclick="setPendingRating(3)"></i>
                             <i class="fa-solid fa-star cursor-pointer transition-transform hover:scale-110" onclick="setPendingRating(4)"></i>
                             <i class="fa-solid fa-star cursor-pointer transition-transform hover:scale-110" onclick="setPendingRating(5)"></i>
                         </div>
-                        <textarea id="pendingReview" rows="2" placeholder="Adicione seu comentário..." class="w-full px-3 py-2 rounded-xl border border-brand/20 focus:outline-none focus:border-brand bg-white text-sm resize-none relative z-10 font-medium shadow-sm"></textarea>
+                        <textarea id="pendingReview" rows="2" placeholder="Adicione seu comentário..." class="w-full px-3 py-2 rounded-xl border border-brand/20 focus:outline-none focus:border-brand bg-white dark:bg-slate-800 dark:text-white text-sm resize-none relative z-10 font-medium shadow-sm"></textarea>
                         <button onclick="submitPendingRating()" class="bg-brand hover:bg-brand-dark text-white font-bold py-3 rounded-xl shadow-md text-sm transition-transform active:scale-[0.98] mt-2 relative z-10">Salvar Minha Avaliação</button>
                     </div>
                 </div>
 
-                <div id="vmWantInfo" class="hidden text-center py-8 text-slate-500 border-b border-slate-100 mb-4">
-                    <i class="fa-solid fa-ticket text-6xl mb-4 text-slate-200"></i>
-                    <p class="font-medium text-slate-600 text-lg leading-tight">Está na lista de desejos.<br>A pipoca já tá pronta? 🍿</p>
+                <div id="vmWantInfo" class="hidden text-center py-8 text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 mb-4">
+                    <i class="fa-solid fa-ticket text-6xl mb-4 text-slate-200 dark:text-slate-700"></i>
+                    <p class="font-medium text-slate-600 dark:text-slate-300 text-lg leading-tight">Está na lista de desejos.<br>A pipoca já tá pronta? 🍿</p>
                 </div>
 
-                <button id="vmDeleteBtn" class="w-full mt-2 bg-slate-50 border border-slate-100 hover:bg-red-50 hover:border-red-100 text-slate-400 hover:text-red-500 text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 py-3.5 rounded-xl transition-colors">
+                <button id="vmDeleteBtn" class="w-full mt-2 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 py-3.5 rounded-xl transition-colors">
                     <i class="fa-solid fa-trash-can"></i> Remover do Acervo
                 </button>
             </div>
@@ -710,49 +742,49 @@
     <!-- Modais de Contas -->
     <div id="financeModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeFinanceModal()"></div>
-        <div class="relative bg-white w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 max-h-[90vh] overflow-y-auto no-scrollbar">
+        <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 max-h-[90vh] overflow-y-auto no-scrollbar border border-slate-800">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-slate-800">Nova Conta 💸</h2>
-                <button onclick="closeFinanceModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
+                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Nova Conta 💸</h2>
+                <button onclick="closeFinanceModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
             <div class="flex flex-col gap-4">
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">O que é?</label>
-                    <input type="text" id="fin-title" placeholder="Ex: Mercado, Aluguel, Ifood..." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">O que é?</label>
+                    <input type="text" id="fin-title" placeholder="Ex: Mercado..." class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white">
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Valor Total (R$)</label>
-                    <input type="number" id="fin-amount" step="0.01" placeholder="Ex: 150.00" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Valor Total (R$)</label>
+                    <input type="number" id="fin-amount" step="0.01" placeholder="Ex: 150.00" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white">
                 </div>
                 
-                <div class="bg-blue-50/50 p-4 rounded-2xl border border-blue-100">
-                    <label class="block text-xs font-bold text-blue-800 uppercase tracking-wider mb-2">Quem Pagou?</label>
-                    <select id="fin-payer" class="w-full px-4 py-3 rounded-xl border border-blue-200 focus:outline-none focus:border-blue-500 bg-white text-slate-700 font-bold mb-3 shadow-sm">
+                <div class="bg-blue-50/50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-900/50">
+                    <label class="block text-xs font-bold text-blue-800 dark:text-blue-400 uppercase tracking-wider mb-2">Quem Pagou?</label>
+                    <select id="fin-payer" class="w-full px-4 py-3 rounded-xl border border-blue-200 dark:border-blue-800 focus:outline-none focus:border-blue-500 bg-white dark:bg-slate-800 dark:text-white font-bold mb-3 shadow-sm">
                         <option value="Luiz">Luiz</option>
                         <option value="Matheus">Matheus</option>
                     </select>
                     
-                    <label class="block text-xs font-bold text-blue-800 uppercase tracking-wider mb-2">Tipo de Divisão</label>
-                    <select id="fin-type" class="w-full px-4 py-3 rounded-xl border border-blue-200 focus:outline-none focus:border-blue-500 bg-white text-slate-700 shadow-sm">
+                    <label class="block text-xs font-bold text-blue-800 dark:text-blue-400 uppercase tracking-wider mb-2">Tipo de Divisão</label>
+                    <select id="fin-type" class="w-full px-4 py-3 rounded-xl border border-blue-200 dark:border-blue-800 focus:outline-none focus:border-blue-500 bg-white dark:bg-slate-800 dark:text-white shadow-sm">
                         <option value="split">Dividir (50% pra cada)</option>
                         <option value="full">O outro me deve o valor integral</option>
                     </select>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Data da Conta</label>
-                    <input type="date" id="fin-date" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50 text-slate-600">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Data da Conta</label>
+                    <input type="date" id="fin-date" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white text-slate-600">
                 </div>
                 <div>
-                    <label class="flex items-center gap-3 cursor-pointer bg-slate-50 p-4 rounded-xl border border-slate-200 hover:bg-slate-100 transition-colors">
+                    <label class="flex items-center gap-3 cursor-pointer bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 transition-colors">
                         <input type="checkbox" id="fin-paid" class="w-5 h-5 accent-brand rounded cursor-pointer shadow-sm">
-                        <span class="text-sm font-bold text-slate-700">Essa conta já está paga (Quitada)</span>
+                        <span class="text-sm font-bold text-slate-700 dark:text-slate-300">Essa conta já está paga</span>
                     </label>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Comprovante (Opcional)</label>
-                    <div class="relative w-full h-24 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 hover:bg-slate-100 flex flex-col items-center justify-center cursor-pointer overflow-hidden group" onclick="document.getElementById('finPhotoInput').click()">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Comprovante (Opcional)</label>
+                    <div class="relative w-full h-24 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 flex flex-col items-center justify-center cursor-pointer overflow-hidden group" onclick="document.getElementById('finPhotoInput').click()">
                         <input type="file" id="finPhotoInput" accept="image/*" class="hidden" onchange="previewFinImage(event)">
                         <div id="finUploadPlaceholder" class="flex flex-col items-center justify-center text-slate-500">
                             <i class="fa-solid fa-receipt text-2xl mb-1"></i>
@@ -770,56 +802,99 @@
 
     <div id="viewFinanceModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeViewFinanceModal()"></div>
-        <div class="relative bg-white w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 max-h-[90vh] overflow-y-auto no-scrollbar">
-            <button onclick="closeViewFinanceModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200 z-10"><i class="fa-solid fa-xmark"></i></button>
+        <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 max-h-[90vh] overflow-y-auto no-scrollbar border border-slate-800">
+            <button onclick="closeViewFinanceModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200 z-10"><i class="fa-solid fa-xmark"></i></button>
             
             <div class="flex items-center gap-3 mb-2 pr-8">
-                <div id="vf-icon" class="w-12 h-12 rounded-full bg-brand-light text-brand flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-file-invoice"></i></div>
+                <div id="vf-icon" class="w-12 h-12 rounded-full bg-brand-light dark:bg-brand/20 text-brand flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-file-invoice"></i></div>
                 <div>
-                    <h3 id="vf-title" class="font-bold text-xl text-slate-800 leading-tight"></h3>
-                    <p id="vf-date" class="text-sm text-slate-500 font-medium"></p>
+                    <h3 id="vf-title" class="font-bold text-xl text-slate-800 dark:text-white leading-tight"></h3>
+                    <p id="vf-date" class="text-sm text-slate-500 dark:text-slate-400 font-medium"></p>
                 </div>
             </div>
             
-            <div class="bg-slate-50 border border-slate-100 p-4 rounded-2xl mb-4 mt-2 text-center">
+            <div class="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-4 rounded-2xl mb-4 mt-2 text-center">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Valor Total</p>
-                <p id="vf-amount" class="text-3xl font-bold text-slate-800"></p>
+                <p id="vf-amount" class="text-3xl font-bold text-slate-800 dark:text-white"></p>
             </div>
 
-            <div id="vf-desc" class="text-sm text-slate-600 bg-white border border-slate-200 p-3 rounded-xl mb-4 font-medium text-center"></div>
+            <div id="vf-desc" class="text-sm text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 rounded-xl mb-4 font-medium text-center"></div>
             
             <div id="vf-status-box" class="flex justify-center items-center gap-2 mb-4"></div>
 
             <div id="vf-receipt-container" class="hidden flex-col items-center mb-6">
                 <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Comprovante</p>
-                <img id="vf-receipt" src="" class="w-full max-h-64 object-contain rounded-xl border border-slate-200 bg-slate-100 p-1">
+                <img id="vf-receipt" src="" class="w-full max-h-64 object-contain rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 p-1">
             </div>
 
             <button onclick="toggleFinancePaid()" id="vf-toggle-btn" class="w-full mb-3 font-bold py-3.5 rounded-xl shadow-md active:scale-[0.98] transition-transform">
                 Marcar como Pago
             </button>
-            <button onclick="deleteFinance()" class="w-full text-slate-400 hover:text-red-500 bg-slate-50 border border-slate-100 hover:bg-red-50 text-sm font-semibold flex items-center justify-center gap-2 py-3 rounded-xl transition-colors">
+            <button onclick="deleteFinance()" class="w-full text-slate-400 hover:text-red-500 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-semibold flex items-center justify-center gap-2 py-3 rounded-xl transition-colors">
                 <i class="fa-solid fa-trash-can"></i> Apagar esta conta
             </button>
         </div>
     </div>
 
-    <div id="timeSettingsModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeTimeSettings()"></div>
-        <div class="relative bg-white w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6">
+    <!-- STREAMING_CHUNK:Modais de Agenda (NOVO) -->
+    <div id="eventModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeEventModal()"></div>
+        <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 border border-slate-800">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-slate-800">Datas Especiais 💖</h2>
-                <button onclick="closeTimeSettings()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
+                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Novo Compromisso 🗓️</h2>
+                <button onclick="closeEventModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
             <div class="flex flex-col gap-4">
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Dia em que nos conhecemos</label>
-                    <input type="datetime-local" id="ts-conhecemos" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50 text-slate-600">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Título do Evento</label>
+                    <input type="text" id="ev-title" placeholder="Ex: Jantar, Médico, Viagem..." class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Data</label>
+                        <input type="date" id="ev-date" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Horário</label>
+                        <input type="time" id="ev-time" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white text-sm">
+                    </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Data do Pedido de Namoro</label>
-                    <input type="datetime-local" id="ts-namoro" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50 text-slate-600">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Cor</label>
+                    <select id="ev-color" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white">
+                        <option value="brand">Principal (Cor do Tema)</option>
+                        <option value="blue">Azul</option>
+                        <option value="emerald">Verde</option>
+                        <option value="orange">Laranja</option>
+                        <option value="purple">Roxo</option>
+                    </select>
+                </div>
+                
+                <button onclick="saveEvent()" class="mt-4 w-full bg-brand text-white font-bold py-4 rounded-xl shadow-lg active:scale-[0.98] transition-transform text-lg">
+                    Agendar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modais Tempo -->
+    <div id="timeSettingsModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeTimeSettings()"></div>
+        <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 border border-slate-800">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Datas Especiais 💖</h2>
+                <button onclick="closeTimeSettings()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="flex flex-col gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Dia em que nos conhecemos</label>
+                    <input type="datetime-local" id="ts-conhecemos" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Data do Pedido de Namoro</label>
+                    <input type="datetime-local" id="ts-namoro" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white">
                 </div>
                 <button onclick="saveTimeSettings()" class="mt-4 w-full bg-brand text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-[0.98] transition-transform">
                     Salvar Tempo
@@ -835,11 +910,13 @@
 
         let currentUser = null;
 
+        // Map & Album
         let map;
         let markersGroup;
         let memories = [];
         let albumIsBookMode = false;
         
+        // Entertainment
         let movies = [];
         let shows = [];
         let currentFilter = { movie: 'all', tv: 'all' };
@@ -855,11 +932,18 @@
         let smRating = 5;
         let pRating = 5;
 
+        // Finances
         let finances = [];
         let currentFinFilter = 'all';
         let currentFinCompressedImage = null;
         let currentViewFinanceId = null;
 
+        // Calendar / Agenda
+        let agendaEvents = [];
+        let currentCalMonth = new Date().getMonth();
+        let currentCalYear = new Date().getFullYear();
+
+        // Time
         let coupleDates = { conhecemos: null, namoro: null };
         let timerInterval = null;
         let currentListFilter = { movie: '', tv: '' };
@@ -869,7 +953,26 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             checkLogin();
+            document.getElementById('darkModeToggle').checked = localStorage.getItem('couple_app_dark') === 'true';
         });
+
+        // ==========================================
+        // 1. SISTEMA DE IDENTIDADE E TEMAS
+        // ==========================================
+        function setAppColor(colorName) {
+            document.documentElement.setAttribute('data-theme', colorName);
+            localStorage.setItem('couple_app_theme', colorName);
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.getElementById('darkModeToggle').checked;
+            if(isDark) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            localStorage.setItem('couple_app_dark', isDark);
+        }
 
         function checkLogin() {
             const savedUser = localStorage.getItem('couple_app_user');
@@ -908,6 +1011,9 @@
             }, 6000);
         }
 
+        // ==========================================
+        // 2. FIREBASE SYNC
+        // ==========================================
         function setupFirebaseSync() {
             db.ref('memories').on('value', (snap) => {
                 const data = snap.val();
@@ -937,6 +1043,13 @@
                 renderFinances();
             });
 
+            db.ref('events').on('value', (snap) => {
+                const data = snap.val();
+                agendaEvents = data ? Object.values(data) : [];
+                renderCalendar();
+                renderUpcomingEvents();
+            });
+
             db.ref('settings/dates').on('value', (snap) => {
                 const data = snap.val();
                 if(data) coupleDates = data;
@@ -952,7 +1065,7 @@
         }
 
         // ==========================================
-        // MAPA & DIÁRIO
+        // 3. MAPA & DIÁRIO
         // ==========================================
         function initMap() {
             if(map) return; 
@@ -1053,59 +1166,59 @@
             });
             
             if (filtered.length === 0) {
-                list.className = "flex-1 overflow-y-auto p-4 flex flex-col gap-6 pt-6 bg-[#f4f1ea]"; 
-                list.innerHTML = `<div class="text-center text-slate-400 mt-20"><i class="fa-solid fa-ghost text-5xl mb-4 opacity-30"></i><p class="font-journal text-2xl">O álbum está vazio...</p></div>`;
+                list.className = "flex-1 overflow-y-auto p-4 flex flex-col gap-6 pt-6"; 
+                list.innerHTML = `<div class="text-center text-slate-400 mt-20"><i class="fa-solid fa-ghost text-5xl mb-4 opacity-30"></i><p class="font-journal text-2xl dark:text-slate-300">O álbum está vazio...</p></div>`;
                 return;
             }
 
             filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             if(albumIsBookMode) {
-                list.className = "flex-1 overflow-y-auto p-4 pt-6 bg-[#f4f1ea] grid grid-cols-2 gap-4 pb-20 items-start";
+                list.className = "flex-1 overflow-y-auto p-4 pt-6 grid grid-cols-2 gap-4 pb-20 items-start";
                 filtered.forEach((mem, index) => {
                     const isHidden = mem.isHidden || false;
                     const opacityClass = isHidden ? 'opacity-50 grayscale' : '';
                     const rotClass = index % 2 === 0 ? 'rotated-left' : 'rotated-right';
                     
                     const item = document.createElement('div');
-                    item.className = `polaroid-frame w-full cursor-pointer group ${rotClass} border border-slate-200 ${opacityClass}`;
+                    item.className = `polaroid-frame w-full cursor-pointer group ${rotClass} border border-slate-200 dark:border-slate-700 ${opacityClass}`;
                     item.onclick = () => panToMemory(mem.id);
                     item.innerHTML = `
                         <div class="tape"></div>
-                        <div class="aspect-square w-full bg-slate-100 overflow-hidden border border-slate-100">
-                            ${mem.image ? `<img src="${mem.image}" class="w-full h-full object-cover grayscale-[15%] sepia-[15%] group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-500">` : `<div class="w-full h-full flex items-center justify-center bg-slate-200"><i class="fa-solid fa-camera text-slate-400 text-xl"></i></div>`}
+                        <div class="aspect-square w-full bg-slate-100 dark:bg-slate-800 overflow-hidden border border-slate-100 dark:border-slate-700">
+                            ${mem.image ? `<img src="${mem.image}" class="w-full h-full object-cover grayscale-[15%] sepia-[15%] group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-500">` : `<div class="w-full h-full flex items-center justify-center bg-slate-200 dark:bg-slate-700"><i class="fa-solid fa-camera text-slate-400 text-xl"></i></div>`}
                         </div>
                         <div class="mt-2 text-center relative">
-                            <h4 class="font-journal font-bold text-slate-800 text-base leading-tight truncate">${mem.title}</h4>
+                            <h4 class="font-journal font-bold text-slate-800 dark:text-slate-200 text-base leading-tight truncate">${mem.title}</h4>
                             <p class="font-journal text-slate-500 text-xs">${formatDateBR(mem.date)}</p>
                         </div>
-                        <button onclick="toggleVisibility('${mem.id}', event)" class="absolute bottom-2 right-2 w-6 h-6 flex items-center justify-center rounded-full hover:bg-slate-100 z-20">
+                        <button onclick="toggleVisibility('${mem.id}', event)" class="absolute bottom-2 right-2 w-6 h-6 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 z-20">
                             <i class="fa-solid ${isHidden ? 'fa-eye-slash text-slate-300' : 'fa-eye text-brand'} text-[10px]"></i>
                         </button>
                     `;
                     list.appendChild(item);
                 });
             } else {
-                list.className = "flex-1 overflow-y-auto p-4 flex flex-col gap-8 pt-6 bg-[#f4f1ea] pb-20";
+                list.className = "flex-1 overflow-y-auto p-4 flex flex-col gap-8 pt-6 pb-20";
                 filtered.forEach((mem, index) => {
                     const isHidden = mem.isHidden || false;
                     const opacityClass = isHidden ? 'opacity-50 grayscale' : '';
                     const rotClass = index % 2 === 0 ? 'rotated-left' : 'rotated-right';
                     
                     const item = document.createElement('div');
-                    item.className = `polaroid-frame w-[90%] mx-auto cursor-pointer group ${rotClass} border border-slate-200 ${opacityClass}`;
+                    item.className = `polaroid-frame w-[90%] mx-auto cursor-pointer group ${rotClass} border border-slate-200 dark:border-slate-700 ${opacityClass}`;
                     item.onclick = () => panToMemory(mem.id);
                     item.innerHTML = `
                         <div class="tape w-24 h-6 -top-3"></div>
-                        <div class="aspect-square w-full bg-slate-100 overflow-hidden border border-slate-100">
-                            ${mem.image ? `<img src="${mem.image}" class="w-full h-full object-cover grayscale-[15%] sepia-[15%] group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-500">` : `<div class="w-full h-full flex items-center justify-center bg-slate-200"><i class="fa-solid fa-camera text-slate-400 text-4xl"></i></div>`}
+                        <div class="aspect-square w-full bg-slate-100 dark:bg-slate-800 overflow-hidden border border-slate-100 dark:border-slate-700">
+                            ${mem.image ? `<img src="${mem.image}" class="w-full h-full object-cover grayscale-[15%] sepia-[15%] group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-500">` : `<div class="w-full h-full flex items-center justify-center bg-slate-200 dark:bg-slate-700"><i class="fa-solid fa-camera text-slate-400 text-4xl"></i></div>`}
                         </div>
                         <div class="mt-4 px-2 relative">
-                            <h4 class="font-journal font-bold text-slate-800 text-2xl leading-none">${mem.title}</h4>
+                            <h4 class="font-journal font-bold text-slate-800 dark:text-slate-200 text-2xl leading-none">${mem.title}</h4>
                             <p class="font-journal text-slate-500 text-sm mt-1">${formatDateBR(mem.date)}</p>
-                            ${mem.notes ? `<p class="font-journal text-slate-700 text-lg mt-3 leading-tight line-clamp-3 italic">"${mem.notes}"</p>` : ''}
+                            ${mem.notes ? `<p class="font-journal text-slate-700 dark:text-slate-400 text-lg mt-3 leading-tight line-clamp-3 italic">"${mem.notes}"</p>` : ''}
                         </div>
-                        <button onclick="toggleVisibility('${mem.id}', event)" class="absolute bottom-3 right-3 w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 z-20">
+                        <button onclick="toggleVisibility('${mem.id}', event)" class="absolute bottom-3 right-3 w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 z-20">
                             <i class="fa-solid ${isHidden ? 'fa-eye-slash text-slate-300' : 'fa-eye text-brand'} text-sm"></i>
                         </button>
                     `;
@@ -1215,7 +1328,7 @@
         });
 
         // ==========================================
-        // ENTRETENIMENTO (FILMES E SÉRIES) 🍿📺
+        // 4. ENTRETENIMENTO (FILMES E SÉRIES) 🍿📺
         // ==========================================
         function getActiveArray(type) { return type === 'movie' ? movies : shows; }
         
@@ -1327,13 +1440,13 @@
             const title = type === 'movie' ? m.title : m.name;
             
             const item = document.createElement('div');
-            item.className = 'flex gap-3 bg-white p-3 rounded-xl shadow-sm border border-slate-100 cursor-pointer hover:border-brand active:scale-[0.98] transition-all';
+            item.className = 'flex gap-3 bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 cursor-pointer hover:border-brand active:scale-[0.98] transition-all';
             item.onclick = () => openSaveItemModal(m.id, title, year, posterPath, m.genre_ids, type);
             item.innerHTML = `
                 <img src="${posterPath}" class="w-16 h-24 object-cover rounded-lg bg-slate-200 shrink-0">
                 <div class="flex-1 min-w-0 flex flex-col justify-center">
-                    <h4 class="font-bold text-slate-800 truncate">${title}</h4>
-                    <p class="text-xs text-slate-500 font-medium">${year} ${m.vote_average ? ` • <i class="fa-solid fa-star text-yellow-400"></i> ${m.vote_average.toFixed(1)}` : ''}</p>
+                    <h4 class="font-bold text-slate-800 dark:text-white truncate">${title}</h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">${year} ${m.vote_average ? ` • <i class="fa-solid fa-star text-yellow-400"></i> ${m.vote_average.toFixed(1)}` : ''}</p>
                     <p class="text-[11px] text-slate-400 mt-1 line-clamp-2">${m.overview || 'Sem sinopse.'}</p>
                 </div>
             `;
@@ -1352,12 +1465,12 @@
                 const b = document.getElementById(btns[key]);
                 if(!b) continue;
                 if(key === f) {
-                    b.className = "px-4 py-1.5 rounded-full bg-slate-800 text-white text-xs font-bold shadow-sm whitespace-nowrap transition-colors";
+                    b.className = "px-4 py-1.5 rounded-full bg-slate-800 dark:bg-white text-white dark:text-slate-800 text-xs font-bold shadow-sm whitespace-nowrap transition-colors";
                 } else {
-                    let colorClass = "text-slate-600";
-                    if(key === 'want') colorClass = "text-blue-600";
-                    if(key === 'watched') colorClass = "text-emerald-600";
-                    b.className = `px-4 py-1.5 rounded-full bg-slate-100 ${colorClass} hover:bg-slate-200 text-xs font-bold whitespace-nowrap transition-colors`;
+                    let colorClass = "text-slate-600 dark:text-slate-300";
+                    if(key === 'want') colorClass = "text-blue-600 dark:text-blue-400";
+                    if(key === 'watched') colorClass = "text-emerald-600 dark:text-emerald-400";
+                    b.className = `px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 ${colorClass} hover:bg-slate-200 dark:hover:bg-slate-600 text-xs font-bold whitespace-nowrap transition-colors`;
                 }
             }
             renderGrid(type);
@@ -1376,10 +1489,10 @@
                 if(!b) continue;
                 if(key==='trending') b.className = "px-4 py-1.5 rounded-full bg-orange-500 text-white text-xs font-bold shadow-md whitespace-nowrap transition-colors";
                 else {
-                    let colorClass = "text-slate-600";
-                    if(key === 'want') colorClass = "text-blue-600";
-                    if(key === 'watched') colorClass = "text-emerald-600";
-                    b.className = `px-4 py-1.5 rounded-full bg-slate-100 ${colorClass} hover:bg-slate-200 text-xs font-bold whitespace-nowrap transition-colors`;
+                    let colorClass = "text-slate-600 dark:text-slate-300";
+                    if(key === 'want') colorClass = "text-blue-600 dark:text-blue-400";
+                    if(key === 'watched') colorClass = "text-emerald-600 dark:text-emerald-400";
+                    b.className = `px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 ${colorClass} hover:bg-slate-200 dark:hover:bg-slate-600 text-xs font-bold whitespace-nowrap transition-colors`;
                 }
             }
 
@@ -1409,7 +1522,7 @@
                     const title = type === 'movie' ? m.title : m.name;
                     
                     const div = document.createElement('div');
-                    div.className = 'group relative bg-slate-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-slate-100/50 flex flex-col cursor-pointer transform transition-all duration-300 hover:-translate-y-1';
+                    div.className = 'group relative bg-slate-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-slate-100/50 dark:border-slate-700 flex flex-col cursor-pointer transform transition-all duration-300 hover:-translate-y-1';
                     div.onclick = () => { currentExploreType = type; openSaveItemModal(m.id, title, year, posterPath, m.genre_ids, type); };
                     
                     div.innerHTML = `
@@ -1478,7 +1591,7 @@
                     ).join('');
 
                     const div = document.createElement('div');
-                    div.className = 'group relative bg-slate-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-slate-100/50 flex flex-col cursor-pointer transform transition-all duration-300 hover:-translate-y-1';
+                    div.className = 'group relative bg-slate-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-slate-100/50 dark:border-slate-700 flex flex-col cursor-pointer transform transition-all duration-300 hover:-translate-y-1';
                     div.onclick = () => { currentExploreType = type; openViewItemModal(item); }
 
                     let statusBadge = item.status === 'want' 
@@ -1539,10 +1652,10 @@
                 listsContainer.classList.remove('hidden');
                 listsContainer.classList.add('flex');
                 
-                let lHtml = `<button onclick="setListFilter('${type}', '')" class="px-4 py-1.5 rounded-full text-[10px] uppercase tracking-wider font-bold shadow-sm whitespace-nowrap transition-all ${currentListFilter[type] === '' ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 border border-slate-200'}">Todas</button>`;
+                let lHtml = `<button onclick="setListFilter('${type}', '')" class="px-4 py-1.5 rounded-full text-[10px] uppercase tracking-wider font-bold shadow-sm whitespace-nowrap transition-all ${currentListFilter[type] === '' ? 'bg-slate-800 dark:bg-white text-white dark:text-slate-800' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-white border border-slate-200 dark:border-slate-700'}">Todas</button>`;
                 Array.from(uniqueLists).forEach(list => {
                     if(list) {
-                        lHtml += `<button onclick="setListFilter('${type}', '${list}')" class="px-4 py-1.5 rounded-full text-[10px] uppercase tracking-wider font-bold shadow-sm whitespace-nowrap transition-all ${currentListFilter[type] === list ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 border border-slate-200'}">${list}</button>`;
+                        lHtml += `<button onclick="setListFilter('${type}', '${list}')" class="px-4 py-1.5 rounded-full text-[10px] uppercase tracking-wider font-bold shadow-sm whitespace-nowrap transition-all ${currentListFilter[type] === list ? 'bg-slate-800 dark:bg-white text-white dark:text-slate-800' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-white border border-slate-200 dark:border-slate-700'}">${list}</button>`;
                     }
                 });
                 listsContainer.innerHTML = lHtml;
@@ -1552,7 +1665,6 @@
             }
         }
 
-        // SALVAR E VISUALIZAR
         function openSaveItemModal(id, title, year, posterUrl, genres, type) {
             currentExploreType = type;
             tempItemData = { id, title, year, poster: posterUrl, genres: genres, type: type };
@@ -1622,7 +1734,7 @@
                                 castContainer.innerHTML += `
                                     <div class="flex flex-col items-center gap-1 min-w-[55px] max-w-[65px]">
                                         <img src="${img}" class="w-12 h-12 rounded-full object-cover border border-slate-200 shadow-sm">
-                                        <span class="text-[9px] font-bold text-slate-600 text-center leading-tight truncate w-full">${actor.name}</span>
+                                        <span class="text-[9px] font-bold text-slate-600 dark:text-slate-300 text-center leading-tight truncate w-full">${actor.name}</span>
                                     </div>
                                 `;
                             });
@@ -1659,12 +1771,12 @@
             const fields = document.getElementById('sm-watched-fields');
 
             if (status === 'want') {
-                btnWant.className = "flex-1 py-2.5 rounded-lg text-sm font-bold bg-white text-brand shadow-sm transition-all";
+                btnWant.className = "flex-1 py-2.5 rounded-lg text-sm font-bold bg-white dark:bg-slate-700 text-brand shadow-sm transition-all";
                 btnWatched.className = "flex-1 py-2.5 rounded-lg text-sm font-bold text-slate-500 hover:text-slate-700 transition-all";
                 fields.classList.add('hidden');
                 fields.classList.remove('flex');
             } else {
-                btnWatched.className = "flex-1 py-2.5 rounded-lg text-sm font-bold bg-white text-brand shadow-sm transition-all";
+                btnWatched.className = "flex-1 py-2.5 rounded-lg text-sm font-bold bg-white dark:bg-slate-700 text-brand shadow-sm transition-all";
                 btnWant.className = "flex-1 py-2.5 rounded-lg text-sm font-bold text-slate-500 hover:text-slate-700 transition-all";
                 fields.classList.remove('hidden');
                 fields.classList.add('flex');
@@ -1676,10 +1788,10 @@
             const stars = document.getElementById('starRatingContainer').children;
             for(let i=0; i<5; i++) {
                 if(i < val) {
-                    stars[i].classList.remove('text-slate-200');
+                    stars[i].classList.remove('text-slate-200', 'dark:text-slate-700');
                     stars[i].classList.add('text-yellow-400');
                 } else {
-                    stars[i].classList.add('text-slate-200');
+                    stars[i].classList.add('text-slate-200', 'dark:text-slate-700');
                     stars[i].classList.remove('text-yellow-400');
                 }
             }
@@ -1722,10 +1834,10 @@
             const stars = document.getElementById('pendingStarContainer').children;
             for(let i=0; i<5; i++) {
                 if(i < val) {
-                    stars[i].classList.remove('text-slate-300');
+                    stars[i].classList.remove('text-slate-300', 'dark:text-slate-600');
                     stars[i].classList.add('text-yellow-400');
                 } else {
-                    stars[i].classList.add('text-slate-300');
+                    stars[i].classList.add('text-slate-300', 'dark:text-slate-600');
                     stars[i].classList.remove('text-yellow-400');
                 }
             }
@@ -1741,6 +1853,11 @@
             
             showCustomMessage("Avaliação salva! 🎉");
             closeViewItemModal();
+        }
+
+        function formatMoney(value) {
+            if(!value || value === 0) return '-';
+            return '$' + (value / 1000000).toFixed(1) + 'M';
         }
 
         function openViewItemModal(item) {
@@ -1790,7 +1907,7 @@
                     const starsDiv = document.getElementById('vmStars');
                     starsDiv.innerHTML = Array(5).fill(0).map((_, i) => 
                         `<i class="fa-solid fa-star ${i < Math.round(safeAvg) ? 'text-yellow-400' : 'text-slate-200'} drop-shadow-sm"></i>`
-                    ).join('') + `<span class="text-slate-700 font-bold ml-2 text-xl">${safeAvg.toFixed(1)}</span>`;
+                    ).join('') + `<span class="text-slate-700 dark:text-slate-300 font-bold ml-2 text-xl">${safeAvg.toFixed(1)}</span>`;
 
                     const reviewsContainer = document.getElementById('vmReviewsContainer');
                     reviewsContainer.innerHTML = '';
@@ -1807,15 +1924,15 @@
                             const avatarColor = personName === 'Luiz' ? 'bg-blue-100 text-blue-500' : 'bg-emerald-100 text-emerald-500';
                             
                             const rHtml = `
-                                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 relative">
+                                <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 relative">
                                     <div class="flex justify-between items-center mb-2">
                                         <div class="flex items-center gap-2">
                                             <div class="w-6 h-6 rounded-full ${avatarColor} flex items-center justify-center text-[10px]"><i class="fa-solid fa-user"></i></div>
-                                            <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">${personName}</span>
+                                            <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">${personName}</span>
                                         </div>
-                                        <span class="text-xs font-bold text-yellow-500 bg-white px-2 py-0.5 rounded-full border border-yellow-100 shadow-sm"><i class="fa-solid fa-star"></i> ${personRating}</span>
+                                        <span class="text-xs font-bold text-yellow-500 bg-white dark:bg-slate-700 px-2 py-0.5 rounded-full border border-yellow-100 dark:border-slate-600 shadow-sm"><i class="fa-solid fa-star"></i> ${personRating}</span>
                                     </div>
-                                    ${reviewTxt ? `<p class="text-slate-600 text-sm leading-relaxed mt-2 italic border-l-2 border-slate-200 pl-2">"${reviewTxt}"</p>` : ''}
+                                    ${reviewTxt ? `<p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mt-2 italic border-l-2 border-slate-200 dark:border-slate-600 pl-2">"${reviewTxt}"</p>` : ''}
                                 </div>
                             `;
                             reviewsContainer.innerHTML += rHtml;
@@ -1894,7 +2011,7 @@
                                     castContainer.innerHTML += `
                                         <div class="flex flex-col items-center gap-1 min-w-[55px] max-w-[65px]">
                                             <img src="${img}" class="w-12 h-12 rounded-full object-cover border border-slate-200 shadow-sm">
-                                            <span class="text-[9px] font-bold text-slate-600 text-center leading-tight truncate w-full">${actor.name}</span>
+                                            <span class="text-[9px] font-bold text-slate-600 dark:text-slate-300 text-center leading-tight truncate w-full">${actor.name}</span>
                                         </div>
                                     `;
                                 });
@@ -2019,7 +2136,7 @@
         }
 
         // ==========================================
-        // ABA: NOSSAS CONTAS 💸
+        // 5. ABA: NOSSAS CONTAS 💸
         // ==========================================
         function openFinanceModal() {
             document.getElementById('fin-title').value = '';
@@ -2076,7 +2193,7 @@
             for(let key in btns) {
                 const b = document.getElementById(btns[key]);
                 if(key === f) b.className = "px-4 py-2 rounded-full bg-brand text-white text-sm font-bold shadow-md whitespace-nowrap transition-colors";
-                else b.className = "px-4 py-2 rounded-full bg-white text-slate-600 border border-slate-200 text-sm font-bold whitespace-nowrap transition-colors";
+                else b.className = "px-4 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-sm font-bold whitespace-nowrap transition-colors";
             }
             renderFinances();
         }
@@ -2139,18 +2256,18 @@
                         : `<span class="bg-red-100 text-red-600 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider uppercase">Pendente</span>`;
 
                     const div = document.createElement('div');
-                    div.className = 'bg-white p-3 rounded-xl shadow-sm border border-slate-100 flex items-center gap-3 cursor-pointer hover:border-brand active:scale-[0.98] transition-all';
+                    div.className = 'bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center gap-3 cursor-pointer hover:border-brand active:scale-[0.98] transition-all';
                     div.onclick = () => openViewFinance(f.id);
                     div.innerHTML = `
                         <div class="w-10 h-10 rounded-full ${f.paid ? 'bg-emerald-50 text-emerald-500' : 'bg-blue-50 text-blue-500'} flex items-center justify-center shrink-0 text-lg">
                             <i class="fa-solid ${f.type==='split' ? 'fa-divide' : 'fa-handshake'}"></i>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <h4 class="font-bold text-slate-800 text-sm truncate leading-tight">${f.title}</h4>
+                            <h4 class="font-bold text-slate-800 dark:text-white text-sm truncate leading-tight">${f.title}</h4>
                             <p class="text-[11px] text-slate-500 truncate">${desc}</p>
                         </div>
                         <div class="text-right shrink-0 flex flex-col items-end gap-1">
-                            <span class="font-bold text-slate-800 text-sm">R$ ${f.amount.toFixed(2).replace('.',',')}</span>
+                            <span class="font-bold text-slate-800 dark:text-white text-sm">R$ ${f.amount.toFixed(2).replace('.',',')}</span>
                             ${statusBadge}
                         </div>
                     `;
@@ -2187,7 +2304,7 @@
             if(f.paid) {
                 statusBox.innerHTML = `<div class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2 w-full justify-center"><i class="fa-solid fa-check-circle text-lg"></i> Resolvido (Pago)</div>`;
                 btn.innerText = "Desfazer (Marcar como Pendente)";
-                btn.className = "w-full mb-3 bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200 font-bold py-3.5 rounded-xl transition-colors";
+                btn.className = "w-full mb-3 bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200 dark:border-slate-700 font-bold py-3.5 rounded-xl transition-colors";
             } else {
                 statusBox.innerHTML = `<div class="bg-red-50 text-red-600 border border-red-200 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2 w-full justify-center"><i class="fa-solid fa-clock text-lg"></i> Pagamento Pendente</div>`;
                 btn.innerText = "Marcar como Pago";
@@ -2224,6 +2341,133 @@
             }
         }
 
+        // ==========================================
+        // 5.5 ABA: AGENDA 📅 (NOVO)
+        // ==========================================
+        function changeMonth(dir) {
+            currentCalMonth += dir;
+            if(currentCalMonth > 11) { currentCalMonth = 0; currentCalYear++; }
+            else if(currentCalMonth < 0) { currentCalMonth = 11; currentCalYear--; }
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            const monthYearTxt = document.getElementById('calendar-month-year');
+            if(!grid || !monthYearTxt) return;
+
+            const firstDay = new Date(currentCalYear, currentCalMonth, 1).getDay();
+            const daysInMonth = new Date(currentCalYear, currentCalMonth + 1, 0).getDate();
+            
+            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            monthYearTxt.innerText = `${monthNames[currentCalMonth]} ${currentCalYear}`;
+            
+            grid.innerHTML = '';
+            
+            for(let i=0; i<firstDay; i++) grid.innerHTML += `<div class="p-2"></div>`;
+            
+            const today = new Date();
+            
+            for(let i=1; i<=daysInMonth; i++) {
+                const dateStr = `${currentCalYear}-${String(currentCalMonth+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+                const dayEvents = agendaEvents.filter(e => e.date === dateStr);
+                
+                const isToday = today.getDate() === i && today.getMonth() === currentCalMonth && today.getFullYear() === currentCalYear;
+                const bgClass = isToday ? 'bg-brand text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700';
+                
+                let dots = '';
+                if(dayEvents.length > 0) {
+                    dots = `<div class="flex justify-center gap-0.5 mt-1 flex-wrap w-full px-1">`;
+                    dayEvents.forEach((ev, idx) => {
+                        if(idx < 3) {
+                            let color = ev.color === 'brand' ? 'bg-brand' : `bg-${ev.color}-500`;
+                            if(isToday && ev.color === 'brand') color = 'bg-white';
+                            dots += `<div class="w-1.5 h-1.5 rounded-full ${color}"></div>`;
+                        }
+                    });
+                    if(dayEvents.length > 3) dots += `<div class="w-1.5 h-1.5 rounded-full bg-slate-300 text-[6px] flex items-center justify-center">+</div>`;
+                    dots += `</div>`;
+                }
+                
+                grid.innerHTML += `
+                    <div class="p-1 aspect-square flex flex-col items-center justify-center rounded-xl cursor-pointer transition-colors ${bgClass}">
+                        <span class="text-sm font-bold leading-none">${i}</span>
+                        ${dots}
+                    </div>
+                `;
+            }
+        }
+
+        function renderUpcomingEvents() {
+            const list = document.getElementById('upcoming-events-list');
+            const empty = document.getElementById('upcoming-events-empty');
+            if(!list || !empty) return;
+            list.innerHTML = '';
+
+            const todayStr = new Date().toISOString().split('T')[0];
+            const upcoming = agendaEvents.filter(e => e.date >= todayStr).sort((a,b) => new Date(a.date) - new Date(b.date));
+
+            if(upcoming.length === 0) {
+                empty.classList.remove('hidden'); empty.classList.add('flex');
+            } else {
+                empty.classList.add('hidden'); empty.classList.remove('flex');
+                upcoming.slice(0, 5).forEach(ev => {
+                    const c = ev.color === 'brand' ? 'brand' : `${ev.color}-500`;
+                    const bgC = ev.color === 'brand' ? 'brand-light' : `${ev.color}-100`;
+                    
+                    const div = document.createElement('div');
+                    div.className = 'bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center gap-3 relative overflow-hidden';
+                    div.innerHTML = `
+                        <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-${c}"></div>
+                        <div class="flex-1 min-w-0 pl-2">
+                            <h4 class="font-bold text-slate-800 dark:text-white text-sm truncate leading-tight">${ev.title}</h4>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400"><i class="fa-regular fa-calendar mr-1"></i> ${formatDateBR(ev.date)} ${ev.time ? `às ${ev.time}` : ''}</p>
+                        </div>
+                        <button onclick="deleteEvent('${ev.id}')" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700 text-slate-400 hover:text-red-500 flex items-center justify-center transition-colors"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                    `;
+                    list.appendChild(div);
+                });
+            }
+        }
+
+        function openAddEventModal() {
+            document.getElementById('ev-title').value = '';
+            document.getElementById('ev-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('ev-time').value = '';
+            document.getElementById('ev-color').value = 'brand';
+            document.getElementById('eventModal').classList.remove('hidden');
+        }
+
+        function closeEventModal() { document.getElementById('eventModal').classList.add('hidden'); }
+
+        function saveEvent() {
+            const title = document.getElementById('ev-title').value.trim();
+            const date = document.getElementById('ev-date').value;
+            if(!title || !date) { showCustomMessage("Preencha o título e a data!"); return; }
+
+            const id = 'ev_' + Date.now();
+            db.ref('events/' + id).set({
+                id: id,
+                title: title,
+                date: date,
+                time: document.getElementById('ev-time').value,
+                color: document.getElementById('ev-color').value,
+                timestamp: Date.now()
+            });
+            closeEventModal();
+            showCustomMessage("Agendado!");
+        }
+
+        function deleteEvent(id) {
+            if(confirm("Remover este compromisso?")) {
+                db.ref('events/' + id).remove();
+                showCustomMessage("Removido.");
+            }
+        }
+
+        // ==========================================
+        // 6. ABA: NOSSO TEMPO ⏳
+        // ==========================================
         function openTimeSettings() {
             document.getElementById('ts-conhecemos').value = coupleDates.conhecemos || '';
             document.getElementById('ts-namoro').value = coupleDates.namoro || '';
@@ -2311,7 +2555,7 @@
         function buildCounterHTML(boxes, isDarkTheme) {
             const boxClass = isDarkTheme 
                 ? "flex flex-col items-center justify-center bg-white/10 backdrop-blur-md p-2 md:p-3 rounded-xl border border-white/20 shadow-sm"
-                : "flex flex-col items-center justify-center bg-slate-50 p-2 md:p-3 rounded-xl border border-slate-100 shadow-sm";
+                : "flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800 p-2 md:p-3 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm";
             
             const numClass = isDarkTheme 
                 ? "text-2xl md:text-3xl font-black text-white tabular-nums tracking-tighter"
@@ -2319,7 +2563,7 @@
                 
             const labelClass = isDarkTheme
                 ? "text-[9px] md:text-xs font-bold text-white/70 uppercase tracking-widest mt-1"
-                : "text-[9px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mt-1";
+                : "text-[9px] md:text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1";
 
             return boxes.map(b => `
                 <div class="${boxClass}">
@@ -2335,6 +2579,7 @@
                 'movies': document.getElementById('tab-movies'),
                 'shows': document.getElementById('tab-shows'),
                 'finances': document.getElementById('tab-finances'),
+                'calendar': document.getElementById('tab-calendar'),
                 'time': document.getElementById('tab-time')
             };
             const btns = {
@@ -2342,6 +2587,7 @@
                 'movies': document.getElementById('nav-btn-movies'),
                 'shows': document.getElementById('nav-btn-shows'),
                 'finances': document.getElementById('nav-btn-finances'),
+                'calendar': document.getElementById('nav-btn-calendar'),
                 'time': document.getElementById('nav-btn-time')
             };
 
@@ -2350,18 +2596,18 @@
                     tabs[key].classList.remove('opacity-0', 'pointer-events-none', 'z-0');
                     tabs[key].classList.add('z-10');
                     btns[key].classList.add('text-brand');
-                    btns[key].classList.remove('text-slate-400');
+                    btns[key].classList.remove('text-slate-400', 'dark:text-slate-500');
                     if (key === 'map') setTimeout(() => map.invalidateSize(), 100);
+                    if (key === 'calendar') setTimeout(() => { renderCalendar(); renderUpcomingEvents(); }, 100);
                 } else {
                     tabs[key].classList.add('opacity-0', 'pointer-events-none', 'z-0');
                     tabs[key].classList.remove('z-10');
                     btns[key].classList.remove('text-brand');
-                    btns[key].classList.add('text-slate-400');
+                    btns[key].classList.add('text-slate-400', 'dark:text-slate-500');
                 }
             }
         }
     </script>
 </body>
 </html>
-
 ```eof
