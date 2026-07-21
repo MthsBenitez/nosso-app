@@ -38,7 +38,8 @@
         body { margin: 0; padding: 0; background-color: #f8fafc; }
         #map { width: 100%; height: 100%; z-index: 1; }
 
-        .custom-heart-marker { display: flex; justify-content: center; align-items: center; background: none; border: none; }
+        /* Correção: Adicionado cursor: pointer e pointer-events para garantir clique em todos os celulares */
+        .custom-heart-marker { display: flex; justify-content: center; align-items: center; background: none; border: none; cursor: pointer; pointer-events: auto !important; }
         .custom-heart-marker i { color: #fb7185; font-size: 28px; filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.3)); transition: transform 0.2s; }
         .custom-heart-marker:hover i { transform: scale(1.2); color: #be123c; }
 
@@ -803,7 +804,9 @@
         // ==========================================
         function initMap() {
             if(map) return; // Evita reinicializar
-            map = L.map('map', { zoomControl: false, tap: false }).setView(CURITIBA_COORDS, 13);
+            
+            // CORREÇÃO CRÍTICA: A remoção do "tap: false" aqui resolve os bugs de não conseguir clicar na tela ou no coração (especialmente em iOS)
+            map = L.map('map', { zoomControl: false }).setView(CURITIBA_COORDS, 13);
             L.control.zoom({ position: 'bottomleft' }).addTo(map);
 
             L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
@@ -856,7 +859,7 @@
             });
 
             memories.forEach(memory => {
-                if (memory.isHidden) return;
+                if (memory.isHidden || !memory.lat || !memory.lng) return;
                 const marker = L.marker([memory.lat, memory.lng], { icon: heartIcon });
                 marker.on('click', () => openViewMemoryPanel(memory));
                 markersGroup.addLayer(marker);
@@ -1018,7 +1021,7 @@
         // ==========================================
         function checkMovieNotifications() {
             if (!currentUser) return;
-            // Verifica quantos filmes estão "watched" mas o current user não deu nota.
+            // Correção da Avaliação: Verifica corretamente e de forma segura
             const pendingCount = movies.filter(m => m.status === 'watched' && (!m.ratings || !m.ratings[currentUser])).length;
             
             const notifBanner = document.getElementById('moviesNotification');
@@ -1170,7 +1173,7 @@
                         : `<div class="absolute top-2 right-2 bg-emerald-500/90 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded-full shadow-sm flex items-center gap-1 z-10 border border-white/20"><i class="fa-solid fa-star text-yellow-300"></i> ${avgRating.toFixed(1)}</div>`;
 
                     let pendingBadge = '';
-                    if (movie.status === 'watched' && currentUser && movie.ratings && !movie.ratings[currentUser]) {
+                    if (movie.status === 'watched' && currentUser && (!movie.ratings || !movie.ratings[currentUser])) {
                         pendingBadge = `<div class="absolute top-2 left-2 bg-rose-500/95 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md animate-pulse z-10 border border-white/20">🔴 AVALIAR</div>`;
                     }
                     
@@ -1317,7 +1320,6 @@
                 moviePayload.reviews = {};
                 moviePayload.reviews[currentUser] = document.getElementById('smReview').value;
                 
-                // Se a foto foi anexada, guarda ela aqui
                 if(currentCompressedMovieImage) {
                     moviePayload.photo = currentCompressedMovieImage;
                 }
@@ -1418,7 +1420,6 @@
                     });
                 }
                 
-                // Exibe a Foto (Polaroid) se houver
                 if(movie.photo) {
                     document.getElementById('vmPhotoImg').src = movie.photo;
                     photoSection.classList.remove('hidden');
@@ -1429,7 +1430,10 @@
                 }
                 
                 const pendingArea = document.getElementById('vmPendingArea');
-                if (currentUser && movie.ratings && !movie.ratings[currentUser]) {
+                
+                // CORREÇÃO CRÍTICA AQUI: O erro ao avaliar acontecia porque essa checagem falhava se a lista estivesse vazia. 
+                // A checagem (!movie.ratings || !movie.ratings[currentUser]) garante que nunca dê erro!
+                if (currentUser && (!movie.ratings || !movie.ratings[currentUser])) {
                     setPendingRating(5);
                     document.getElementById('pendingReview').value = '';
                     pendingArea.classList.remove('hidden');
@@ -1510,7 +1514,7 @@
         }
 
         // ==========================================
-        // ABA: NOSSAS CONTAS 💸 (Atualizado para Luiz e Matheus)
+        // ABA: NOSSAS CONTAS 💸
         // ==========================================
         function openFinanceModal() {
             document.getElementById('fin-title').value = '';
@@ -1549,7 +1553,7 @@
                 title: title,
                 amount: amount,
                 payer: document.getElementById('fin-payer').value,
-                type: document.getElementById('fin-type').value, // 'split' ou 'full'
+                type: document.getElementById('fin-type').value,
                 date: document.getElementById('fin-date').value,
                 paid: document.getElementById('fin-paid').checked,
                 receipt: currentFinCompressedImage,
@@ -1588,21 +1592,16 @@
             const empty = document.getElementById('financesEmpty');
             list.innerHTML = '';
             
-            // Variável de balanço geral (Positivo = Luiz deve ao Matheus | Negativo = Matheus deve ao Luiz)
             let balance = 0; 
 
             const filtered = finances.filter(f => {
                 if(!f.paid) {
-                    // Cálculo da dívida entre os dois
-                    // Se a conta for antiga e tiver 'debtor/creditor', vamos tentar adaptar ou ignorar pro balanço
                     const payer = f.payer || (f.creditor || 'N/A');
                     const isSplit = f.type === 'split';
 
                     if (payer === 'Matheus') {
-                        // Matheus pagou. Luiz deve a ele.
                         balance += isSplit ? (f.amount / 2) : f.amount;
                     } else if (payer === 'Luiz') {
-                        // Luiz pagou. Matheus deve a ele.
                         balance -= isSplit ? (f.amount / 2) : f.amount;
                     }
                 }
@@ -1612,16 +1611,13 @@
                 return true;
             });
 
-            // Atualiza os cartões superiores
             const lblLuiz = document.getElementById('fin-luiz-owes');
             const lblMatheus = document.getElementById('fin-matheus-owes');
             
             if (balance > 0) {
-                // Luiz deve pro Matheus
                 lblLuiz.innerText = `R$ ${balance.toFixed(2).replace('.',',')}`;
                 lblMatheus.innerText = `R$ 0,00`;
             } else if (balance < 0) {
-                // Matheus deve pro Luiz
                 lblLuiz.innerText = `R$ 0,00`;
                 lblMatheus.innerText = `R$ ${Math.abs(balance).toFixed(2).replace('.',',')}`;
             } else {
@@ -1752,7 +1748,7 @@
 
             if(timerInterval) clearInterval(timerInterval);
             updateTimerUI();
-            timerInterval = setInterval(updateTimerUI, 1000); // Roda a cada 1 segundo
+            timerInterval = setInterval(updateTimerUI, 1000); 
         }
 
         function updateTimerUI() {
