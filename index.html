@@ -20,7 +20,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
     <script>
-        // Restaura as preferências antes do render para evitar piscar branco
         const savedTheme = localStorage.getItem('couple_app_theme') || 'rosa';
         const isDark = localStorage.getItem('couple_app_dark') === 'true';
         document.documentElement.setAttribute('data-theme', savedTheme);
@@ -52,7 +51,6 @@
         body { margin: 0; padding: 0; }
         #map { width: 100%; height: 100%; z-index: 1; }
 
-        /* Dark Mode Map Invert */
         html.dark .leaflet-layer, html.dark .leaflet-control-zoom-in, html.dark .leaflet-control-zoom-out { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
 
         .font-journal { font-family: 'Kalam', cursive; }
@@ -71,8 +69,11 @@
 
         .fade-in { animation: fadeIn 0.3s ease-out forwards; }
         .slide-up { animation: slideUp 0.3s ease-out forwards; }
+        .slide-in-right { animation: slideInRight 0.3s ease-out forwards; }
+        
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
         .leaflet-control-zoom { border: none !important; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important; }
         .leaflet-control-zoom-in, .leaflet-control-zoom-out { color: #333 !important; border-radius: 8px !important; margin-bottom: 5px !important; }
@@ -95,7 +96,18 @@
 </head>
 <body class="flex flex-col h-[100dvh] text-slate-800 dark:text-slate-100 antialiased overflow-hidden relative bg-slate-50 dark:bg-slate-900 transition-colors">
 
-    <!-- STREAMING_CHUNK:Tela de Login -->
+    <!-- GLOBAL HEADER (Bells & Settings) -->
+    <div id="global-actions" class="fixed top-4 right-4 z-[600] flex gap-2 pointer-events-auto">
+        <button onclick="openNotifications()" class="glass-panel w-10 h-10 rounded-full shadow-md flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-brand transition-colors relative">
+            <i class="fa-solid fa-bell"></i>
+            <span id="globalNotificationBadge" class="hidden absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-white dark:border-slate-800 animate-pulse"></span>
+        </button>
+        <button onclick="openSettings()" class="glass-panel w-10 h-10 rounded-full shadow-md flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-brand transition-colors">
+            <i class="fa-solid fa-gear"></i>
+        </button>
+    </div>
+
+    <!-- Tela de Login -->
     <div id="loginScreen" class="fixed inset-0 z-[10000] bg-slate-50 dark:bg-slate-900 flex flex-col items-center justify-center p-6 slide-up">
         <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-xl w-full max-w-sm flex flex-col items-center border border-slate-100 dark:border-slate-700">
             <div class="w-20 h-20 bg-brand-light dark:bg-brand/20 rounded-full text-brand flex items-center justify-center text-4xl mb-4 shadow-inner">
@@ -121,55 +133,35 @@
         </div>
     </div>
 
-    <!-- STREAMING_CHUNK:Estrutura Principal -->
     <main class="flex-1 relative overflow-hidden bg-slate-50 dark:bg-slate-900 transition-colors">
         
         <!-- ABA 1: MAPA -->
         <div id="tab-map" class="absolute inset-0 z-10 transition-opacity duration-300">
             <div id="map"></div>
+            <button onclick="locateUser()" class="absolute bottom-6 right-4 z-[400] w-12 h-12 bg-white dark:bg-slate-800 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-brand transition-all"><i class="fa-solid fa-location-crosshairs text-xl"></i></button>
 
-            <button onclick="locateUser()" class="absolute bottom-6 right-4 z-[400] w-12 h-12 bg-white dark:bg-slate-800 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-brand dark:hover:text-brand hover:scale-105 transition-all">
-                <i class="fa-solid fa-location-crosshairs text-xl"></i>
-            </button>
-
-            <!-- UI Flutuante Superior do Mapa -->
-            <div class="absolute top-4 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-auto z-[400] flex justify-between md:justify-center items-center pointer-events-none gap-4">
-                <button onclick="toggleMenu()" class="pointer-events-auto glass-panel w-12 h-12 rounded-2xl shadow-lg flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors">
-                    <i class="fa-solid fa-images text-xl"></i>
-                </button>
-                <div class="glass-panel px-6 py-3 rounded-2xl shadow-lg flex items-center gap-3 pointer-events-auto">
-                    <div class="w-10 h-10 rounded-full bg-brand-light dark:bg-brand/20 flex items-center justify-center text-brand">
-                        <i class="fa-solid fa-map-location-dot text-lg"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <h1 class="text-lg font-bold text-slate-800 dark:text-white leading-tight">Nosso Mapa</h1>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Bem-vindo, <span id="loggedUserDisplay" class="font-bold text-brand"></span>! <i class="fa-solid fa-heart text-brand ml-1"></i></p>
+            <!-- Ajuste: top-4 deixado com mr-24 para não encavalar nos botões globais -->
+            <div class="absolute top-4 left-4 right-24 md:left-1/2 md:-translate-x-1/2 md:w-auto z-[400] flex items-center pointer-events-none gap-3">
+                <button onclick="toggleMenu()" class="pointer-events-auto glass-panel w-12 h-12 shrink-0 rounded-2xl shadow-lg flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors"><i class="fa-solid fa-images text-xl"></i></button>
+                <div class="glass-panel px-4 md:px-6 py-2 md:py-3 rounded-2xl shadow-lg flex items-center gap-3 pointer-events-auto flex-1 md:flex-none">
+                    <div class="w-10 h-10 shrink-0 rounded-full bg-brand-light dark:bg-brand/20 flex items-center justify-center text-brand"><i class="fa-solid fa-map-location-dot text-lg"></i></div>
+                    <div class="flex flex-col min-w-0">
+                        <h1 class="text-sm md:text-lg font-bold text-slate-800 dark:text-white leading-tight truncate">Nosso Mapa</h1>
+                        <p class="text-[10px] md:text-xs text-slate-500 dark:text-slate-400 font-medium truncate">Olá, <span id="loggedUserDisplay" class="font-bold text-brand"></span>! <i class="fa-solid fa-heart text-brand ml-1"></i></p>
                     </div>
                 </div>
-                <div class="w-12 md:hidden pointer-events-none"></div>
             </div>
-
-            <div id="helpToast" class="absolute top-24 left-1/2 -translate-x-1/2 z-[400] bg-slate-800 dark:bg-slate-700 text-white px-4 py-2 rounded-full shadow-lg text-sm font-medium opacity-90 transition-opacity duration-500 pointer-events-none">
-                Toque no mapa para adicionar uma memória.
-            </div>
+            <div id="helpToast" class="absolute top-24 left-1/2 -translate-x-1/2 z-[400] bg-slate-800 dark:bg-slate-700 text-white px-4 py-2 rounded-full shadow-lg text-sm font-medium opacity-90 transition-opacity duration-500 pointer-events-none">Toque no mapa para adicionar uma memória.</div>
         </div>
 
         <!-- ABA 2: FILMES 🍿 -->
         <div id="tab-movies" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex justify-between items-center mb-6 mt-10 md:mt-4">
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Filmes <i class="fa-solid fa-popcorn text-brand"></i></h1>
                 <div class="flex gap-2">
-                    <button onclick="pickRandomItem('movie')" class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 w-12 h-12 rounded-full shadow-sm flex items-center justify-center hover:bg-indigo-100 dark:hover:bg-indigo-900/50 hover:scale-105 transition-all" title="Sortear Filme Aleatório"><i class="fa-solid fa-dice text-xl"></i></button>
-                    <button onclick="openExploreModal('movie')" class="bg-brand text-white w-12 h-12 rounded-full shadow-lg shadow-brand/30 flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all"><i class="fa-solid fa-plus text-xl"></i></button>
+                    <button onclick="pickRandomItem('movie')" class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 w-10 h-10 rounded-full shadow-sm flex items-center justify-center hover:bg-indigo-100 hover:scale-105 transition-all"><i class="fa-solid fa-dice text-lg"></i></button>
+                    <button onclick="openExploreModal('movie')" class="bg-brand text-white w-10 h-10 rounded-full shadow-md flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all"><i class="fa-solid fa-plus text-lg"></i></button>
                 </div>
-            </div>
-
-            <div id="moviesNotification" class="hidden bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800/50 text-rose-700 dark:text-rose-400 p-3 rounded-2xl mb-4 flex items-center justify-between shadow-sm cursor-pointer transition-colors" onclick="setFilter('movie', 'watched')">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center shrink-0"><i class="fa-solid fa-bell text-rose-500 dark:text-rose-400 animate-bounce"></i></div>
-                    <span id="moviesNotificationText" class="text-sm font-bold leading-tight">Avaliações pendentes!</span>
-                </div>
-                <i class="fa-solid fa-chevron-right text-xs opacity-50 pl-2"></i>
             </div>
 
             <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 mb-6 flex flex-col gap-3">
@@ -186,33 +178,23 @@
             </div>
 
             <div id="grid-movie" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-10"></div>
-            <div id="empty-movie" class="hidden flex-col items-center justify-center text-slate-400 dark:text-slate-500 mt-10 gap-4">
-                <i class="fa-solid fa-film text-6xl opacity-30"></i><p class="text-center font-medium">Nenhum filme por aqui.</p>
-            </div>
+            <div id="empty-movie" class="hidden flex-col items-center justify-center text-slate-400 dark:text-slate-500 mt-10 gap-4"><i class="fa-solid fa-film text-6xl opacity-30"></i><p class="text-center font-medium">Nenhum filme por aqui.</p></div>
         </div>
 
         <!-- ABA 2.5: SÉRIES 📺 -->
         <div id="tab-shows" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex justify-between items-center mb-6 mt-10 md:mt-4">
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Séries <i class="fa-solid fa-tv text-brand"></i></h1>
                 <div class="flex gap-2">
-                    <button onclick="pickRandomItem('tv')" class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 w-12 h-12 rounded-full shadow-sm flex items-center justify-center hover:bg-indigo-100 hover:scale-105 transition-all"><i class="fa-solid fa-dice text-xl"></i></button>
-                    <button onclick="openExploreModal('tv')" class="bg-brand text-white w-12 h-12 rounded-full shadow-lg shadow-brand/30 flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all"><i class="fa-solid fa-plus text-xl"></i></button>
+                    <button onclick="pickRandomItem('tv')" class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 w-10 h-10 rounded-full shadow-sm flex items-center justify-center hover:bg-indigo-100 hover:scale-105 transition-all"><i class="fa-solid fa-dice text-lg"></i></button>
+                    <button onclick="openExploreModal('tv')" class="bg-brand text-white w-10 h-10 rounded-full shadow-md flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all"><i class="fa-solid fa-plus text-lg"></i></button>
                 </div>
-            </div>
-
-            <div id="showsNotification" class="hidden bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800/50 text-rose-700 dark:text-rose-400 p-3 rounded-2xl mb-4 flex items-center justify-between shadow-sm cursor-pointer transition-colors" onclick="setFilter('tv', 'watched')">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center shrink-0"><i class="fa-solid fa-bell text-rose-500 dark:text-rose-400 animate-bounce"></i></div>
-                    <span id="showsNotificationText" class="text-sm font-bold leading-tight">Avaliações pendentes!</span>
-                </div>
-                <i class="fa-solid fa-chevron-right text-xs opacity-50 pl-2"></i>
             </div>
 
             <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 mb-6 flex flex-col gap-3">
                 <div class="relative w-full">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" id="search-tv" placeholder="Buscar nas nossas séries..." onkeyup="renderGrid('tv')" class="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border-none focus:ring-2 focus:ring-brand/20 text-sm font-medium dark:text-white">
+                    <input type="text" id="search-tv" placeholder="Buscar nas séries..." onkeyup="renderGrid('tv')" class="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border-none focus:ring-2 focus:ring-brand/20 text-sm font-medium dark:text-white">
                 </div>
                 <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                     <button onclick="setFilter('tv', 'all')" id="btn-tv-all" class="px-4 py-1.5 rounded-full bg-slate-800 dark:bg-white text-white dark:text-slate-800 text-xs font-bold shadow-sm whitespace-nowrap transition-colors">Todas</button>
@@ -223,18 +205,16 @@
             </div>
 
             <div id="grid-tv" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-10"></div>
-            <div id="empty-tv" class="hidden flex-col items-center justify-center text-slate-400 dark:text-slate-500 mt-10 gap-4">
-                <i class="fa-solid fa-tv text-6xl opacity-30"></i><p class="text-center font-medium">Nenhuma série por aqui.</p>
-            </div>
+            <div id="empty-tv" class="hidden flex-col items-center justify-center text-slate-400 dark:text-slate-500 mt-10 gap-4"><i class="fa-solid fa-tv text-6xl opacity-30"></i><p class="text-center font-medium">Nenhuma série por aqui.</p></div>
         </div>
 
         <!-- ABA 3: NOSSAS CONTAS -->
         <div id="tab-finances" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex justify-between items-center mb-6 mt-10 md:mt-4">
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Contas <i class="fa-solid fa-file-invoice-dollar text-brand"></i></h1>
                 <div class="flex gap-2">
-                    <button onclick="clearFinancesHistory()" class="bg-white dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 w-12 h-12 rounded-full shadow-sm flex items-center justify-center hover:text-red-500 transition-all"><i class="fa-solid fa-broom text-xl"></i></button>
-                    <button onclick="openFinanceModal()" class="bg-brand text-white w-12 h-12 rounded-full shadow-lg shadow-brand/30 flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all"><i class="fa-solid fa-plus text-xl"></i></button>
+                    <button onclick="clearFinancesHistory()" class="bg-white dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 w-10 h-10 rounded-full shadow-sm flex items-center justify-center hover:text-red-500 transition-all"><i class="fa-solid fa-broom text-lg"></i></button>
+                    <button onclick="openFinanceModal()" class="bg-brand text-white w-10 h-10 rounded-full shadow-md flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all"><i class="fa-solid fa-plus text-lg"></i></button>
                 </div>
             </div>
             
@@ -260,22 +240,15 @@
             </div>
 
             <div id="financesList" class="flex flex-col gap-3 pb-10"></div>
-            <div id="financesEmpty" class="hidden flex-col items-center justify-center text-slate-400 dark:text-slate-500 mt-10 gap-4">
-                <i class="fa-solid fa-piggy-bank text-6xl opacity-30"></i><p class="text-center font-medium">Nenhuma conta por aqui.</p>
-            </div>
         </div>
 
-        <!-- STREAMING_CHUNK:Nova Aba Agenda -->
         <!-- ABA 4: AGENDA 📅 -->
         <div id="tab-calendar" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex justify-between items-center mb-6 mt-10 md:mt-4">
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Agenda <i class="fa-solid fa-calendar-days text-brand"></i></h1>
-                <button onclick="openAddEventModal()" class="bg-brand text-white w-12 h-12 rounded-full shadow-lg shadow-brand/30 flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all">
-                    <i class="fa-solid fa-plus text-xl"></i>
-                </button>
+                <button onclick="openAddEventModal()" class="bg-brand text-white w-10 h-10 rounded-full shadow-md flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all"><i class="fa-solid fa-plus text-lg"></i></button>
             </div>
             
-            <!-- Calendário Mensal -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-4 mb-6">
                 <div class="flex justify-between items-center mb-4 px-2">
                     <button onclick="changeMonth(-1)" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"><i class="fa-solid fa-chevron-left"></i></button>
@@ -292,11 +265,9 @@
                     <div class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Sex</div>
                     <div class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Sáb</div>
                 </div>
-                
                 <div id="calendar-grid" class="grid grid-cols-7 gap-1 text-center"></div>
             </div>
             
-            <!-- Lista Próximos -->
             <div>
                 <h3 class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Próximos Compromissos</h3>
                 <div id="upcoming-events-list" class="flex flex-col gap-3 pb-10"></div>
@@ -308,8 +279,8 @@
 
         <!-- ABA 5: NOSSO TEMPO -->
         <div id="tab-time" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Nosso Tempo <i class="fa-solid fa-clock text-brand"></i></h1>
+            <div class="flex justify-between items-center mb-6 mt-10 md:mt-4">
+                <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Tempo <i class="fa-solid fa-clock text-brand"></i></h1>
                 <button onclick="openTimeSettings()" class="bg-white dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 w-10 h-10 rounded-full shadow-sm flex items-center justify-center hover:text-brand transition-all"><i class="fa-solid fa-pen"></i></button>
             </div>
             
@@ -328,15 +299,11 @@
                     <p id="lbl-namoro" class="text-xs text-white/80 mt-4 font-medium z-10"></p>
                 </div>
             </div>
-            
-            <div id="time-empty-state" class="hidden flex-col items-center justify-center text-slate-400 dark:text-slate-500 mt-20 gap-4">
-                <i class="fa-solid fa-calendar-heart text-6xl opacity-30"></i>
-                <p class="text-center font-medium">Configure as datas de vocês<br>clicando no lápis acima!</p>
-            </div>
         </div>
+
     </main>
 
-    <!-- Barra de Navegação (6 ícones) -->
+    <!-- Barra de Navegação Inferior -->
     <nav class="fixed bottom-0 w-full h-16 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] flex justify-around items-center z-[500] px-1 pb-safe transition-colors">
         <button id="nav-btn-map" onclick="switchTab('map')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-brand transition-colors relative group">
             <i class="fa-solid fa-map text-lg group-hover:scale-110 transition-transform"></i>
@@ -345,12 +312,10 @@
         <button id="nav-btn-movies" onclick="switchTab('movies')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
             <i class="fa-solid fa-clapperboard text-lg group-hover:scale-110 transition-transform"></i>
             <span class="text-[8px] font-bold uppercase tracking-wide">Filmes</span>
-            <span id="navMovieBadge" class="hidden absolute top-2 right-[20%] w-2 h-2 bg-red-500 rounded-full border border-white dark:border-slate-800 animate-pulse"></span>
         </button>
         <button id="nav-btn-shows" onclick="switchTab('shows')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
             <i class="fa-solid fa-tv text-lg group-hover:scale-110 transition-transform"></i>
             <span class="text-[8px] font-bold uppercase tracking-wide">Séries</span>
-            <span id="navShowBadge" class="hidden absolute top-2 right-[20%] w-2 h-2 bg-red-500 rounded-full border border-white dark:border-slate-800 animate-pulse"></span>
         </button>
         <button id="nav-btn-finances" onclick="switchTab('finances')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
             <i class="fa-solid fa-file-invoice-dollar text-lg group-hover:scale-110 transition-transform"></i>
@@ -366,13 +331,10 @@
         </button>
     </nav>
 
-    <!-- Overlay Escuro Global -->
     <div id="modalOverlay" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[999]" onclick="closeAllPanels()"></div>
 
-    <!-- STREAMING_CHUNK:Menu Principal & Personalização -->
-    <!-- Menu Diário Mapa (Life is Strange Album + Configurações) -->
+    <!-- Menu Diário Mapa (Álbum) -->
     <div id="mainMenu" class="fixed top-0 left-0 w-full md:w-[450px] h-full bg-[#f4f1ea] dark:bg-[#1a1c23] shadow-[10px_0_30px_rgba(0,0,0,0.15)] z-[1000] flex flex-col transition-transform duration-300 -translate-x-full border-r border-[#e0d6c8] dark:border-[#2d303b]">
-        <!-- Textura de papel no fundo -->
         <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: url('data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100\' height=\'100\' filter=\'url(%23noise)\' opacity=\'0.5\'/%3E%3C/svg%3E'); mix-blend-mode: multiply;"></div>
         
         <div class="flex justify-between items-center p-5 border-b border-[#e0d6c8] dark:border-[#2d303b] bg-[#efeade] dark:bg-[#22242e] pt-8 relative z-10 shadow-sm">
@@ -381,7 +343,7 @@
                 <i class="fa-solid fa-camera-retro text-brand text-2xl"></i> Álbum
             </h2>
             <div class="flex gap-2">
-                <button onclick="toggleAlbumView()" id="btnToggleAlbum" class="w-10 h-10 rounded-full bg-white dark:bg-slate-700 shadow-sm text-slate-600 dark:text-slate-200 flex items-center justify-center transition-all hover:scale-105" title="Mudar visualização">
+                <button onclick="toggleAlbumView()" id="btnToggleAlbum" class="w-10 h-10 rounded-full bg-white dark:bg-slate-700 shadow-sm text-slate-600 dark:text-slate-200 flex items-center justify-center transition-all hover:scale-105">
                     <i class="fa-solid fa-book-open"></i>
                 </button>
                 <button onclick="toggleMenu()" class="w-10 h-10 rounded-full bg-white/50 dark:bg-slate-700/50 hover:bg-white dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 flex items-center justify-center transition-colors">
@@ -401,29 +363,96 @@
         </div>
         
         <div id="memoryList" class="flex-1 overflow-y-auto p-4 pt-6 z-10 relative"></div>
-        
-        <!-- Área de Personalização -->
-        <div class="p-4 bg-[#efeade] dark:bg-[#22242e] border-t border-[#e0d6c8] dark:border-[#2d303b] z-10 flex flex-col gap-4">
-            <div>
-                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 block text-center">Personalizar Cores</span>
-                <div class="flex gap-4 justify-center">
-                    <button onclick="setAppColor('rosa')" class="w-8 h-8 rounded-full bg-[#fb7185] border-2 border-transparent focus:border-slate-800 dark:focus:border-white transition-transform hover:scale-110 shadow-sm"></button>
-                    <button onclick="setAppColor('lilas')" class="w-8 h-8 rounded-full bg-[#c084fc] border-2 border-transparent focus:border-slate-800 dark:focus:border-white transition-transform hover:scale-110 shadow-sm"></button>
-                    <button onclick="setAppColor('azul')" class="w-8 h-8 rounded-full bg-[#60a5fa] border-2 border-transparent focus:border-slate-800 dark:focus:border-white transition-transform hover:scale-110 shadow-sm"></button>
-                    <button onclick="setAppColor('verde')" class="w-8 h-8 rounded-full bg-[#34d399] border-2 border-transparent focus:border-slate-800 dark:focus:border-white transition-transform hover:scale-110 shadow-sm"></button>
-                    <button onclick="setAppColor('amarelo')" class="w-8 h-8 rounded-full bg-[#fbbf24] border-2 border-transparent focus:border-slate-800 dark:focus:border-white transition-transform hover:scale-110 shadow-sm"></button>
+    </div>
+
+    <!-- STREAMING_CHUNK:Novo Modal de Configurações Globais -->
+    <div id="settingsModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeSettings()"></div>
+        <div class="relative bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl flex flex-col slide-up shadow-2xl p-6 border border-slate-800">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Configurações ⚙️</h2>
+                <button onclick="closeSettings()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="flex flex-col gap-5">
+                <div>
+                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 block text-center">Cor do Aplicativo</span>
+                    <div class="flex gap-4 justify-center">
+                        <button onclick="setAppColor('rosa')" class="w-10 h-10 rounded-full bg-[#fb7185] border-2 border-transparent focus:border-slate-800 dark:focus:border-white transition-transform hover:scale-110 shadow-sm"></button>
+                        <button onclick="setAppColor('lilas')" class="w-10 h-10 rounded-full bg-[#c084fc] border-2 border-transparent focus:border-slate-800 dark:focus:border-white transition-transform hover:scale-110 shadow-sm"></button>
+                        <button onclick="setAppColor('azul')" class="w-10 h-10 rounded-full bg-[#60a5fa] border-2 border-transparent focus:border-slate-800 dark:focus:border-white transition-transform hover:scale-110 shadow-sm"></button>
+                        <button onclick="setAppColor('verde')" class="w-10 h-10 rounded-full bg-[#34d399] border-2 border-transparent focus:border-slate-800 dark:focus:border-white transition-transform hover:scale-110 shadow-sm"></button>
+                        <button onclick="setAppColor('amarelo')" class="w-10 h-10 rounded-full bg-[#fbbf24] border-2 border-transparent focus:border-slate-800 dark:focus:border-white transition-transform hover:scale-110 shadow-sm"></button>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800 px-4 py-3 rounded-xl border border-slate-100 dark:border-slate-700">
+                    <span class="text-sm font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2"><i class="fa-solid fa-moon text-indigo-500"></i> Modo Escuro</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" id="darkModeToggle" class="sr-only peer" onchange="toggleDarkMode()">
+                      <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-500 peer-checked:bg-brand"></div>
+                    </label>
+                </div>
+                
+                <button onclick="logout()" class="w-full text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-semibold flex items-center justify-center gap-2 py-3 rounded-xl transition-colors border border-slate-200 dark:border-slate-700">
+                    <i class="fa-solid fa-right-from-bracket"></i> Trocar de Usuário
+                </button>
+
+                <p class="text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-2">Versão 1.0.0 Premium</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- STREAMING_CHUNK:Central de Notificações (Sino) -->
+    <div id="notificationsModal" class="hidden fixed inset-0 z-[1050] flex justify-end">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeNotifications()"></div>
+        <div class="relative bg-slate-50 dark:bg-slate-900 w-full md:w-[400px] h-full shadow-2xl flex flex-col slide-in-right border-l border-slate-200 dark:border-slate-800">
+            <div class="p-5 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-xl text-slate-800 dark:text-white flex items-center gap-2"><i class="fa-solid fa-bell text-brand"></i> Notificações</h3>
+                <button onclick="closeNotifications()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-6 no-scrollbar pb-10">
+                <!-- Status do Parceiro -->
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center gap-3">
+                    <div id="partnerPresenceStatus" class="flex items-center gap-2 w-full justify-center">
+                        <i class="fa-solid fa-spinner fa-spin text-slate-400"></i> <span class="text-sm font-medium text-slate-500">Verificando status...</span>
+                    </div>
+                </div>
+
+                <!-- Avaliações Pendentes -->
+                <div>
+                    <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ml-1"><i class="fa-solid fa-star text-yellow-500 mr-1"></i> Para Avaliar</h4>
+                    <div id="notif-ratings-list" class="flex flex-col gap-2"></div>
+                </div>
+
+                <!-- Últimas do Álbum -->
+                <div>
+                    <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ml-1"><i class="fa-solid fa-camera-retro text-brand mr-1"></i> Novas Fotos</h4>
+                    <div id="notif-album-list" class="flex flex-col gap-2"></div>
+                </div>
+
+                <!-- Próximos Eventos -->
+                <div>
+                    <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ml-1"><i class="fa-regular fa-calendar text-blue-500 mr-1"></i> Agenda</h4>
+                    <div id="notif-events-list" class="flex flex-col gap-2"></div>
                 </div>
             </div>
-            <div class="flex justify-between items-center bg-white dark:bg-slate-800 px-4 py-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
-                <span class="text-sm font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2"><i class="fa-solid fa-moon"></i> Modo Escuro</span>
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" id="darkModeToggle" class="sr-only peer" onchange="toggleDarkMode()">
-                  <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-500 peer-checked:bg-brand"></div>
-                </label>
+        </div>
+    </div>
+
+    <!-- STREAMING_CHUNK:Resumo do Dia (Agenda) -->
+    <div id="daySummaryModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeDaySummary()"></div>
+        <div class="relative bg-slate-50 dark:bg-slate-900 w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl overflow-hidden max-h-[85vh] border border-slate-800">
+            <div class="p-5 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 flex justify-between items-center shrink-0">
+                <h3 id="daySummaryTitle" class="font-bold text-lg text-brand"></h3>
+                <button onclick="closeDaySummary()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <button onclick="logout()" class="w-full text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white bg-white/50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 text-sm font-semibold flex items-center justify-center gap-2 py-3 rounded-xl transition-colors border border-slate-200 dark:border-slate-700">
-                <i class="fa-solid fa-right-from-bracket"></i> Trocar de Usuário
-            </button>
+            
+            <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-6 no-scrollbar pb-10" id="daySummaryContent">
+                <!-- Injetado via JS -->
+            </div>
         </div>
     </div>
 
@@ -467,7 +496,7 @@
                     <textarea id="notesInput" rows="3" placeholder="Foi incrível porque..." class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white resize-none font-journal text-lg"></textarea>
                 </div>
                 <button type="submit" class="mt-4 w-full bg-brand text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-[0.98] transition-transform">
-                    <i class="fa-solid fa-heart"></i> Salvar Memória
+                    <i class="fa-solid fa-heart"></i> Salvar Memória no Álbum
                 </button>
             </form>
 
@@ -489,13 +518,11 @@
         </div>
     </div>
 
-    <!-- STREAMING_CHUNK:Modais Secundários (Filmes, Séries, Contas, Agenda, Tempo) -->
-    
-    <!-- Modal Explorar/Busca -->
+    <!-- Modais Universais: Explorar, Salvar Item, Visualizar Item -->
     <div id="exploreModal" class="hidden fixed inset-0 z-[1000] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeExploreModal()"></div>
         
-        <div class="relative bg-slate-50 dark:bg-slate-900 w-full max-w-lg h-[85vh] md:h-[650px] rounded-3xl flex flex-col slide-up overflow-hidden shadow-2xl">
+        <div class="relative bg-slate-50 dark:bg-slate-900 w-full max-w-lg h-[85vh] md:h-[650px] rounded-3xl flex flex-col slide-up overflow-hidden shadow-2xl border border-slate-800">
             <div class="p-5 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex justify-between items-center shrink-0">
                 <h3 id="exploreTitle" class="font-bold text-lg text-slate-800 dark:text-white">Descobrir 🧭</h3>
                 <button onclick="closeExploreModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
@@ -523,7 +550,12 @@
                 </div>
             </div>
             
-            <div id="apiSearchResults" class="flex-1 overflow-y-auto p-4 flex flex-col gap-3 no-scrollbar pb-10"></div>
+            <div id="apiSearchResults" class="flex-1 overflow-y-auto p-4 flex flex-col gap-3 no-scrollbar pb-10">
+                <div class="text-center text-slate-400 mt-10">
+                    <i class="fa-solid fa-compass text-5xl mb-4 opacity-30"></i>
+                    <p class="font-medium text-sm">Busque pelo nome ou clique para ver sucessos.</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -635,6 +667,7 @@
                 <img id="vmHeroImage" src="" class="w-full h-full object-cover opacity-60">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
                 <button id="vmTrailerBtn" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-brand/90 hover:bg-brand text-white rounded-full flex items-center justify-center text-xl shadow-[0_0_20px_rgba(251,113,133,0.5)] transition-all hover:scale-110 backdrop-blur-sm" onclick="playTrailer()"><i class="fa-solid fa-play ml-1"></i></button>
+
                 <div class="absolute bottom-4 left-4 right-4 z-10">
                     <span id="vmStatusBadge" class="inline-block px-3 py-1 rounded-full text-[10px] font-bold mb-2 bg-white/20 text-white backdrop-blur shadow-sm uppercase tracking-widest border border-white/30"></span>
                     <h2 id="vmTitle" class="text-2xl font-bold text-white leading-tight drop-shadow-md"></h2>
@@ -739,104 +772,7 @@
         </div>
     </div>
 
-    <!-- Modais de Contas -->
-    <div id="financeModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeFinanceModal()"></div>
-        <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 max-h-[90vh] overflow-y-auto no-scrollbar border border-slate-800">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Nova Conta 💸</h2>
-                <button onclick="closeFinanceModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            
-            <div class="flex flex-col gap-4">
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">O que é?</label>
-                    <input type="text" id="fin-title" placeholder="Ex: Mercado..." class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Valor Total (R$)</label>
-                    <input type="number" id="fin-amount" step="0.01" placeholder="Ex: 150.00" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white">
-                </div>
-                
-                <div class="bg-blue-50/50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-900/50">
-                    <label class="block text-xs font-bold text-blue-800 dark:text-blue-400 uppercase tracking-wider mb-2">Quem Pagou?</label>
-                    <select id="fin-payer" class="w-full px-4 py-3 rounded-xl border border-blue-200 dark:border-blue-800 focus:outline-none focus:border-blue-500 bg-white dark:bg-slate-800 dark:text-white font-bold mb-3 shadow-sm">
-                        <option value="Luiz">Luiz</option>
-                        <option value="Matheus">Matheus</option>
-                    </select>
-                    
-                    <label class="block text-xs font-bold text-blue-800 dark:text-blue-400 uppercase tracking-wider mb-2">Tipo de Divisão</label>
-                    <select id="fin-type" class="w-full px-4 py-3 rounded-xl border border-blue-200 dark:border-blue-800 focus:outline-none focus:border-blue-500 bg-white dark:bg-slate-800 dark:text-white shadow-sm">
-                        <option value="split">Dividir (50% pra cada)</option>
-                        <option value="full">O outro me deve o valor integral</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Data da Conta</label>
-                    <input type="date" id="fin-date" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white text-slate-600">
-                </div>
-                <div>
-                    <label class="flex items-center gap-3 cursor-pointer bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 transition-colors">
-                        <input type="checkbox" id="fin-paid" class="w-5 h-5 accent-brand rounded cursor-pointer shadow-sm">
-                        <span class="text-sm font-bold text-slate-700 dark:text-slate-300">Essa conta já está paga</span>
-                    </label>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Comprovante (Opcional)</label>
-                    <div class="relative w-full h-24 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 flex flex-col items-center justify-center cursor-pointer overflow-hidden group" onclick="document.getElementById('finPhotoInput').click()">
-                        <input type="file" id="finPhotoInput" accept="image/*" class="hidden" onchange="previewFinImage(event)">
-                        <div id="finUploadPlaceholder" class="flex flex-col items-center justify-center text-slate-500">
-                            <i class="fa-solid fa-receipt text-2xl mb-1"></i>
-                            <span class="text-xs font-medium">Anexar foto ou print</span>
-                        </div>
-                        <img id="finImagePreview" class="hidden absolute inset-0 w-full h-full object-cover">
-                    </div>
-                </div>
-                <button onclick="saveFinance()" class="mt-2 w-full bg-brand text-white font-bold py-4 rounded-xl shadow-lg active:scale-[0.98] transition-transform text-lg">
-                    Salvar Conta
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="viewFinanceModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeViewFinanceModal()"></div>
-        <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 max-h-[90vh] overflow-y-auto no-scrollbar border border-slate-800">
-            <button onclick="closeViewFinanceModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200 z-10"><i class="fa-solid fa-xmark"></i></button>
-            
-            <div class="flex items-center gap-3 mb-2 pr-8">
-                <div id="vf-icon" class="w-12 h-12 rounded-full bg-brand-light dark:bg-brand/20 text-brand flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-file-invoice"></i></div>
-                <div>
-                    <h3 id="vf-title" class="font-bold text-xl text-slate-800 dark:text-white leading-tight"></h3>
-                    <p id="vf-date" class="text-sm text-slate-500 dark:text-slate-400 font-medium"></p>
-                </div>
-            </div>
-            
-            <div class="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-4 rounded-2xl mb-4 mt-2 text-center">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Valor Total</p>
-                <p id="vf-amount" class="text-3xl font-bold text-slate-800 dark:text-white"></p>
-            </div>
-
-            <div id="vf-desc" class="text-sm text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 rounded-xl mb-4 font-medium text-center"></div>
-            
-            <div id="vf-status-box" class="flex justify-center items-center gap-2 mb-4"></div>
-
-            <div id="vf-receipt-container" class="hidden flex-col items-center mb-6">
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Comprovante</p>
-                <img id="vf-receipt" src="" class="w-full max-h-64 object-contain rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 p-1">
-            </div>
-
-            <button onclick="toggleFinancePaid()" id="vf-toggle-btn" class="w-full mb-3 font-bold py-3.5 rounded-xl shadow-md active:scale-[0.98] transition-transform">
-                Marcar como Pago
-            </button>
-            <button onclick="deleteFinance()" class="w-full text-slate-400 hover:text-red-500 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-semibold flex items-center justify-center gap-2 py-3 rounded-xl transition-colors">
-                <i class="fa-solid fa-trash-can"></i> Apagar esta conta
-            </button>
-        </div>
-    </div>
-
-    <!-- STREAMING_CHUNK:Modais de Agenda (NOVO) -->
+    <!-- Modais de Evento / Agenda (Atualizado) -->
     <div id="eventModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeEventModal()"></div>
         <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 border border-slate-800">
@@ -861,7 +797,15 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Cor</label>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Local (Opcional)</label>
+                    <input type="text" id="ev-location" placeholder="Onde vai ser?" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Descrição</label>
+                    <textarea id="ev-desc" rows="2" placeholder="Detalhes..." class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white resize-none text-sm"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Cor no Calendário</label>
                     <select id="ev-color" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white">
                         <option value="brand">Principal (Cor do Tema)</option>
                         <option value="blue">Azul</option>
@@ -871,33 +815,8 @@
                     </select>
                 </div>
                 
-                <button onclick="saveEvent()" class="mt-4 w-full bg-brand text-white font-bold py-4 rounded-xl shadow-lg active:scale-[0.98] transition-transform text-lg">
+                <button onclick="saveEvent()" class="mt-2 w-full bg-brand text-white font-bold py-4 rounded-xl shadow-lg active:scale-[0.98] transition-transform text-lg">
                     Agendar
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modais Tempo -->
-    <div id="timeSettingsModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeTimeSettings()"></div>
-        <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 border border-slate-800">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Datas Especiais 💖</h2>
-                <button onclick="closeTimeSettings()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            
-            <div class="flex flex-col gap-4">
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Dia em que nos conhecemos</label>
-                    <input type="datetime-local" id="ts-conhecemos" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Data do Pedido de Namoro</label>
-                    <input type="datetime-local" id="ts-namoro" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white">
-                </div>
-                <button onclick="saveTimeSettings()" class="mt-4 w-full bg-brand text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-[0.98] transition-transform">
-                    Salvar Tempo
                 </button>
             </div>
         </div>
@@ -909,6 +828,8 @@
         const db = firebase.database();
 
         let currentUser = null;
+        let partnerOnline = false;
+        let partnerLastSeen = null;
 
         // Map & Album
         let map;
@@ -1005,15 +926,62 @@
         function initApp() {
             initMap();
             setupFirebaseSync();
+            setupPresence();
             setTimeout(() => {
                 const toast = document.getElementById('helpToast');
                 if(toast) toast.style.opacity = '0';
             }, 6000);
         }
 
+        function openSettings() { document.getElementById('settingsModal').classList.remove('hidden'); }
+        function closeSettings() { document.getElementById('settingsModal').classList.add('hidden'); }
+
         // ==========================================
-        // 2. FIREBASE SYNC
+        // 2. FIREBASE SYNC & PRESENCE
         // ==========================================
+        function setupPresence() {
+            if(!currentUser) return;
+            const partnerName = currentUser === 'Luiz' ? 'Matheus' : 'Luiz';
+            const amOnline = db.ref('.info/connected');
+            const myRef = db.ref('presence/' + currentUser);
+            const partnerRef = db.ref('presence/' + partnerName);
+
+            amOnline.on('value', snap => {
+                if (snap.val()) {
+                    myRef.onDisconnect().set({ online: false, last_changed: firebase.database.ServerValue.TIMESTAMP });
+                    myRef.set({ online: true, last_changed: firebase.database.ServerValue.TIMESTAMP });
+                }
+            });
+
+            partnerRef.on('value', snap => {
+                const data = snap.val();
+                if(data) {
+                    partnerOnline = data.online;
+                    partnerLastSeen = data.last_changed;
+                } else {
+                    partnerOnline = false;
+                }
+                updatePresenceUI();
+            });
+        }
+
+        function updatePresenceUI() {
+            const el = document.getElementById('partnerPresenceStatus');
+            if(!el) return;
+            const partnerName = currentUser === 'Luiz' ? 'Matheus' : 'Luiz';
+            
+            if(partnerOnline) {
+                el.innerHTML = `<div class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]"></div> <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400">${partnerName} está Online!</span>`;
+            } else {
+                let timeStr = '';
+                if(partnerLastSeen) {
+                    const d = new Date(partnerLastSeen);
+                    timeStr = `<br><span class="font-normal text-xs">(Visto hoje às ${d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})})</span>`;
+                }
+                el.innerHTML = `<div class="w-3 h-3 bg-slate-300 dark:bg-slate-600 rounded-full"></div> <span class="text-sm font-bold text-slate-500 dark:text-slate-400">${partnerName} está Offline ${timeStr}</span>`;
+            }
+        }
+
         function setupFirebaseSync() {
             db.ref('memories').on('value', (snap) => {
                 const data = snap.val();
@@ -1328,8 +1296,82 @@
         });
 
         // ==========================================
-        // 4. ENTRETENIMENTO (FILMES E SÉRIES) 🍿📺
+        // 4. ENTRETENIMENTO E NOTIFICAÇÕES 🔔🍿📺
         // ==========================================
+        
+        function openNotifications() {
+            updatePresenceUI();
+            renderNotificationsPanel();
+            document.getElementById('notificationsModal').classList.remove('hidden');
+        }
+        function closeNotifications() { document.getElementById('notificationsModal').classList.add('hidden'); }
+
+        function renderNotificationsPanel() {
+            // 1. Avaliações Pendentes
+            const ratingsList = document.getElementById('notif-ratings-list');
+            ratingsList.innerHTML = '';
+            let pendingCount = 0;
+            [...movies, ...shows].forEach(m => {
+                if(m.status === 'watched' && (!m.ratings || !m.ratings[currentUser])) {
+                    pendingCount++;
+                    const typeIcon = m.id.startsWith('tv') ? 'fa-tv' : 'fa-film';
+                    ratingsList.innerHTML += `
+                        <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 flex items-center gap-3 cursor-pointer hover:border-brand" onclick="closeNotifications(); switchTab('${m.id.startsWith('tv')?'shows':'movies'}'); openViewItemModal(${JSON.stringify(m).replace(/"/g, '&quot;')})">
+                            <div class="w-10 h-10 rounded-lg bg-rose-100 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center shrink-0"><i class="fa-solid ${typeIcon}"></i></div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-bold text-sm text-slate-800 dark:text-white truncate">${m.title}</h4>
+                                <p class="text-[10px] font-bold text-brand uppercase tracking-wider">Aguardando sua nota</p>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-slate-300 text-xs"></i>
+                        </div>
+                    `;
+                }
+            });
+            if(pendingCount === 0) ratingsList.innerHTML = `<p class="text-xs text-slate-500 dark:text-slate-400 italic">Tudo em dia!</p>`;
+
+            // Update Global Badge
+            const badge = document.getElementById('globalNotificationBadge');
+            if(pendingCount > 0) badge.classList.remove('hidden'); else badge.classList.add('hidden');
+
+            // 2. Novas Fotos (Últimas 3)
+            const albumList = document.getElementById('notif-album-list');
+            albumList.innerHTML = '';
+            const recentMemories = [...memories].sort((a,b) => (b.timestamp||0) - (a.timestamp||0)).slice(0,3);
+            if(recentMemories.length === 0) albumList.innerHTML = `<p class="text-xs text-slate-500 dark:text-slate-400 italic">Nenhuma foto recente.</p>`;
+            recentMemories.forEach(m => {
+                albumList.innerHTML += `
+                    <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 flex items-center gap-3 cursor-pointer hover:border-brand" onclick="closeNotifications(); switchTab('map'); openViewMemoryPanel(${JSON.stringify(m).replace(/"/g, '&quot;')})">
+                        <div class="w-10 h-10 rounded-lg bg-slate-200 dark:bg-slate-700 overflow-hidden shrink-0">
+                            ${m.image ? `<img src="${m.image}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center"><i class="fa-solid fa-camera text-slate-400"></i></div>`}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-bold text-sm text-slate-800 dark:text-white truncate">${m.title}</h4>
+                            <p class="text-[10px] text-slate-500">${formatDateBR(m.date)}</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // 3. Próximos Eventos
+            const eventsList = document.getElementById('notif-events-list');
+            eventsList.innerHTML = '';
+            const todayStr = new Date().toISOString().split('T')[0];
+            const upcoming = agendaEvents.filter(e => e.date >= todayStr).sort((a,b) => new Date(a.date) - new Date(b.date)).slice(0,3);
+            if(upcoming.length === 0) eventsList.innerHTML = `<p class="text-xs text-slate-500 dark:text-slate-400 italic">Nenhum evento próximo.</p>`;
+            upcoming.forEach(ev => {
+                const c = ev.color === 'brand' ? 'brand' : `${ev.color}-500`;
+                eventsList.innerHTML += `
+                    <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 flex items-center gap-3 cursor-pointer hover:border-brand" onclick="closeNotifications(); switchTab('calendar'); openDaySummary('${ev.date}')">
+                        <div class="w-1.5 h-8 bg-${c} rounded-full"></div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-bold text-sm text-slate-800 dark:text-white truncate">${ev.title}</h4>
+                            <p class="text-[10px] text-slate-500"><i class="fa-regular fa-calendar mr-1"></i> ${formatDateBR(ev.date)} ${ev.time ? `às ${ev.time}` : ''}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
         function getActiveArray(type) { return type === 'movie' ? movies : shows; }
         
         function checkNotifications(type) {
@@ -1337,16 +1379,15 @@
             const arr = getActiveArray(type);
             const pendingCount = arr.filter(m => m.status === 'watched' && (!m.ratings || !m.ratings[currentUser])).length;
             
-            const notifBanner = document.getElementById(`${type}sNotification`);
+            const badgeTop = document.getElementById('globalNotificationBadge');
+            if (pendingCount > 0) badgeTop.classList.remove('hidden');
+
             const notifBadge = document.getElementById(`nav${type.charAt(0).toUpperCase() + type.slice(1)}Badge`);
-            if(!notifBanner) return;
+            if(!notifBadge) return;
 
             if (pendingCount > 0) {
-                notifBanner.classList.remove('hidden');
                 notifBadge.classList.remove('hidden');
-                document.getElementById(`${type}sNotificationText`).innerText = `Você tem ${pendingCount} avaliações pendentes!`;
             } else {
-                notifBanner.classList.add('hidden');
                 notifBadge.classList.add('hidden');
             }
         }
@@ -1665,6 +1706,7 @@
             }
         }
 
+        // SALVAR E VISUALIZAR
         function openSaveItemModal(id, title, year, posterUrl, genres, type) {
             currentExploreType = type;
             tempItemData = { id, title, year, poster: posterUrl, genres: genres, type: type };
@@ -1754,7 +1796,7 @@
                         const logosArea = document.getElementById('smProvidersLogos');
                         logosArea.innerHTML = '';
                         br.flatrate.slice(0,4).forEach(p => {
-                            logosArea.innerHTML += `<img src="https://image.tmdb.org/t/p/w45${p.logo_path}" class="w-8 h-8 rounded-lg shadow-sm" title="${p.provider_name}">`;
+                            logosArea.innerHTML += `<img src="https://image.tmdb.org/t/p/w45${p.logo_path}" class="w-8 h-8 rounded-lg shadow-sm border border-slate-200" title="${p.provider_name}">`;
                         });
                         document.getElementById('smProvidersArea').classList.remove('hidden');
                     }
@@ -2342,7 +2384,7 @@
         }
 
         // ==========================================
-        // 5.5 ABA: AGENDA 📅 (NOVO)
+        // 6. ABA: AGENDA 📅 & RESUMO DO DIA
         // ==========================================
         function changeMonth(dir) {
             currentCalMonth += dir;
@@ -2370,27 +2412,28 @@
             
             for(let i=1; i<=daysInMonth; i++) {
                 const dateStr = `${currentCalYear}-${String(currentCalMonth+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-                const dayEvents = agendaEvents.filter(e => e.date === dateStr);
                 
+                const dayEvents = agendaEvents.filter(e => e.date === dateStr);
+                const dayMemories = memories.filter(m => m.date === dateStr);
+                const dayMovies = movies.filter(m => m.status === 'watched' && m.date === dateStr);
+                const dayShows = shows.filter(s => s.status === 'watched' && s.date === dateStr);
+                
+                const totalItems = dayEvents.length + dayMemories.length + dayMovies.length + dayShows.length;
+
                 const isToday = today.getDate() === i && today.getMonth() === currentCalMonth && today.getFullYear() === currentCalYear;
                 const bgClass = isToday ? 'bg-brand text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700';
                 
                 let dots = '';
-                if(dayEvents.length > 0) {
+                if(totalItems > 0) {
                     dots = `<div class="flex justify-center gap-0.5 mt-1 flex-wrap w-full px-1">`;
-                    dayEvents.forEach((ev, idx) => {
-                        if(idx < 3) {
-                            let color = ev.color === 'brand' ? 'bg-brand' : `bg-${ev.color}-500`;
-                            if(isToday && ev.color === 'brand') color = 'bg-white';
-                            dots += `<div class="w-1.5 h-1.5 rounded-full ${color}"></div>`;
-                        }
-                    });
-                    if(dayEvents.length > 3) dots += `<div class="w-1.5 h-1.5 rounded-full bg-slate-300 text-[6px] flex items-center justify-center">+</div>`;
+                    if(dayEvents.length > 0) dots += `<div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div>`;
+                    if(dayMemories.length > 0) dots += `<div class="w-1.5 h-1.5 rounded-full bg-brand"></div>`;
+                    if(dayMovies.length > 0 || dayShows.length > 0) dots += `<div class="w-1.5 h-1.5 rounded-full bg-yellow-400"></div>`;
                     dots += `</div>`;
                 }
                 
                 grid.innerHTML += `
-                    <div class="p-1 aspect-square flex flex-col items-center justify-center rounded-xl cursor-pointer transition-colors ${bgClass}">
+                    <div onclick="openDaySummary('${dateStr}')" class="p-1 aspect-square flex flex-col items-center justify-center rounded-xl cursor-pointer transition-colors ${bgClass}">
                         <span class="text-sm font-bold leading-none">${i}</span>
                         ${dots}
                     </div>
@@ -2413,8 +2456,6 @@
                 empty.classList.add('hidden'); empty.classList.remove('flex');
                 upcoming.slice(0, 5).forEach(ev => {
                     const c = ev.color === 'brand' ? 'brand' : `${ev.color}-500`;
-                    const bgC = ev.color === 'brand' ? 'brand-light' : `${ev.color}-100`;
-                    
                     const div = document.createElement('div');
                     div.className = 'bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center gap-3 relative overflow-hidden';
                     div.innerHTML = `
@@ -2422,6 +2463,7 @@
                         <div class="flex-1 min-w-0 pl-2">
                             <h4 class="font-bold text-slate-800 dark:text-white text-sm truncate leading-tight">${ev.title}</h4>
                             <p class="text-[11px] text-slate-500 dark:text-slate-400"><i class="fa-regular fa-calendar mr-1"></i> ${formatDateBR(ev.date)} ${ev.time ? `às ${ev.time}` : ''}</p>
+                            ${ev.location ? `<p class="text-[10px] text-slate-400 truncate mt-0.5"><i class="fa-solid fa-location-dot"></i> ${ev.location}</p>` : ''}
                         </div>
                         <button onclick="deleteEvent('${ev.id}')" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700 text-slate-400 hover:text-red-500 flex items-center justify-center transition-colors"><i class="fa-solid fa-trash-can text-xs"></i></button>
                     `;
@@ -2434,6 +2476,8 @@
             document.getElementById('ev-title').value = '';
             document.getElementById('ev-date').value = new Date().toISOString().split('T')[0];
             document.getElementById('ev-time').value = '';
+            document.getElementById('ev-location').value = '';
+            document.getElementById('ev-desc').value = '';
             document.getElementById('ev-color').value = 'brand';
             document.getElementById('eventModal').classList.remove('hidden');
         }
@@ -2451,6 +2495,8 @@
                 title: title,
                 date: date,
                 time: document.getElementById('ev-time').value,
+                location: document.getElementById('ev-location').value.trim(),
+                description: document.getElementById('ev-desc').value.trim(),
                 color: document.getElementById('ev-color').value,
                 timestamp: Date.now()
             });
@@ -2462,11 +2508,89 @@
             if(confirm("Remover este compromisso?")) {
                 db.ref('events/' + id).remove();
                 showCustomMessage("Removido.");
+                closeDaySummary();
             }
         }
 
+        function openDaySummary(dateStr) {
+            const container = document.getElementById('daySummaryContent');
+            document.getElementById('daySummaryTitle').innerText = `Resumo do dia: ${formatDateBR(dateStr)}`;
+            container.innerHTML = '';
+
+            const dayEvents = agendaEvents.filter(e => e.date === dateStr);
+            const dayMemories = memories.filter(m => m.date === dateStr);
+            const dayMovies = movies.filter(m => m.status === 'watched' && m.date === dateStr);
+            const dayShows = shows.filter(s => s.status === 'watched' && s.date === dateStr);
+
+            let hasContent = false;
+
+            if(dayEvents.length > 0) {
+                hasContent = true;
+                container.innerHTML += `<h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2"><i class="fa-regular fa-calendar-check text-blue-500 mr-1"></i> Compromissos</h4>`;
+                dayEvents.forEach(ev => {
+                    const c = ev.color === 'brand' ? 'brand' : `${ev.color}-500`;
+                    container.innerHTML += `
+                        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 mb-4 border-l-4 border-l-${c}">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h5 class="font-bold text-slate-800 dark:text-white">${ev.title}</h5>
+                                    ${ev.time ? `<p class="text-xs text-slate-500"><i class="fa-regular fa-clock"></i> ${ev.time}</p>` : ''}
+                                    ${ev.location ? `<p class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-location-dot"></i> ${ev.location}</p>` : ''}
+                                </div>
+                                <button onclick="deleteEvent('${ev.id}')" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                            ${ev.description ? `<p class="text-sm text-slate-600 dark:text-slate-400 mt-2 bg-slate-50 dark:bg-slate-900 p-2 rounded-lg italic">"${ev.description}"</p>` : ''}
+                        </div>
+                    `;
+                });
+            }
+
+            if(dayMemories.length > 0) {
+                hasContent = true;
+                container.innerHTML += `<h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 mt-2"><i class="fa-solid fa-camera-retro text-brand mr-1"></i> Memórias do Álbum</h4>`;
+                dayMemories.forEach(m => {
+                    container.innerHTML += `
+                        <div class="bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 mb-4 flex gap-3 cursor-pointer" onclick="closeDaySummary(); switchTab('map'); openViewMemoryPanel(${JSON.stringify(m).replace(/"/g, '&quot;')})">
+                            <div class="w-16 h-16 rounded-lg bg-slate-200 dark:bg-slate-700 overflow-hidden shrink-0">
+                                ${m.image ? `<img src="${m.image}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center"><i class="fa-solid fa-camera text-slate-400"></i></div>`}
+                            </div>
+                            <div class="flex-1">
+                                <h5 class="font-bold text-slate-800 dark:text-white text-sm">${m.title}</h5>
+                                ${m.notes ? `<p class="text-xs text-slate-500 mt-1 line-clamp-2 italic">"${m.notes}"</p>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            if(dayMovies.length > 0 || dayShows.length > 0) {
+                hasContent = true;
+                container.innerHTML += `<h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 mt-2"><i class="fa-solid fa-popcorn text-yellow-500 mr-1"></i> Assistidos Neste Dia</h4>`;
+                [...dayMovies, ...dayShows].forEach(item => {
+                    const type = item.id.startsWith('tv') ? 'shows' : 'movies';
+                    container.innerHTML += `
+                        <div class="bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 mb-4 flex gap-3 cursor-pointer" onclick="closeDaySummary(); switchTab('${type}'); openViewItemModal(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+                            <img src="${item.poster}" class="w-12 h-16 rounded object-cover shrink-0">
+                            <div class="flex-1 flex flex-col justify-center">
+                                <h5 class="font-bold text-slate-800 dark:text-white text-sm">${item.title}</h5>
+                                <div class="text-[10px] text-slate-500 mt-1 uppercase font-bold tracking-wider">${type === 'shows' ? 'Série' : 'Filme'}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            if(!hasContent) {
+                container.innerHTML = `<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 py-10"><i class="fa-regular fa-face-frown text-4xl mb-3 opacity-30"></i><p>Nada de especial registrado neste dia.</p></div>`;
+            }
+
+            document.getElementById('daySummaryModal').classList.remove('hidden');
+        }
+
+        function closeDaySummary() { document.getElementById('daySummaryModal').classList.add('hidden'); }
+
         // ==========================================
-        // 6. ABA: NOSSO TEMPO ⏳
+        // 7. ABA: NOSSO TEMPO ⏳
         // ==========================================
         function openTimeSettings() {
             document.getElementById('ts-conhecemos').value = coupleDates.conhecemos || '';
@@ -2573,40 +2697,6 @@
             `).join('');
         }
         
-        function switchTab(tabId) {
-            const tabs = {
-                'map': document.getElementById('tab-map'),
-                'movies': document.getElementById('tab-movies'),
-                'shows': document.getElementById('tab-shows'),
-                'finances': document.getElementById('tab-finances'),
-                'calendar': document.getElementById('tab-calendar'),
-                'time': document.getElementById('tab-time')
-            };
-            const btns = {
-                'map': document.getElementById('nav-btn-map'),
-                'movies': document.getElementById('nav-btn-movies'),
-                'shows': document.getElementById('nav-btn-shows'),
-                'finances': document.getElementById('nav-btn-finances'),
-                'calendar': document.getElementById('nav-btn-calendar'),
-                'time': document.getElementById('nav-btn-time')
-            };
-
-            for (const key in tabs) {
-                if (key === tabId) {
-                    tabs[key].classList.remove('opacity-0', 'pointer-events-none', 'z-0');
-                    tabs[key].classList.add('z-10');
-                    btns[key].classList.add('text-brand');
-                    btns[key].classList.remove('text-slate-400', 'dark:text-slate-500');
-                    if (key === 'map') setTimeout(() => map.invalidateSize(), 100);
-                    if (key === 'calendar') setTimeout(() => { renderCalendar(); renderUpcomingEvents(); }, 100);
-                } else {
-                    tabs[key].classList.add('opacity-0', 'pointer-events-none', 'z-0');
-                    tabs[key].classList.remove('z-10');
-                    btns[key].classList.remove('text-brand');
-                    btns[key].classList.add('text-slate-400', 'dark:text-slate-500');
-                }
-            }
-        }
     </script>
 </body>
 </html>
