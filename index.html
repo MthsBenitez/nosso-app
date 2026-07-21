@@ -38,9 +38,9 @@
         body { margin: 0; padding: 0; background-color: #f8fafc; }
         #map { width: 100%; height: 100%; z-index: 1; }
 
-        /* Correção: Adicionado cursor: pointer e pointer-events para garantir clique em todos os celulares */
-        .custom-heart-marker { display: flex; justify-content: center; align-items: center; background: none; border: none; cursor: pointer; pointer-events: auto !important; }
-        .custom-heart-marker i { color: #fb7185; font-size: 28px; filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.3)); transition: transform 0.2s; }
+        /* CORREÇÃO DO MAPA: Pointer events forçados para garantir o clique repassado ao Leaflet */
+        .custom-heart-marker { display: flex; justify-content: center; align-items: center; background: none; border: none; cursor: pointer; pointer-events: auto !important; z-index: 1000 !important;}
+        .custom-heart-marker i { color: #fb7185; font-size: 28px; filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.3)); transition: transform 0.2s; pointer-events: none !important; }
         .custom-heart-marker:hover i { transform: scale(1.2); color: #be123c; }
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -737,7 +737,6 @@
             document.getElementById('loggedUserDisplay').innerText = currentUser;
             document.querySelectorAll('.logged-user-name').forEach(el => el.innerText = currentUser);
             
-            // Força a seleção natural no form de finanças baseada em quem logou
             document.getElementById('fin-payer').value = currentUser;
 
             initApp();
@@ -803,9 +802,8 @@
         // ABA: MAPA & MEMÓRIAS
         // ==========================================
         function initMap() {
-            if(map) return; // Evita reinicializar
+            if(map) return; 
             
-            // CORREÇÃO CRÍTICA: A remoção do "tap: false" aqui resolve os bugs de não conseguir clicar na tela ou no coração (especialmente em iOS)
             map = L.map('map', { zoomControl: false }).setView(CURITIBA_COORDS, 13);
             L.control.zoom({ position: 'bottomleft' }).addTo(map);
 
@@ -861,7 +859,11 @@
             memories.forEach(memory => {
                 if (memory.isHidden || !memory.lat || !memory.lng) return;
                 const marker = L.marker([memory.lat, memory.lng], { icon: heartIcon });
-                marker.on('click', () => openViewMemoryPanel(memory));
+                // CORREÇÃO DO MAPA: Garante que o evento de clique é isolado e funciona perfeito
+                marker.on('click', function(e) {
+                    L.DomEvent.stopPropagation(e);
+                    openViewMemoryPanel(memory);
+                });
                 markersGroup.addLayer(marker);
             });
         }
@@ -959,28 +961,33 @@
         }
 
         function openViewMemoryPanel(mem) {
-            closeAllPanels();
-            currentViewingId = mem.id;
-            
-            document.getElementById('panelTitle').innerText = "Nossa Memória";
-            document.getElementById('memoryForm').classList.add('hidden');
-            document.getElementById('memoryForm').classList.remove('flex');
-            document.getElementById('memoryView').classList.remove('hidden');
-            document.getElementById('memoryView').classList.add('flex');
-            
-            document.getElementById('viewTitle').innerText = mem.title;
-            document.getElementById('viewDate').innerText = formatDateBR(mem.date);
-            document.getElementById('viewNotes').innerText = mem.notes || "Sem notinha...";
-            
-            const imgContainer = document.getElementById('viewImageContainer');
-            if (mem.image) {
-                imgContainer.innerHTML = `<img src="${mem.image}" class="w-full h-full object-cover">`;
-            } else {
-                imgContainer.innerHTML = `<i class="fa-solid fa-image text-slate-300 text-5xl"></i>`;
+            try {
+                closeAllPanels();
+                currentViewingId = mem.id;
+                
+                document.getElementById('panelTitle').innerText = "Nossa Memória";
+                document.getElementById('memoryForm').classList.add('hidden');
+                document.getElementById('memoryForm').classList.remove('flex');
+                document.getElementById('memoryView').classList.remove('hidden');
+                document.getElementById('memoryView').classList.add('flex');
+                
+                document.getElementById('viewTitle').innerText = mem.title || "Sem título";
+                document.getElementById('viewDate').innerText = formatDateBR(mem.date);
+                document.getElementById('viewNotes').innerText = mem.notes || "Sem notinha...";
+                
+                const imgContainer = document.getElementById('viewImageContainer');
+                if (mem.image) {
+                    imgContainer.innerHTML = `<img src="${mem.image}" class="w-full h-full object-cover">`;
+                } else {
+                    imgContainer.innerHTML = `<i class="fa-solid fa-image text-slate-300 text-5xl"></i>`;
+                }
+                
+                document.getElementById('memoryPanel').classList.remove('hidden');
+                document.getElementById('modalOverlay').classList.remove('hidden');
+            } catch (err) {
+                console.error(err);
+                showCustomMessage("Ops! Deu um errinho ao abrir a memória.");
             }
-            
-            document.getElementById('memoryPanel').classList.remove('hidden');
-            document.getElementById('modalOverlay').classList.remove('hidden');
         }
 
         function closePanel() {
@@ -1021,7 +1028,6 @@
         // ==========================================
         function checkMovieNotifications() {
             if (!currentUser) return;
-            // Correção da Avaliação: Verifica corretamente e de forma segura
             const pendingCount = movies.filter(m => m.status === 'watched' && (!m.ratings || !m.ratings[currentUser])).length;
             
             const notifBanner = document.getElementById('moviesNotification');
@@ -1151,17 +1157,22 @@
             } else {
                 empty.classList.add('hidden'); empty.classList.remove('flex');
                 
-                filtered.sort((a,b) => b.timestamp - a.timestamp).forEach((movie) => {
+                filtered.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0)).forEach((movie) => {
+                    
+                    // CORREÇÃO DO FILME: Cálculo de média fortificado para nunca gerar erro invisível (NaN)
                     let avgRating = 0;
                     if(movie.ratings) {
                         const vals = Object.values(movie.ratings);
-                        avgRating = vals.reduce((a,b)=>a+b,0) / vals.length;
+                        if(vals.length > 0) {
+                            avgRating = vals.reduce((a,b) => a + Number(b), 0) / vals.length;
+                        }
                     } else if(movie.rating) {
-                        avgRating = movie.rating;
+                        avgRating = Number(movie.rating);
                     }
+                    const safeAvg = isNaN(avgRating) ? 0 : avgRating;
 
                     const starsHtml = Array(5).fill(0).map((_, i) => 
-                        `<i class="fa-solid fa-star text-[10px] ${i < Math.round(avgRating) ? 'text-yellow-400 drop-shadow-md' : 'text-white/30'}"></i>`
+                        `<i class="fa-solid fa-star text-[10px] ${i < Math.round(safeAvg) ? 'text-yellow-400 drop-shadow-md' : 'text-white/30'}"></i>`
                     ).join('');
 
                     const div = document.createElement('div');
@@ -1170,7 +1181,7 @@
 
                     let statusBadge = movie.status === 'want' 
                         ? `<div class="absolute top-2 right-2 bg-blue-500/90 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded-full shadow-sm z-10 border border-white/20">QUEREMOS</div>`
-                        : `<div class="absolute top-2 right-2 bg-emerald-500/90 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded-full shadow-sm flex items-center gap-1 z-10 border border-white/20"><i class="fa-solid fa-star text-yellow-300"></i> ${avgRating.toFixed(1)}</div>`;
+                        : `<div class="absolute top-2 right-2 bg-emerald-500/90 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded-full shadow-sm flex items-center gap-1 z-10 border border-white/20"><i class="fa-solid fa-star text-yellow-300"></i> ${safeAvg.toFixed(1)}</div>`;
 
                     let pendingBadge = '';
                     if (movie.status === 'watched' && currentUser && (!movie.ratings || !movie.ratings[currentUser])) {
@@ -1178,7 +1189,7 @@
                     }
                     
                     let listBadge = movie.listName ? `<div class="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-white/90 text-[9px] font-bold px-2 py-1 rounded-full z-10 border border-white/10 max-w-[80px] truncate"><i class="fa-solid fa-list mr-1"></i>${movie.listName}</div>` : '';
-                    if(pendingBadge) listBadge = ''; // Pendência sobrepõe visualmente a tag de lista
+                    if(pendingBadge) listBadge = ''; 
 
                     div.innerHTML = `
                         <div class="h-48 md:h-64 relative w-full">
@@ -1355,103 +1366,111 @@
             closeViewMovieModal();
         }
 
+        // CORREÇÃO DO FILME: Try/Catch inteiro para garantir que a tela não quebre!
         function openViewMovieModal(movie) {
-            currentViewingId = movie.id; 
-            
-            const badge = document.getElementById('vmStatusBadge');
-            const wantInfo = document.getElementById('vmWantInfo');
-            const watchedInfo = document.getElementById('vmWatchedInfo');
-            const photoSection = document.getElementById('vmPhotoSection');
-            
-            document.getElementById('vmTitle').innerText = movie.title;
-            document.getElementById('vmYear').innerText = movie.year;
-            document.getElementById('vmHeroImage').src = movie.poster;
-
-            if (movie.status === 'want') {
-                badge.innerText = 'QUEREMOS ASSISTIR';
-                badge.className = 'inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 bg-blue-50 text-blue-600 shadow-sm';
-                wantInfo.classList.remove('hidden');
-                watchedInfo.classList.add('hidden');
-                watchedInfo.classList.remove('flex');
-            } else {
-                badge.innerText = 'ASSISTIDO';
-                badge.className = 'inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 bg-emerald-50 text-emerald-600 shadow-sm';
-                wantInfo.classList.add('hidden');
-                watchedInfo.classList.remove('hidden');
-                watchedInfo.classList.add('flex');
-
-                document.getElementById('vmDate').innerText = formatDateBR(movie.date);
+            try {
+                currentViewingId = movie.id; 
                 
-                let avgRating = 0;
-                if(movie.ratings) {
-                    const vals = Object.values(movie.ratings);
-                    avgRating = vals.reduce((a,b)=>a+b,0) / vals.length;
-                } else if (movie.rating) {
-                    avgRating = movie.rating;
-                }
+                const badge = document.getElementById('vmStatusBadge');
+                const wantInfo = document.getElementById('vmWantInfo');
+                const watchedInfo = document.getElementById('vmWatchedInfo');
+                const photoSection = document.getElementById('vmPhotoSection');
                 
-                const starsDiv = document.getElementById('vmStars');
-                starsDiv.innerHTML = Array(5).fill(0).map((_, i) => 
-                    `<i class="fa-solid fa-star ${i < Math.round(avgRating) ? 'text-yellow-400' : 'text-slate-200'} drop-shadow-sm"></i>`
-                ).join('') + `<span class="text-slate-700 font-bold ml-2">${avgRating.toFixed(1)}</span>`;
+                document.getElementById('vmTitle').innerText = movie.title || 'Sem título';
+                document.getElementById('vmYear').innerText = movie.year || '';
+                document.getElementById('vmHeroImage').src = movie.poster || '';
 
-                const reviewsContainer = document.getElementById('vmReviewsContainer');
-                reviewsContainer.innerHTML = '';
-                
-                if (movie.reviews || movie.ratings) {
-                    const ratings = movie.ratings || { 'Você': movie.rating };
-                    const reviews = movie.reviews || { 'Você': movie.review || '' };
+                if (movie.status === 'want') {
+                    badge.innerText = 'QUEREMOS ASSISTIR';
+                    badge.className = 'inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 bg-blue-50 text-blue-600 shadow-sm';
+                    wantInfo.classList.remove('hidden');
+                    watchedInfo.classList.add('hidden');
+                    watchedInfo.classList.remove('flex');
+                } else {
+                    badge.innerText = 'ASSISTIDO';
+                    badge.className = 'inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 bg-emerald-50 text-emerald-600 shadow-sm';
+                    wantInfo.classList.add('hidden');
+                    watchedInfo.classList.remove('hidden');
+                    watchedInfo.classList.add('flex');
+
+                    document.getElementById('vmDate').innerText = formatDateBR(movie.date);
                     
-                    const uniqueNames = new Set([...Object.keys(ratings), ...Object.keys(reviews)]);
+                    let avgRating = 0;
+                    if(movie.ratings) {
+                        const vals = Object.values(movie.ratings);
+                        if(vals.length > 0) {
+                            avgRating = vals.reduce((a,b) => a + Number(b), 0) / vals.length;
+                        }
+                    } else if (movie.rating) {
+                        avgRating = Number(movie.rating);
+                    }
                     
-                    uniqueNames.forEach(personName => {
-                        const personRating = ratings[personName] ? ratings[personName] : '-';
-                        const reviewTxt = reviews[personName] ? reviews[personName] : 'Sem comentário.';
-                        const rHtml = `
-                            <div class="bg-brand-light/30 p-4 rounded-xl border border-brand/10 relative">
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="text-xs font-bold text-brand uppercase"><i class="fa-solid fa-user-circle mr-1"></i> ${personName}</span>
-                                    <span class="text-xs font-bold text-yellow-500 bg-white px-2 py-0.5 rounded-full border border-yellow-100 shadow-sm"><i class="fa-solid fa-star"></i> ${personRating}</span>
+                    const safeAvg = isNaN(avgRating) ? 0 : avgRating;
+                    
+                    const starsDiv = document.getElementById('vmStars');
+                    starsDiv.innerHTML = Array(5).fill(0).map((_, i) => 
+                        `<i class="fa-solid fa-star ${i < Math.round(safeAvg) ? 'text-yellow-400' : 'text-slate-200'} drop-shadow-sm"></i>`
+                    ).join('') + `<span class="text-slate-700 font-bold ml-2">${safeAvg.toFixed(1)}</span>`;
+
+                    const reviewsContainer = document.getElementById('vmReviewsContainer');
+                    reviewsContainer.innerHTML = '';
+                    
+                    if (movie.reviews || movie.ratings) {
+                        const ratings = movie.ratings || {};
+                        const reviews = movie.reviews || {};
+                        
+                        const uniqueNames = new Set([...Object.keys(ratings), ...Object.keys(reviews)]);
+                        
+                        uniqueNames.forEach(personName => {
+                            const personRating = ratings[personName] || '-';
+                            const reviewTxt = reviews[personName] || 'Sem comentário.';
+                            const rHtml = `
+                                <div class="bg-brand-light/30 p-4 rounded-xl border border-brand/10 relative">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-xs font-bold text-brand uppercase"><i class="fa-solid fa-user-circle mr-1"></i> ${personName}</span>
+                                        <span class="text-xs font-bold text-yellow-500 bg-white px-2 py-0.5 rounded-full border border-yellow-100 shadow-sm"><i class="fa-solid fa-star"></i> ${personRating}</span>
+                                    </div>
+                                    <p class="text-slate-700 text-sm leading-relaxed">${reviewTxt}</p>
                                 </div>
-                                <p class="text-slate-700 text-sm leading-relaxed">${reviewTxt}</p>
-                            </div>
-                        `;
-                        reviewsContainer.innerHTML += rHtml;
-                    });
+                            `;
+                            reviewsContainer.innerHTML += rHtml;
+                        });
+                    }
+                    
+                    if(movie.photo) {
+                        document.getElementById('vmPhotoImg').src = movie.photo;
+                        photoSection.classList.remove('hidden');
+                        photoSection.classList.add('flex');
+                    } else {
+                        photoSection.classList.add('hidden');
+                        photoSection.classList.remove('flex');
+                    }
+                    
+                    const pendingArea = document.getElementById('vmPendingArea');
+                    
+                    if (currentUser && (!movie.ratings || !movie.ratings[currentUser])) {
+                        setPendingRating(5);
+                        document.getElementById('pendingReview').value = '';
+                        pendingArea.classList.remove('hidden');
+                        pendingArea.classList.add('flex');
+                    } else {
+                        pendingArea.classList.add('hidden');
+                        pendingArea.classList.remove('flex');
+                    }
                 }
-                
-                if(movie.photo) {
-                    document.getElementById('vmPhotoImg').src = movie.photo;
-                    photoSection.classList.remove('hidden');
-                    photoSection.classList.add('flex');
-                } else {
-                    photoSection.classList.add('hidden');
-                    photoSection.classList.remove('flex');
-                }
-                
-                const pendingArea = document.getElementById('vmPendingArea');
-                
-                // CORREÇÃO CRÍTICA AQUI: O erro ao avaliar acontecia porque essa checagem falhava se a lista estivesse vazia. 
-                // A checagem (!movie.ratings || !movie.ratings[currentUser]) garante que nunca dê erro!
-                if (currentUser && (!movie.ratings || !movie.ratings[currentUser])) {
-                    setPendingRating(5);
-                    document.getElementById('pendingReview').value = '';
-                    pendingArea.classList.remove('hidden');
-                    pendingArea.classList.add('flex');
-                } else {
-                    pendingArea.classList.add('hidden');
-                    pendingArea.classList.remove('flex');
-                }
+
+                document.getElementById('vmDeleteBtn').onclick = () => {
+                    if(confirm("Remover este filme da nossa lista para sempre?")) {
+                        db.ref('movies/' + currentViewingId).remove();
+                        closeViewMovieModal();
+                    }
+                };
+
+                document.getElementById('viewMovieModal').classList.remove('hidden');
+            } catch(e) {
+                console.error(e);
+                showCustomMessage("Oops! Erro ao abrir detalhes. Verifique a internet.");
             }
-
-            document.getElementById('vmDeleteBtn').onclick = () => {
-                if(confirm("Remover este filme da nossa lista para sempre?")) {
-                    db.ref('movies/' + currentViewingId).remove();
-                    closeViewMovieModal();
-                }
-            };
-
-            document.getElementById('viewMovieModal').classList.remove('hidden');
         }
 
         function closeViewMovieModal() { document.getElementById('viewMovieModal').classList.add('hidden'); }
@@ -1497,6 +1516,12 @@
                 preview.classList.remove('hidden');
                 document.getElementById('smUploadPlaceholder').classList.add('hidden');
             });
+        }
+
+        function formatDateBR(dateStr) {
+            if(!dateStr) return "";
+            const [y,m,d] = dateStr.split('-');
+            return `${d}/${m}/${y}`;
         }
 
         function showCustomMessage(msg, duration = 3000) {
@@ -1816,12 +1841,6 @@
             `).join('');
         }
         
-        function formatDateShortBR(isoString) {
-            if(!isoString) return '';
-            const data = new Date(isoString);
-            return data.toLocaleDateString('pt-BR');
-        }
-
         function switchTab(tabId) {
             const tabs = {
                 'map': document.getElementById('tab-map'),
