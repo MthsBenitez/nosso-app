@@ -58,12 +58,43 @@
         .leaflet-control-zoom-in, .leaflet-control-zoom-out { background-color: white !important; color: #333 !important; border-radius: 8px !important; margin-bottom: 5px !important; }
         
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        .polaroid-frame { background: white; padding: 10px 10px 30px 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-radius: 4px; transform: rotate(-2deg); transition: transform 0.3s; }
+        .polaroid-frame:hover { transform: scale(1.05) rotate(0deg); z-index: 10; }
     </style>
 </head>
 <body class="flex flex-col h-[100dvh] text-slate-800 antialiased overflow-hidden relative">
 
+    <!-- STREAMING_CHUNK:Tela de Login -->
+    <div id="loginScreen" class="fixed inset-0 z-[10000] bg-slate-50 flex flex-col items-center justify-center p-6 slide-up">
+        <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm flex flex-col items-center border border-slate-100">
+            <div class="w-20 h-20 bg-brand-light rounded-full text-brand flex items-center justify-center text-4xl mb-4 shadow-inner">
+                <i class="fa-solid fa-heart"></i>
+            </div>
+            <h1 class="text-2xl font-black text-slate-800 mb-2">Quem está acessando?</h1>
+            <p class="text-sm text-slate-500 mb-8 text-center font-medium">Precisamos saber para organizar as contas e as notas dos filmes!</p>
+            
+            <div class="flex gap-6 w-full justify-center">
+                <button onclick="loginAs('Luiz')" class="flex flex-col items-center gap-3 hover:scale-105 active:scale-95 transition-transform group">
+                    <div class="w-24 h-24 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center text-5xl shadow-md border-4 border-white group-hover:border-blue-100 transition-colors">
+                        <i class="fa-solid fa-user-astronaut"></i>
+                    </div>
+                    <span class="font-bold text-slate-700 text-lg">Luiz</span>
+                </button>
+                <button onclick="loginAs('Matheus')" class="flex flex-col items-center gap-3 hover:scale-105 active:scale-95 transition-transform group">
+                    <div class="w-24 h-24 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center text-5xl shadow-md border-4 border-white group-hover:border-emerald-100 transition-colors">
+                        <i class="fa-solid fa-user-ninja"></i>
+                    </div>
+                    <span class="font-bold text-slate-700 text-lg">Matheus</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- STREAMING_CHUNK:Estrutura Principal -->
     <main class="flex-1 relative overflow-hidden bg-slate-50">
         
+        <!-- ABA 1: MAPA -->
         <div id="tab-map" class="absolute inset-0 z-10 transition-opacity duration-300">
             <div id="map"></div>
 
@@ -80,9 +111,9 @@
                     <div class="w-10 h-10 rounded-full bg-brand-light flex items-center justify-center text-brand">
                         <i class="fa-solid fa-map-location-dot text-lg"></i>
                     </div>
-                    <div>
+                    <div class="flex flex-col">
                         <h1 class="text-lg font-bold text-slate-800 leading-tight">Nosso Mapa</h1>
-                        <p class="text-xs text-slate-500 font-medium">Nosso cantinho de memórias <i class="fa-solid fa-heart text-brand ml-1"></i></p>
+                        <p class="text-xs text-slate-500 font-medium">Bem-vindo, <span id="loggedUserDisplay" class="font-bold text-brand"></span>! <i class="fa-solid fa-heart text-brand ml-1"></i></p>
                     </div>
                 </div>
                 <div class="w-12 md:hidden pointer-events-none"></div>
@@ -93,6 +124,8 @@
             </div>
         </div>
 
+        <!-- ABA 2: FILMES -->
+        <!-- STREAMING_CHUNK:Aba Filmes -->
         <div id="tab-movies" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 overflow-y-auto">
             
             <div class="flex justify-between items-center mb-4">
@@ -104,6 +137,17 @@
                 <button onclick="openSearchMovieModal()" class="bg-brand text-white w-12 h-12 rounded-full shadow-lg shadow-brand/30 flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all">
                     <i class="fa-solid fa-plus text-xl"></i>
                 </button>
+            </div>
+
+            <!-- Notificação de Filme Pendente -->
+            <div id="moviesNotification" class="hidden bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-2xl mb-4 flex items-center justify-between shadow-sm cursor-pointer hover:bg-rose-100 transition-colors" onclick="setMovieFilter('watched')">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-bell text-rose-500 animate-bounce"></i>
+                    </div>
+                    <span id="moviesNotificationText" class="text-sm font-bold leading-tight">Você tem avaliações pendentes!</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-xs opacity-50 pl-2"></i>
             </div>
 
             <div class="flex flex-col gap-3 mb-4 shrink-0">
@@ -121,7 +165,6 @@
                         <option value="">Gêneros</option>
                     </select>
                 </div>
-                <!-- Container ajustado para os botões das Listas -->
                 <div id="custom-lists-container" class="hidden gap-2 overflow-x-auto no-scrollbar pb-1"></div>
             </div>
 
@@ -136,6 +179,7 @@
         </div>
 
         <!-- ABA 3: NOSSAS CONTAS -->
+        <!-- STREAMING_CHUNK:Aba Contas -->
         <div id="tab-finances" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
                 <div>
@@ -143,19 +187,26 @@
                         Nossas Contas <i class="fa-solid fa-file-invoice-dollar text-brand"></i>
                     </h1>
                 </div>
-                <button onclick="openFinanceModal()" class="bg-brand text-white w-12 h-12 rounded-full shadow-lg shadow-brand/30 flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all">
-                    <i class="fa-solid fa-plus text-xl"></i>
-                </button>
+                <div class="flex gap-2">
+                    <button onclick="clearFinancesHistory()" class="bg-white text-slate-400 border border-slate-200 w-12 h-12 rounded-full shadow-sm flex items-center justify-center hover:text-red-500 transition-all" title="Limpar Histórico Pago">
+                        <i class="fa-solid fa-broom text-xl"></i>
+                    </button>
+                    <button onclick="openFinanceModal()" class="bg-brand text-white w-12 h-12 rounded-full shadow-lg shadow-brand/30 flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all">
+                        <i class="fa-solid fa-plus text-xl"></i>
+                    </button>
+                </div>
             </div>
             
             <div class="grid grid-cols-2 gap-3 mb-6">
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Pendente</span>
-                    <span id="fin-total-pending" class="text-xl md:text-2xl font-bold text-red-500">R$ 0,00</span>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center relative overflow-hidden">
+                    <div class="absolute -right-2 -top-2 text-slate-100 text-5xl opacity-50"><i class="fa-solid fa-user-astronaut"></i></div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 relative z-10">Luiz deve:</span>
+                    <span id="fin-luiz-owes" class="text-xl md:text-2xl font-bold text-red-500 relative z-10">R$ 0,00</span>
                 </div>
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Contas Pagas</span>
-                    <span id="fin-total-paid" class="text-xl md:text-2xl font-bold text-emerald-500">R$ 0,00</span>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center relative overflow-hidden">
+                    <div class="absolute -right-2 -top-2 text-slate-100 text-5xl opacity-50"><i class="fa-solid fa-user-ninja"></i></div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 relative z-10">Matheus deve:</span>
+                    <span id="fin-matheus-owes" class="text-xl md:text-2xl font-bold text-red-500 relative z-10">R$ 0,00</span>
                 </div>
             </div>
 
@@ -173,11 +224,12 @@
             
             <div id="financesEmpty" class="hidden flex-col items-center justify-center text-slate-400 mt-10 gap-4">
                 <i class="fa-solid fa-piggy-bank text-6xl opacity-30"></i>
-                <p class="text-center font-medium">Nenhuma conta registrada por aqui.</p>
+                <p class="text-center font-medium">Nenhuma conta por aqui.</p>
             </div>
         </div>
 
         <!-- ABA 4: NOSSO TEMPO -->
+        <!-- STREAMING_CHUNK:Aba Tempo -->
         <div id="tab-time" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
                 <div>
@@ -191,23 +243,17 @@
             </div>
             
             <div id="time-display-area" class="flex flex-col items-center justify-center gap-6 mt-4">
-                <!-- Conhecemos (Corrigido para corresponder ao JS) -->
                 <div id="card-conhecemos" class="hidden bg-white w-full rounded-3xl shadow-sm border border-slate-100 p-6 flex-col items-center relative overflow-hidden">
                     <div class="absolute -top-4 -right-4 text-brand/10 text-6xl"><i class="fa-solid fa-calendar-check"></i></div>
                     <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 z-10">Nos conhecemos há</h2>
-                    <div id="counter-conhecemos" class="grid grid-cols-4 gap-2 md:gap-4 w-full z-10">
-                        <!-- Valores injetados via JS -->
-                    </div>
+                    <div id="counter-conhecemos" class="grid grid-cols-4 gap-2 md:gap-4 w-full z-10"></div>
                     <p id="lbl-conhecemos" class="text-xs text-slate-400 mt-4 font-medium z-10"></p>
                 </div>
 
-                <!-- Namoro (Corrigido para corresponder ao JS) -->
                 <div id="card-namoro" class="hidden bg-brand w-full rounded-3xl shadow-lg border border-brand-dark p-6 flex-col items-center relative overflow-hidden">
                     <div class="absolute -top-4 -right-4 text-white/10 text-6xl"><i class="fa-solid fa-heart"></i></div>
                     <h2 class="text-sm font-bold text-white/80 uppercase tracking-widest mb-4 z-10">Namoramos há</h2>
-                    <div id="counter-namoro" class="grid grid-cols-4 gap-2 md:gap-4 w-full z-10">
-                        <!-- Valores injetados via JS -->
-                    </div>
+                    <div id="counter-namoro" class="grid grid-cols-4 gap-2 md:gap-4 w-full z-10"></div>
                     <p id="lbl-namoro" class="text-xs text-white/80 mt-4 font-medium z-10"></p>
                 </div>
             </div>
@@ -220,30 +266,33 @@
 
     </main>
 
-    <nav class="h-16 shrink-0 bg-white border-t border-slate-200 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] flex justify-around items-center z-[500]">
-        <button id="nav-btn-map" onclick="switchTab('map')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-brand transition-colors">
+    <!-- STREAMING_CHUNK:Barra de Navegação -->
+    <nav class="fixed bottom-0 w-full h-16 bg-white border-t border-slate-200 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] flex justify-around items-center z-[500]">
+        <button id="nav-btn-map" onclick="switchTab('map')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-brand transition-colors relative">
             <i class="fa-solid fa-map text-xl"></i>
             <span class="text-[9px] font-bold uppercase tracking-wide">Mapa</span>
         </button>
-        <button id="nav-btn-movies" onclick="switchTab('movies')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand transition-colors">
+        <button id="nav-btn-movies" onclick="switchTab('movies')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand transition-colors relative">
             <i class="fa-solid fa-clapperboard text-xl"></i>
             <span class="text-[9px] font-bold uppercase tracking-wide">Filmes</span>
+            <span id="navMovieBadge" class="hidden absolute top-2 right-[25%] w-3 h-3 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
         </button>
-        <button id="nav-btn-finances" onclick="switchTab('finances')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand transition-colors">
+        <button id="nav-btn-finances" onclick="switchTab('finances')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand transition-colors relative">
             <i class="fa-solid fa-file-invoice-dollar text-xl"></i>
             <span class="text-[9px] font-bold uppercase tracking-wide">Contas</span>
         </button>
-        <button id="nav-btn-time" onclick="switchTab('time')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand transition-colors">
+        <button id="nav-btn-time" onclick="switchTab('time')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand transition-colors relative">
             <i class="fa-solid fa-clock text-xl"></i>
             <span class="text-[9px] font-bold uppercase tracking-wide">Tempo</span>
         </button>
     </nav>
 
     <!-- Overlay Escuro Global -->
-    <div id="modalOverlay" class="hidden absolute inset-0 bg-slate-900/40 backdrop-blur-sm z-[999]" onclick="closeAllPanels()"></div>
+    <div id="modalOverlay" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[999]" onclick="closeAllPanels()"></div>
 
+    <!-- STREAMING_CHUNK:Menu Diário Mapa -->
     <div id="mainMenu" class="fixed top-0 left-0 w-[85%] md:w-[350px] h-full bg-slate-50 shadow-2xl z-[1000] flex flex-col transition-transform duration-300 -translate-x-full">
-        <div class="flex justify-between items-center p-5 border-b border-brand-light bg-white">
+        <div class="flex justify-between items-center p-5 border-b border-brand-light bg-white pt-8">
             <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
                 <i class="fa-solid fa-book-open text-brand"></i> Nosso Diário
             </h2>
@@ -258,10 +307,16 @@
             </div>
         </div>
         <div id="memoryList" class="flex-1 overflow-y-auto p-4 flex flex-col gap-3"></div>
+        
+        <div class="p-4 bg-white border-t border-slate-100">
+            <button onclick="logout()" class="w-full text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 text-sm font-semibold flex items-center justify-center gap-2 py-3 rounded-xl transition-colors">
+                <i class="fa-solid fa-right-from-bracket"></i> Trocar de Usuário
+            </button>
+        </div>
     </div>
 
     <!-- Painel de Adicionar/Ver Memória (Mapa) -->
-    <div id="memoryPanel" class="hidden absolute bottom-0 left-0 right-0 md:bottom-auto md:top-0 md:right-0 md:left-auto w-full md:w-[400px] h-[85vh] md:h-[100dvh] bg-white md:rounded-l-2xl rounded-t-3xl shadow-2xl z-[1000] flex flex-col slide-up transition-transform duration-300">
+    <div id="memoryPanel" class="hidden fixed bottom-0 left-0 right-0 md:bottom-auto md:top-0 md:right-0 md:left-auto w-full md:w-[400px] h-[85vh] md:h-[100dvh] bg-white md:rounded-l-2xl rounded-t-3xl shadow-2xl z-[1000] flex flex-col slide-up transition-transform duration-300">
         <div class="flex justify-between items-center p-5 border-b border-slate-100 shrink-0">
             <h2 id="panelTitle" class="text-xl font-bold text-slate-800">Nova Memória</h2>
             <button onclick="closePanel()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center">
@@ -269,7 +324,7 @@
             </button>
         </div>
         
-        <div class="p-6 flex-1 overflow-y-auto no-scrollbar">
+        <div class="p-6 flex-1 overflow-y-auto no-scrollbar pb-24">
             <form id="memoryForm" class="hidden flex-col gap-4">
                 <input type="hidden" id="latInput">
                 <input type="hidden" id="lngInput">
@@ -323,6 +378,7 @@
         </div>
     </div>
 
+    <!-- STREAMING_CHUNK:Modais Filmes API -->
     <div id="searchMovieModal" class="hidden fixed inset-0 z-[1000] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeSearchMovieModal()"></div>
         
@@ -333,10 +389,9 @@
             </div>
             
             <div class="p-4 bg-white shadow-sm shrink-0">
-                <!-- Área de Configuração TMDb -->
                 <div id="tmdbConfigArea" class="hidden mb-4 p-4 bg-slate-100 rounded-xl border border-slate-200 text-sm">
                     <p class="font-bold text-slate-700 mb-1"><i class="fa-solid fa-key text-brand"></i> Chave do TMDb</p>
-                    <p class="text-slate-600 mb-3 text-xs leading-relaxed">Cole aqui sua "API Key (v3 auth)". Ficará salva na nuvem para os dois celulares!</p>
+                    <p class="text-slate-600 mb-3 text-xs leading-relaxed">Cole aqui sua "API Key (v3 auth)".</p>
                     <div class="flex gap-2">
                         <input type="text" id="apiKeyInput" placeholder="Sua chave aqui..." class="flex-1 px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:border-brand text-xs">
                         <button onclick="saveApiKey()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg font-bold text-xs transition-colors">Salvar</button>
@@ -362,6 +417,7 @@
         </div>
     </div>
 
+    <!-- Modal Salvar Filme -->
     <div id="saveMovieModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeSaveMovieModal()"></div>
         
@@ -409,12 +465,12 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Foto (Câmera ou Galeria)</label>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Foto Nossa Assistindo (Polaroid!)</label>
                     <div class="relative w-full h-32 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 hover:bg-slate-100 flex flex-col items-center justify-center cursor-pointer overflow-hidden group" onclick="document.getElementById('smPhotoInput').click()">
                         <input type="file" id="smPhotoInput" accept="image/*" class="hidden" onchange="previewMovieImage(event)">
                         <div id="smUploadPlaceholder" class="flex flex-col items-center justify-center text-slate-500">
-                            <i class="fa-solid fa-image text-3xl mb-2"></i>
-                            <span class="text-xs font-medium text-center px-4">Momento pipoca<br>(opcional)</span>
+                            <i class="fa-solid fa-camera-retro text-3xl mb-2"></i>
+                            <span class="text-xs font-medium text-center px-4">Momento pipoca<br>(Vai virar uma fotinha no álbum)</span>
                         </div>
                         <img id="smImagePreview" class="hidden absolute inset-0 w-full h-full object-cover">
                     </div>
@@ -427,16 +483,17 @@
         </div>
     </div>
 
+    <!-- STREAMING_CHUNK:Visualizar Filme com Foto (Polaroid) -->
     <div id="viewMovieModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeViewMovieModal()"></div>
         
-        <div class="relative bg-white w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto no-scrollbar">
+        <div class="relative bg-white w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto no-scrollbar pb-10">
             
             <button onclick="closeViewMovieModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 z-20 backdrop-blur-sm"><i class="fa-solid fa-xmark"></i></button>
             
-            <div id="vmHeader" class="w-full h-64 bg-slate-200 relative">
+            <div id="vmHeader" class="w-full h-64 bg-slate-200 relative shrink-0">
                 <img id="vmHeroImage" src="" class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
                 <div class="absolute bottom-4 left-4 right-4">
                     <span id="vmStatusBadge" class="inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 bg-white text-slate-800 shadow-sm"></span>
                     <h2 id="vmTitle" class="text-2xl font-bold text-white leading-tight"></h2>
@@ -446,47 +503,57 @@
 
             <div class="p-6">
                 <div id="vmWatchedInfo" class="hidden flex-col gap-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex gap-1 text-xl text-yellow-400" id="vmStars"></div>
-                        <div class="text-sm font-semibold text-slate-500 bg-slate-100 px-3 py-1 rounded-lg"><i class="fa-regular fa-calendar mr-1"></i> <span id="vmDate"></span></div>
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                        <div class="flex gap-1 text-xl text-yellow-400 drop-shadow-sm" id="vmStars"></div>
+                        <div class="text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg"><i class="fa-regular fa-calendar mr-1"></i> <span id="vmDate"></span></div>
                     </div>
                     
                     <div id="vmReviewsContainer" class="flex flex-col gap-3">
                         <!-- Avaliações renderizadas via JS -->
                     </div>
 
-                    <!-- Área de Nota Pendente -->
-                    <div id="vmPendingArea" class="hidden flex-col gap-3 p-4 bg-brand-light/30 border border-brand/20 rounded-xl mt-2">
-                        <h4 class="font-bold text-brand-dark text-sm">❤️ Sua vez de avaliar!</h4>
-                        <div class="flex justify-center gap-2 text-2xl text-slate-300" id="pendingStarContainer">
-                            <i class="fa-solid fa-star cursor-pointer transition-colors" onclick="setPendingRating(1)"></i>
-                            <i class="fa-solid fa-star cursor-pointer transition-colors" onclick="setPendingRating(2)"></i>
-                            <i class="fa-solid fa-star cursor-pointer transition-colors" onclick="setPendingRating(3)"></i>
-                            <i class="fa-solid fa-star cursor-pointer transition-colors" onclick="setPendingRating(4)"></i>
-                            <i class="fa-solid fa-star cursor-pointer transition-colors" onclick="setPendingRating(5)"></i>
+                    <!-- Área da Foto Polaroid daquele filme -->
+                    <div id="vmPhotoSection" class="hidden flex-col items-center mt-6 mb-2">
+                        <h4 class="font-bold text-slate-400 text-xs uppercase tracking-widest mb-4"><i class="fa-solid fa-camera-retro"></i> Nosso Momento</h4>
+                        <div class="polaroid-frame w-64 max-w-full group">
+                            <img id="vmPhotoImg" src="" class="w-full h-48 object-cover bg-slate-100 rounded-sm">
+                            <p class="text-center font-handwriting text-slate-700 mt-3 font-medium text-sm">Sessão pipoca ❤️</p>
                         </div>
-                        <textarea id="pendingReview" rows="2" placeholder="O que você achou?" class="w-full px-3 py-2 rounded-lg border border-brand/20 focus:outline-none focus:border-brand bg-white text-sm resize-none"></textarea>
-                        <button onclick="submitPendingRating()" class="bg-brand hover:bg-brand-dark text-white font-bold py-2 rounded-lg shadow-sm text-sm transition-colors mt-1">Salvar Minha Nota</button>
+                    </div>
+
+                    <!-- Área de Nota Pendente -->
+                    <div id="vmPendingArea" class="hidden flex-col gap-3 p-4 bg-brand-light/30 border border-brand/20 rounded-xl mt-2 relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 text-brand-dark/5 text-6xl"><i class="fa-solid fa-star"></i></div>
+                        <h4 class="font-bold text-brand-dark text-sm relative z-10">Sua vez de avaliar, <span class="logged-user-name"></span>!</h4>
+                        <div class="flex justify-center gap-2 text-3xl text-slate-300 relative z-10" id="pendingStarContainer">
+                            <i class="fa-solid fa-star cursor-pointer transition-colors hover:scale-110" onclick="setPendingRating(1)"></i>
+                            <i class="fa-solid fa-star cursor-pointer transition-colors hover:scale-110" onclick="setPendingRating(2)"></i>
+                            <i class="fa-solid fa-star cursor-pointer transition-colors hover:scale-110" onclick="setPendingRating(3)"></i>
+                            <i class="fa-solid fa-star cursor-pointer transition-colors hover:scale-110" onclick="setPendingRating(4)"></i>
+                            <i class="fa-solid fa-star cursor-pointer transition-colors hover:scale-110" onclick="setPendingRating(5)"></i>
+                        </div>
+                        <textarea id="pendingReview" rows="2" placeholder="O que você achou?" class="w-full px-3 py-2 rounded-lg border border-brand/20 focus:outline-none focus:border-brand bg-white text-sm resize-none relative z-10"></textarea>
+                        <button onclick="submitPendingRating()" class="bg-brand hover:bg-brand-dark text-white font-bold py-2.5 rounded-xl shadow-sm text-sm transition-colors mt-1 relative z-10 active:scale-[0.98]">Salvar Minha Nota</button>
                     </div>
                 </div>
 
-                <div id="vmWantInfo" class="hidden text-center py-6 text-slate-500">
-                    <i class="fa-solid fa-ticket text-4xl mb-3 text-slate-300"></i>
-                    <p class="font-medium">Está na nossa lista de desejos.<br>Preparem a pipoca! 🍿</p>
+                <div id="vmWantInfo" class="hidden text-center py-8 text-slate-500">
+                    <i class="fa-solid fa-ticket text-5xl mb-4 text-slate-200"></i>
+                    <p class="font-medium text-slate-600">Está na nossa lista de desejos.<br>Preparem a pipoca! 🍿</p>
                 </div>
 
-                <button id="vmDeleteBtn" class="w-full mt-6 bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-500 text-sm font-semibold flex items-center justify-center gap-2 py-3 rounded-xl transition-colors">
-                    <i class="fa-solid fa-trash-can"></i> Remover da lista
+                <button id="vmDeleteBtn" class="w-full mt-6 bg-slate-50 border border-slate-100 hover:bg-red-50 hover:border-red-100 text-slate-400 hover:text-red-500 text-sm font-semibold flex items-center justify-center gap-2 py-3 rounded-xl transition-colors">
+                    <i class="fa-solid fa-trash-can"></i> Remover da nossa lista
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: NOVA CONTA -->
+    <!-- STREAMING_CHUNK:Modais de Contas Atualizado -->
     <div id="financeModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeFinanceModal()"></div>
         <div class="relative bg-white w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 max-h-[90vh] overflow-y-auto no-scrollbar">
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex justify-between items-center mb-6">
                 <h2 class="text-xl font-bold text-slate-800">Nova Conta 💸</h2>
                 <button onclick="closeFinanceModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
             </div>
@@ -494,58 +561,56 @@
             <div class="flex flex-col gap-4">
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1">O que é?</label>
-                    <input type="text" id="fin-title" placeholder="Ex: Mercado, Ifood, Aluguel..." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50">
+                    <input type="text" id="fin-title" placeholder="Ex: Mercado, Aluguel, Ifood..." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1">Valor Total (R$)</label>
                     <input type="number" id="fin-amount" step="0.01" placeholder="Ex: 150.00" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50">
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Como vamos pagar?</label>
-                    <select id="fin-type" onchange="toggleFinFields()" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50 text-slate-600">
-                        <option value="split">Conta Conjunta (Dividir meio a meio)</option>
-                        <option value="debt">Dívida Direta (Um deve o valor total ao outro)</option>
+                
+                <div class="bg-blue-50/50 p-4 rounded-2xl border border-blue-100">
+                    <label class="block text-xs font-bold text-blue-800 uppercase tracking-wider mb-2">Quem Pagou?</label>
+                    <select id="fin-payer" class="w-full px-4 py-3 rounded-xl border border-blue-200 focus:outline-none focus:border-blue-500 bg-white text-slate-700 font-bold mb-3 shadow-sm">
+                        <option value="Luiz">Luiz</option>
+                        <option value="Matheus">Matheus</option>
+                    </select>
+                    
+                    <label class="block text-xs font-bold text-blue-800 uppercase tracking-wider mb-2">Tipo de Divisão</label>
+                    <select id="fin-type" class="w-full px-4 py-3 rounded-xl border border-blue-200 focus:outline-none focus:border-blue-500 bg-white text-slate-700 shadow-sm">
+                        <option value="split">Dividir (50% pra cada)</option>
+                        <option value="full">O outro me deve o valor integral</option>
                     </select>
                 </div>
-                <div id="fin-debt-fields" class="hidden flex-col gap-4 p-4 bg-brand-light/30 rounded-xl border border-brand/20">
-                    <div>
-                        <label class="block text-xs font-bold text-brand-dark mb-1 uppercase tracking-wider">Quem deve pagar?</label>
-                        <input type="text" id="fin-debtor" placeholder="Nome (Ex: Luiz)" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-brand bg-white text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-brand-dark mb-1 uppercase tracking-wider">Para quem?</label>
-                        <input type="text" id="fin-creditor" placeholder="Nome (Ex: Mari)" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-brand bg-white text-sm">
-                    </div>
-                </div>
+
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Data de Vencimento</label>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Data da Conta</label>
                     <input type="date" id="fin-date" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50 text-slate-600">
                 </div>
                 <div>
-                    <label class="flex items-center gap-2 cursor-pointer bg-slate-50 p-4 rounded-xl border border-slate-200">
-                        <input type="checkbox" id="fin-paid" class="w-5 h-5 accent-brand rounded cursor-pointer">
-                        <span class="text-sm font-bold text-slate-700">Essa conta já foi paga?</span>
+                    <label class="flex items-center gap-3 cursor-pointer bg-slate-50 p-4 rounded-xl border border-slate-200 hover:bg-slate-100 transition-colors">
+                        <input type="checkbox" id="fin-paid" class="w-5 h-5 accent-brand rounded cursor-pointer shadow-sm">
+                        <span class="text-sm font-bold text-slate-700">Essa conta já está paga (Quitada)</span>
                     </label>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Comprovante / Recibo (Opcional)</label>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Comprovante (Opcional)</label>
                     <div class="relative w-full h-24 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 hover:bg-slate-100 flex flex-col items-center justify-center cursor-pointer overflow-hidden group" onclick="document.getElementById('finPhotoInput').click()">
                         <input type="file" id="finPhotoInput" accept="image/*" class="hidden" onchange="previewFinImage(event)">
                         <div id="finUploadPlaceholder" class="flex flex-col items-center justify-center text-slate-500">
-                            <i class="fa-solid fa-camera text-2xl mb-1"></i>
+                            <i class="fa-solid fa-receipt text-2xl mb-1"></i>
                             <span class="text-xs font-medium">Anexar foto ou print</span>
                         </div>
                         <img id="finImagePreview" class="hidden absolute inset-0 w-full h-full object-cover">
                     </div>
                 </div>
-                <button onclick="saveFinance()" class="mt-2 w-full bg-brand text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-[0.98] transition-transform">
+                <button onclick="saveFinance()" class="mt-2 w-full bg-brand text-white font-bold py-4 rounded-xl shadow-lg active:scale-[0.98] transition-transform text-lg">
                     Salvar Conta
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: VER CONTA -->
+    <!-- Ver Conta Modal -->
     <div id="viewFinanceModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeViewFinanceModal()"></div>
         <div class="relative bg-white w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 max-h-[90vh] overflow-y-auto no-scrollbar">
@@ -573,16 +638,16 @@
                 <img id="vf-receipt" src="" class="w-full max-h-64 object-contain rounded-xl border border-slate-200 bg-slate-100 p-1">
             </div>
 
-            <button onclick="toggleFinancePaid()" id="vf-toggle-btn" class="w-full mb-3 bg-brand text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-[0.98] transition-transform">
+            <button onclick="toggleFinancePaid()" id="vf-toggle-btn" class="w-full mb-3 font-bold py-3.5 rounded-xl shadow-md active:scale-[0.98] transition-transform">
                 Marcar como Pago
             </button>
-            <button onclick="deleteFinance()" class="w-full text-slate-400 hover:text-red-500 bg-slate-100 hover:bg-red-50 text-sm font-semibold flex items-center justify-center gap-2 py-3 rounded-xl transition-colors">
-                <i class="fa-solid fa-trash-can"></i> Apagar conta permanentemente
+            <button onclick="deleteFinance()" class="w-full text-slate-400 hover:text-red-500 bg-slate-50 border border-slate-100 hover:bg-red-50 text-sm font-semibold flex items-center justify-center gap-2 py-3 rounded-xl transition-colors">
+                <i class="fa-solid fa-trash-can"></i> Apagar esta conta
             </button>
         </div>
     </div>
 
-    <!-- MODAL: DATAS DO TEMPO -->
+    <!-- Modal Tempos Especiais -->
     <div id="timeSettingsModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeTimeSettings()"></div>
         <div class="relative bg-white w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6">
@@ -612,6 +677,8 @@
         firebase.initializeApp({ databaseURL: "https://nosso-app-7feab-default-rtdb.firebaseio.com/" });
         const db = firebase.database();
 
+        let currentUser = null; // 'Luiz' ou 'Matheus'
+
         let map;
         let markersGroup;
         let memories = [];
@@ -626,9 +693,8 @@
         let tempMovieData = null; 
         let smStatus = 'want';
         let smRating = 5;
-        let pRating = 5; // Nota pendente
+        let pRating = 5;
 
-        // Novas variáveis para Contas e Tempo
         let finances = [];
         let currentFinFilter = 'all';
         let currentFinCompressedImage = null;
@@ -636,21 +702,63 @@
 
         let coupleDates = { conhecemos: null, namoro: null };
         let timerInterval = null;
-        
-        let currentListFilter = ''; // Novo filtro de lista global
+        let currentListFilter = ''; 
 
         const CURITIBA_COORDS = [-25.4284, -49.2733];
         const TMDB_GENRES = { 28: "Ação", 12: "Aventura", 16: "Animação", 35: "Comédia", 80: "Crime", 99: "Documentário", 18: "Drama", 10751: "Família", 14: "Fantasia", 36: "História", 27: "Terror", 10402: "Música", 9648: "Mistério", 10749: "Romance", 878: "Ficção científica", 10770: "Cinema TV", 53: "Thriller", 10752: "Guerra", 37: "Faroeste" };
 
         document.addEventListener('DOMContentLoaded', () => {
+            checkLogin();
+        });
+
+        // ==========================================
+        // SISTEMA DE IDENTIDADE E LOGIN
+        // ==========================================
+        function checkLogin() {
+            const savedUser = localStorage.getItem('couple_app_user');
+            if (savedUser && (savedUser === 'Luiz' || savedUser === 'Matheus')) {
+                currentUser = savedUser;
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('loggedUserDisplay').innerText = currentUser;
+                
+                document.querySelectorAll('.logged-user-name').forEach(el => el.innerText = currentUser);
+                
+                initApp();
+            } else {
+                document.getElementById('loginScreen').classList.remove('hidden');
+            }
+        }
+
+        function loginAs(name) {
+            localStorage.setItem('couple_app_user', name);
+            currentUser = name;
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('loggedUserDisplay').innerText = currentUser;
+            document.querySelectorAll('.logged-user-name').forEach(el => el.innerText = currentUser);
+            
+            // Força a seleção natural no form de finanças baseada em quem logou
+            document.getElementById('fin-payer').value = currentUser;
+
+            initApp();
+        }
+
+        function logout() {
+            localStorage.removeItem('couple_app_user');
+            location.reload();
+        }
+
+        function initApp() {
             initMap();
             setupFirebaseSync();
             setTimeout(() => {
                 const toast = document.getElementById('helpToast');
                 if(toast) toast.style.opacity = '0';
             }, 6000);
-        });
+        }
 
+        // ==========================================
+        // CORE: FIREBASE & SINCRONIZAÇÃO
+        // ==========================================
         function setupFirebaseSync() {
             db.ref('memories').on('value', (snap) => {
                 const data = snap.val();
@@ -661,8 +769,8 @@
 
             db.ref('movies').on('value', (snap) => {
                 const data = snap.val();
-                // Failsafe que garante que mesmo filmes velhos tenham ID
                 movies = data ? Object.entries(data).map(([key, val]) => ({...val, id: val.id || key})) : [];
+                checkMovieNotifications();
                 renderMoviesGrid();
             });
 
@@ -677,11 +785,7 @@
                 if(data) {
                     coupleDates = data;
                 } else {
-                    // Aqui estão as datas fixas que você solicitou como padrão!
-                    coupleDates = {
-                        conhecemos: '2025-11-21T00:00',
-                        namoro: '2026-05-03T00:00'
-                    };
+                    coupleDates = { conhecemos: '2025-11-21T00:00', namoro: '2026-05-03T00:00' };
                 }
                 document.getElementById('time-display-area').classList.remove('hidden');
                 document.getElementById('time-empty-state').classList.add('hidden');
@@ -694,8 +798,11 @@
             });
         }
 
-        
+        // ==========================================
+        // ABA: MAPA & MEMÓRIAS
+        // ==========================================
         function initMap() {
+            if(map) return; // Evita reinicializar
             map = L.map('map', { zoomControl: false, tap: false }).setView(CURITIBA_COORDS, 13);
             L.control.zoom({ position: 'bottomleft' }).addTo(map);
 
@@ -717,7 +824,7 @@
         let userLocationCircle = null;
 
         function locateUser() {
-            showCustomMessage("Buscando nossa localização...", 2000);
+            showCustomMessage("Buscando localização...", 2000);
             map.locate({setView: true, maxZoom: 16});
         }
 
@@ -729,21 +836,16 @@
             const gpsIcon = L.divIcon({
                 className: 'custom-gps-marker',
                 html: '<div style="background-color: #3b82f6; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>',
-                iconSize: [16, 16],
-                iconAnchor: [8, 8]
+                iconSize: [16, 16], iconAnchor: [8, 8]
             });
 
             userLocationMarker = L.marker(e.latlng, {icon: gpsIcon}).addTo(map);
             userLocationCircle = L.circle(e.latlng, radius, {
                 color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.15, weight: 1
             }).addTo(map);
-
-            showCustomMessage("Localização encontrada!");
         }
 
-        function onLocationError(e) {
-            showCustomMessage("Ops, não consegui acessar o GPS do celular. Verifique as permissões.");
-        }
+        function onLocationError(e) { showCustomMessage("Ops, falha no GPS. Verifique as permissões."); }
 
         function renderAllMarkers() {
             markersGroup.clearLayers();
@@ -827,9 +929,7 @@
         function toggleVisibility(id, e) {
             e.stopPropagation();
             const mem = memories.find(m => m.id === id);
-            if(mem) {
-                db.ref('memories/' + id + '/isHidden').set(!mem.isHidden);
-            }
+            if(mem) { db.ref('memories/' + id + '/isHidden').set(!mem.isHidden); }
         }
 
         function openAddMemoryPanel(lat, lng) {
@@ -912,7 +1012,28 @@
             showCustomMessage("Memória salva no nosso mapa! ❤️");
         });
 
-        
+
+        // ==========================================
+        // ABA: FILMES 🍿
+        // ==========================================
+        function checkMovieNotifications() {
+            if (!currentUser) return;
+            // Verifica quantos filmes estão "watched" mas o current user não deu nota.
+            const pendingCount = movies.filter(m => m.status === 'watched' && (!m.ratings || !m.ratings[currentUser])).length;
+            
+            const notifBanner = document.getElementById('moviesNotification');
+            const notifBadge = document.getElementById('navMovieBadge');
+            
+            if (pendingCount > 0) {
+                notifBanner.classList.remove('hidden');
+                notifBadge.classList.remove('hidden');
+                document.getElementById('moviesNotificationText').innerText = `Ei ${currentUser}, você tem ${pendingCount} filme(s) aguardando sua nota!`;
+            } else {
+                notifBanner.classList.add('hidden');
+                notifBadge.classList.add('hidden');
+            }
+        }
+
         function openSearchMovieModal() {
             document.getElementById('searchMovieModal').classList.remove('hidden');
             document.getElementById('apiSearchInput').value = '';
@@ -923,9 +1044,7 @@
                 </div>`;
         }
 
-        function closeSearchMovieModal() {
-            document.getElementById('searchMovieModal').classList.add('hidden');
-        }
+        function closeSearchMovieModal() { document.getElementById('searchMovieModal').classList.add('hidden'); }
 
         function toggleApiKeyConfig() {
             const area = document.getElementById('tmdbConfigArea');
@@ -1000,7 +1119,6 @@
             renderMoviesGrid();
         }
         
-        // Nova função para os Chips de Listas
         function setMovieListFilter(listName) {
             currentListFilter = listName;
             updateMovieFiltersUI();
@@ -1044,7 +1162,6 @@
                     ).join('');
 
                     const div = document.createElement('div');
-                    // Design Netflix Ultra-Premium para os Cards
                     div.className = 'group relative bg-slate-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-slate-100/50 flex flex-col cursor-pointer transform transition-all duration-300 hover:-translate-y-1';
                     div.onclick = () => openViewMovieModal(movie);
 
@@ -1053,13 +1170,12 @@
                         : `<div class="absolute top-2 right-2 bg-emerald-500/90 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded-full shadow-sm flex items-center gap-1 z-10 border border-white/20"><i class="fa-solid fa-star text-yellow-300"></i> ${avgRating.toFixed(1)}</div>`;
 
                     let pendingBadge = '';
-                    let myName = localStorage.getItem('couple_app_name');
-                    if (movie.status === 'watched' && myName && movie.ratings && !movie.ratings[myName]) {
-                        pendingBadge = `<div class="absolute top-2 left-2 bg-rose-500/90 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm animate-pulse z-10 border border-white/20">🔴 AVALIAR</div>`;
+                    if (movie.status === 'watched' && currentUser && movie.ratings && !movie.ratings[currentUser]) {
+                        pendingBadge = `<div class="absolute top-2 left-2 bg-rose-500/95 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md animate-pulse z-10 border border-white/20">🔴 AVALIAR</div>`;
                     }
                     
                     let listBadge = movie.listName ? `<div class="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-white/90 text-[9px] font-bold px-2 py-1 rounded-full z-10 border border-white/10 max-w-[80px] truncate"><i class="fa-solid fa-list mr-1"></i>${movie.listName}</div>` : '';
-                    if(pendingBadge) listBadge = ''; // Se tiver pendência de nota, a pendência ganha espaço
+                    if(pendingBadge) listBadge = ''; // Pendência sobrepõe visualmente a tag de lista
 
                     div.innerHTML = `
                         <div class="h-48 md:h-64 relative w-full">
@@ -1086,7 +1202,6 @@
             const listsContainer = document.getElementById('custom-lists-container');
             
             const currentGenre = genreSelect.value;
-            
             const uniqueGenres = new Set();
             const uniqueLists = new Set();
             
@@ -1102,7 +1217,6 @@
             genreSelect.innerHTML = gHtml;
             genreSelect.value = currentGenre;
 
-            // Renderiza as Listas como Botões (Chips) lindíssimos
             if(uniqueLists.size > 0) {
                 listsContainer.classList.remove('hidden');
                 listsContainer.classList.add('flex');
@@ -1118,84 +1232,6 @@
             } else {
                 listsContainer.classList.add('hidden');
                 listsContainer.classList.remove('flex');
-            }
-        }
-
-        function compressImage(file, callback) {
-            if (!file) { callback(null); return; }
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = function(event) {
-                const img = new Image();
-                img.src = event.target.result;
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const MAX_SIZE = 800;
-                    let width = img.width;
-                    let height = img.height;
-                    if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
-                    else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
-                    canvas.width = width; canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    callback(canvas.toDataURL('image/jpeg', 0.6));
-                };
-            };
-        }
-
-        function previewMapImage(event) {
-            compressImage(event.target.files[0], (base64) => {
-                currentCompressedMapImage = base64;
-                const preview = document.getElementById('imagePreview');
-                preview.src = base64;
-                preview.classList.remove('hidden');
-                document.getElementById('uploadPlaceholder').classList.add('hidden');
-            });
-        }
-
-        function previewMovieImage(event) {
-            compressImage(event.target.files[0], (base64) => {
-                currentCompressedMovieImage = base64;
-                const preview = document.getElementById('smImagePreview');
-                preview.src = base64;
-                preview.classList.remove('hidden');
-                document.getElementById('smUploadPlaceholder').classList.add('hidden');
-            });
-        }
-
-        function formatDateBR(dateStr) {
-            if(!dateStr) return "";
-            const [y,m,d] = dateStr.split('-');
-            return `${d}/${m}/${y}`;
-        }
-
-        function switchTab(tabId) {
-            const tabs = {
-                'map': document.getElementById('tab-map'),
-                'movies': document.getElementById('tab-movies'),
-                'finances': document.getElementById('tab-finances'),
-                'time': document.getElementById('tab-time')
-            };
-            const btns = {
-                'map': document.getElementById('nav-btn-map'),
-                'movies': document.getElementById('nav-btn-movies'),
-                'finances': document.getElementById('nav-btn-finances'),
-                'time': document.getElementById('nav-btn-time')
-            };
-
-            for (const key in tabs) {
-                if (key === tabId) {
-                    tabs[key].classList.remove('opacity-0', 'pointer-events-none', 'z-0');
-                    tabs[key].classList.add('z-10');
-                    btns[key].classList.add('text-brand');
-                    btns[key].classList.remove('text-slate-400');
-                    if (key === 'map') setTimeout(() => map.invalidateSize(), 100);
-                } else {
-                    tabs[key].classList.add('opacity-0', 'pointer-events-none', 'z-0');
-                    tabs[key].classList.remove('z-10');
-                    btns[key].classList.remove('text-brand');
-                    btns[key].classList.add('text-slate-400');
-                }
             }
         }
 
@@ -1257,13 +1293,7 @@
 
         function saveMovieToList() {
             if(!tempMovieData) return;
-            
-            let myName = localStorage.getItem('couple_app_name');
-            if (!myName) {
-                myName = prompt("Qual o seu nome? (Para sabermos quem deu a nota!)");
-                if (!myName) return;
-                localStorage.setItem('couple_app_name', myName);
-            }
+            if(!currentUser) { showCustomMessage("Erro de usuário. Tente deslogar e logar de novo."); return; }
             
             const movieId = 'mov_' + tempMovieData.id;
             const listInput = document.getElementById('smList');
@@ -1283,10 +1313,14 @@
             if (smStatus === 'watched') {
                 moviePayload.date = document.getElementById('smDate').value;
                 moviePayload.ratings = {};
-                moviePayload.ratings[myName] = smRating;
+                moviePayload.ratings[currentUser] = smRating;
                 moviePayload.reviews = {};
-                moviePayload.reviews[myName] = document.getElementById('smReview').value;
-                moviePayload.photo = currentCompressedMovieImage;
+                moviePayload.reviews[currentUser] = document.getElementById('smReview').value;
+                
+                // Se a foto foi anexada, guarda ela aqui
+                if(currentCompressedMovieImage) {
+                    moviePayload.photo = currentCompressedMovieImage;
+                }
             }
 
             db.ref('movies/' + movieId).set(moviePayload);
@@ -1309,29 +1343,23 @@
         }
 
         function submitPendingRating() {
-            if(!currentViewingId) return;
-            let myName = localStorage.getItem('couple_app_name');
-            if (!myName) {
-                myName = prompt("Qual o seu nome? (Para sabermos quem deu a nota!)");
-                if (!myName) return;
-                localStorage.setItem('couple_app_name', myName);
-            }
+            if(!currentViewingId || !currentUser) return;
 
             const reviewText = document.getElementById('pendingReview').value;
-            db.ref(`movies/${currentViewingId}/ratings/${myName}`).set(pRating);
-            if(reviewText) db.ref(`movies/${currentViewingId}/reviews/${myName}`).set(reviewText);
+            db.ref(`movies/${currentViewingId}/ratings/${currentUser}`).set(pRating);
+            if(reviewText) db.ref(`movies/${currentViewingId}/reviews/${currentUser}`).set(reviewText);
             
-            showCustomMessage("Sua avaliação foi salva e as médias atualizadas! 🎉");
+            showCustomMessage("Sua avaliação foi salva e a média atualizada! 🎉");
             closeViewMovieModal();
         }
 
         function openViewMovieModal(movie) {
             currentViewingId = movie.id; 
-            let myName = localStorage.getItem('couple_app_name');
             
             const badge = document.getElementById('vmStatusBadge');
             const wantInfo = document.getElementById('vmWantInfo');
             const watchedInfo = document.getElementById('vmWatchedInfo');
+            const photoSection = document.getElementById('vmPhotoSection');
             
             document.getElementById('vmTitle').innerText = movie.title;
             document.getElementById('vmYear').innerText = movie.year;
@@ -1362,7 +1390,7 @@
                 
                 const starsDiv = document.getElementById('vmStars');
                 starsDiv.innerHTML = Array(5).fill(0).map((_, i) => 
-                    `<i class="fa-solid fa-star ${i < Math.round(avgRating) ? 'text-yellow-400' : 'text-slate-200'}"></i>`
+                    `<i class="fa-solid fa-star ${i < Math.round(avgRating) ? 'text-yellow-400' : 'text-slate-200'} drop-shadow-sm"></i>`
                 ).join('') + `<span class="text-slate-700 font-bold ml-2">${avgRating.toFixed(1)}</span>`;
 
                 const reviewsContainer = document.getElementById('vmReviewsContainer');
@@ -1379,9 +1407,9 @@
                         const reviewTxt = reviews[personName] ? reviews[personName] : 'Sem comentário.';
                         const rHtml = `
                             <div class="bg-brand-light/30 p-4 rounded-xl border border-brand/10 relative">
-                                <div class="flex justify-between items-center mb-1">
-                                    <span class="text-xs font-bold text-brand uppercase">${personName}</span>
-                                    <span class="text-xs font-bold text-yellow-500"><i class="fa-solid fa-star"></i> ${personRating}</span>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-xs font-bold text-brand uppercase"><i class="fa-solid fa-user-circle mr-1"></i> ${personName}</span>
+                                    <span class="text-xs font-bold text-yellow-500 bg-white px-2 py-0.5 rounded-full border border-yellow-100 shadow-sm"><i class="fa-solid fa-star"></i> ${personRating}</span>
                                 </div>
                                 <p class="text-slate-700 text-sm leading-relaxed">${reviewTxt}</p>
                             </div>
@@ -1390,8 +1418,18 @@
                     });
                 }
                 
+                // Exibe a Foto (Polaroid) se houver
+                if(movie.photo) {
+                    document.getElementById('vmPhotoImg').src = movie.photo;
+                    photoSection.classList.remove('hidden');
+                    photoSection.classList.add('flex');
+                } else {
+                    photoSection.classList.add('hidden');
+                    photoSection.classList.remove('flex');
+                }
+                
                 const pendingArea = document.getElementById('vmPendingArea');
-                if (myName && movie.ratings && !movie.ratings[myName]) {
+                if (currentUser && movie.ratings && !movie.ratings[currentUser]) {
                     setPendingRating(5);
                     document.getElementById('pendingReview').value = '';
                     pendingArea.classList.remove('hidden');
@@ -1403,7 +1441,6 @@
             }
 
             document.getElementById('vmDeleteBtn').onclick = () => {
-                // Bug corrigido usando currentViewingId!
                 if(confirm("Remover este filme da nossa lista para sempre?")) {
                     db.ref('movies/' + currentViewingId).remove();
                     closeViewMovieModal();
@@ -1415,12 +1452,55 @@
 
         function closeViewMovieModal() { document.getElementById('viewMovieModal').classList.add('hidden'); }
 
+        // Utilitários de Imagem & Toast
+        function compressImage(file, callback) {
+            if (!file) { callback(null); return; }
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function(event) {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_SIZE = 800;
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
+                    else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
+                    canvas.width = width; canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    callback(canvas.toDataURL('image/jpeg', 0.6));
+                };
+            };
+        }
+
+        function previewMapImage(event) {
+            compressImage(event.target.files[0], (base64) => {
+                currentCompressedMapImage = base64;
+                const preview = document.getElementById('imagePreview');
+                preview.src = base64;
+                preview.classList.remove('hidden');
+                document.getElementById('uploadPlaceholder').classList.add('hidden');
+            });
+        }
+
+        function previewMovieImage(event) {
+            compressImage(event.target.files[0], (base64) => {
+                currentCompressedMovieImage = base64;
+                const preview = document.getElementById('smImagePreview');
+                preview.src = base64;
+                preview.classList.remove('hidden');
+                document.getElementById('smUploadPlaceholder').classList.add('hidden');
+            });
+        }
+
         function showCustomMessage(msg, duration = 3000) {
             const old = document.getElementById('sysToast');
             if(old) old.remove();
             const toast = document.createElement('div');
             toast.id = 'sysToast';
-            toast.className = 'fixed top-10 md:bottom-24 md:top-auto left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl text-sm font-semibold z-[9999] slide-up text-center w-max max-w-[90vw] pointer-events-none';
+            toast.className = 'fixed top-10 md:bottom-24 md:top-auto left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl text-sm font-semibold z-[9999] slide-up text-center w-max max-w-[90vw] pointer-events-none border border-slate-700';
             toast.innerText = msg;
             document.body.appendChild(toast);
             setTimeout(() => {
@@ -1430,32 +1510,23 @@
         }
 
         // ==========================================
-        // LÓGICA DA ABA: NOSSAS CONTAS 💸
+        // ABA: NOSSAS CONTAS 💸 (Atualizado para Luiz e Matheus)
         // ==========================================
         function openFinanceModal() {
             document.getElementById('fin-title').value = '';
             document.getElementById('fin-amount').value = '';
+            document.getElementById('fin-payer').value = currentUser || 'Luiz';
             document.getElementById('fin-type').value = 'split';
-            document.getElementById('fin-debtor').value = '';
-            document.getElementById('fin-creditor').value = '';
             document.getElementById('fin-date').value = new Date().toISOString().split('T')[0];
             document.getElementById('fin-paid').checked = false;
             document.getElementById('finPhotoInput').value = '';
             currentFinCompressedImage = null;
             document.getElementById('finImagePreview').classList.add('hidden');
             document.getElementById('finUploadPlaceholder').classList.remove('hidden');
-            toggleFinFields();
             document.getElementById('financeModal').classList.remove('hidden');
         }
 
         function closeFinanceModal() { document.getElementById('financeModal').classList.add('hidden'); }
-
-        function toggleFinFields() {
-            const type = document.getElementById('fin-type').value;
-            const fields = document.getElementById('fin-debt-fields');
-            if(type === 'debt') { fields.classList.remove('hidden'); fields.classList.add('flex'); }
-            else { fields.classList.add('hidden'); fields.classList.remove('flex'); }
-        }
 
         function previewFinImage(event) {
             compressImage(event.target.files[0], (base64) => {
@@ -1477,9 +1548,8 @@
                 id: id,
                 title: title,
                 amount: amount,
-                type: document.getElementById('fin-type').value,
-                debtor: document.getElementById('fin-debtor').value.trim(),
-                creditor: document.getElementById('fin-creditor').value.trim(),
+                payer: document.getElementById('fin-payer').value,
+                type: document.getElementById('fin-type').value, // 'split' ou 'full'
                 date: document.getElementById('fin-date').value,
                 paid: document.getElementById('fin-paid').checked,
                 receipt: currentFinCompressedImage,
@@ -1488,7 +1558,7 @@
 
             db.ref('finances/' + id).set(data);
             closeFinanceModal();
-            showCustomMessage("Conta guardada na nuvem!");
+            showCustomMessage("Conta adicionada!");
         }
 
         function setFinFilter(f) {
@@ -1502,32 +1572,70 @@
             renderFinances();
         }
 
+        function clearFinancesHistory() {
+            if(confirm("Apagar todas as contas já marcadas como PAGAS? Isso não apaga as contas pendentes.")) {
+                finances.forEach(f => {
+                    if(f.paid) {
+                        db.ref('finances/' + f.id).remove();
+                    }
+                });
+                showCustomMessage("Histórico de contas pagas foi limpo!");
+            }
+        }
+
         function renderFinances() {
             const list = document.getElementById('financesList');
             const empty = document.getElementById('financesEmpty');
             list.innerHTML = '';
             
-            let totalPending = 0;
-            let totalPaid = 0;
+            // Variável de balanço geral (Positivo = Luiz deve ao Matheus | Negativo = Matheus deve ao Luiz)
+            let balance = 0; 
 
             const filtered = finances.filter(f => {
-                if(f.paid) totalPaid += f.amount;
-                else totalPending += f.amount;
+                if(!f.paid) {
+                    // Cálculo da dívida entre os dois
+                    // Se a conta for antiga e tiver 'debtor/creditor', vamos tentar adaptar ou ignorar pro balanço
+                    const payer = f.payer || (f.creditor || 'N/A');
+                    const isSplit = f.type === 'split';
+
+                    if (payer === 'Matheus') {
+                        // Matheus pagou. Luiz deve a ele.
+                        balance += isSplit ? (f.amount / 2) : f.amount;
+                    } else if (payer === 'Luiz') {
+                        // Luiz pagou. Matheus deve a ele.
+                        balance -= isSplit ? (f.amount / 2) : f.amount;
+                    }
+                }
 
                 if(currentFinFilter === 'paid' && !f.paid) return false;
                 if(currentFinFilter === 'pending' && f.paid) return false;
                 return true;
             });
 
-            document.getElementById('fin-total-pending').innerText = `R$ ${totalPending.toFixed(2).replace('.',',')}`;
-            document.getElementById('fin-total-paid').innerText = `R$ ${totalPaid.toFixed(2).replace('.',',')}`;
+            // Atualiza os cartões superiores
+            const lblLuiz = document.getElementById('fin-luiz-owes');
+            const lblMatheus = document.getElementById('fin-matheus-owes');
+            
+            if (balance > 0) {
+                // Luiz deve pro Matheus
+                lblLuiz.innerText = `R$ ${balance.toFixed(2).replace('.',',')}`;
+                lblMatheus.innerText = `R$ 0,00`;
+            } else if (balance < 0) {
+                // Matheus deve pro Luiz
+                lblLuiz.innerText = `R$ 0,00`;
+                lblMatheus.innerText = `R$ ${Math.abs(balance).toFixed(2).replace('.',',')}`;
+            } else {
+                lblLuiz.innerText = `R$ 0,00`;
+                lblMatheus.innerText = `R$ 0,00`;
+            }
 
             if(filtered.length === 0) {
                 empty.classList.remove('hidden'); empty.classList.add('flex');
             } else {
                 empty.classList.add('hidden'); empty.classList.remove('flex');
                 filtered.sort((a,b) => b.timestamp - a.timestamp).forEach(f => {
-                    let desc = f.type === 'split' ? "Nós vamos dividir" : `${f.debtor} deve pagar a ${f.creditor}`;
+                    let desc = f.type === 'split' ? `${f.payer} pagou e vai ser dividido 50/50` : `${f.payer} pagou e o outro deve valor total`;
+                    
                     let statusBadge = f.paid 
                         ? `<span class="bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider uppercase">Pago</span>`
                         : `<span class="bg-red-100 text-red-600 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider uppercase">Pendente</span>`;
@@ -1536,8 +1644,8 @@
                     div.className = 'bg-white p-3 rounded-xl shadow-sm border border-slate-100 flex items-center gap-3 cursor-pointer hover:border-brand active:scale-[0.98] transition-all';
                     div.onclick = () => openViewFinance(f.id);
                     div.innerHTML = `
-                        <div class="w-10 h-10 rounded-full ${f.paid ? 'bg-emerald-50 text-emerald-500' : 'bg-red-50 text-red-500'} flex items-center justify-center shrink-0 text-lg">
-                            <i class="fa-solid ${f.type==='split' ? 'fa-users' : 'fa-handshake'}"></i>
+                        <div class="w-10 h-10 rounded-full ${f.paid ? 'bg-emerald-50 text-emerald-500' : 'bg-blue-50 text-blue-500'} flex items-center justify-center shrink-0 text-lg">
+                            <i class="fa-solid ${f.type==='split' ? 'fa-divide' : 'fa-handshake'}"></i>
                         </div>
                         <div class="flex-1 min-w-0">
                             <h4 class="font-bold text-slate-800 text-sm truncate leading-tight">${f.title}</h4>
@@ -1562,7 +1670,7 @@
             
             const vDate = document.getElementById('vf-date');
             if(f.date) {
-                vDate.innerText = "Vencimento: " + formatDateBR(f.date);
+                vDate.innerText = "Data: " + formatDateBR(f.date);
                 vDate.classList.remove('hidden');
             } else {
                 vDate.classList.add('hidden');
@@ -1570,20 +1678,22 @@
 
             document.getElementById('vf-amount').innerText = `R$ ${f.amount.toFixed(2).replace('.',',')}`;
             
-            document.getElementById('vf-desc').innerText = f.type === 'split' 
-                ? "🫂 Conta Conjunta: O valor total acima deve ser dividido na metade entre os dois." 
-                : `👉 Dívida Direta: ${f.debtor} tem que pagar R$ ${f.amount.toFixed(2).replace('.',',')} para ${f.creditor}.`;
+            let explanation = f.type === 'split' 
+                ? `🫂 ${f.payer} pagou o total. O outro deve pagar R$ ${(f.amount/2).toFixed(2).replace('.',',')} (Metade)` 
+                : `👉 ${f.payer} pagou tudo. O outro deve R$ ${f.amount.toFixed(2).replace('.',',')} (Integral)`;
+
+            document.getElementById('vf-desc').innerText = explanation;
             
             const statusBox = document.getElementById('vf-status-box');
             const btn = document.getElementById('vf-toggle-btn');
             if(f.paid) {
-                statusBox.innerHTML = `<div class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 w-full justify-center"><i class="fa-solid fa-check-circle text-lg"></i> Essa conta já foi paga!</div>`;
-                btn.innerText = "Ops, desfazer e marcar como Pendente";
-                btn.className = "w-full mb-3 bg-slate-100 text-slate-600 hover:bg-slate-200 font-bold py-3.5 rounded-xl transition-colors";
+                statusBox.innerHTML = `<div class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2 w-full justify-center"><i class="fa-solid fa-check-circle text-lg"></i> Resolvido (Pago)</div>`;
+                btn.innerText = "Desfazer (Marcar como Pendente)";
+                btn.className = "w-full mb-3 bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200 font-bold py-3.5 rounded-xl transition-colors";
             } else {
-                statusBox.innerHTML = `<div class="bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 w-full justify-center"><i class="fa-solid fa-clock text-lg"></i> Pagamento Pendente</div>`;
+                statusBox.innerHTML = `<div class="bg-red-50 text-red-600 border border-red-200 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2 w-full justify-center"><i class="fa-solid fa-clock text-lg"></i> Pagamento Pendente</div>`;
                 btn.innerText = "Marcar como Pago";
-                btn.className = "w-full mb-3 bg-brand text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-[0.98] transition-transform";
+                btn.className = "w-full mb-3 bg-brand text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-[0.98] transition-transform text-lg";
             }
 
             const receiptDiv = document.getElementById('vf-receipt-container');
@@ -1610,14 +1720,14 @@
         }
 
         function deleteFinance() {
-            if(confirm("Deseja mesmo apagar esta conta?")) {
+            if(confirm("Deseja mesmo apagar esta conta para sempre?")) {
                 db.ref('finances/' + currentViewFinanceId).remove();
                 closeViewFinanceModal();
             }
         }
 
         // ==========================================
-        // LÓGICA DA ABA: NOSSO TEMPO ⏳
+        // ABA: NOSSO TEMPO ⏳
         // ==========================================
         function openTimeSettings() {
             document.getElementById('ts-conhecemos').value = coupleDates.conhecemos || '';
@@ -1691,12 +1801,12 @@
 
         function buildCounterHTML(boxes, isDarkTheme) {
             const boxClass = isDarkTheme 
-                ? "flex flex-col items-center bg-white/10 backdrop-blur-md p-2 md:p-3 rounded-xl border border-white/20 shadow-sm"
-                : "flex flex-col items-center bg-slate-50 p-2 md:p-3 rounded-xl border border-slate-100 shadow-sm";
+                ? "flex flex-col items-center justify-center bg-white/10 backdrop-blur-md p-2 md:p-3 rounded-xl border border-white/20 shadow-sm"
+                : "flex flex-col items-center justify-center bg-slate-50 p-2 md:p-3 rounded-xl border border-slate-100 shadow-sm";
             
             const numClass = isDarkTheme 
-                ? "text-xl md:text-3xl font-black text-white tabular-nums tracking-tighter"
-                : "text-xl md:text-3xl font-black text-brand tabular-nums tracking-tighter";
+                ? "text-2xl md:text-3xl font-black text-white tabular-nums tracking-tighter"
+                : "text-2xl md:text-3xl font-black text-brand tabular-nums tracking-tighter";
                 
             const labelClass = isDarkTheme
                 ? "text-[9px] md:text-xs font-bold text-white/70 uppercase tracking-widest mt-1"
@@ -1716,11 +1826,36 @@
             return data.toLocaleDateString('pt-BR');
         }
 
-        function formatDateTimeBR(isoString) {
-            if(!isoString) return '';
-            const data = new Date(isoString);
-            return `Desde ${data.toLocaleDateString('pt-BR')} às ${data.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}`;
+        function switchTab(tabId) {
+            const tabs = {
+                'map': document.getElementById('tab-map'),
+                'movies': document.getElementById('tab-movies'),
+                'finances': document.getElementById('tab-finances'),
+                'time': document.getElementById('tab-time')
+            };
+            const btns = {
+                'map': document.getElementById('nav-btn-map'),
+                'movies': document.getElementById('nav-btn-movies'),
+                'finances': document.getElementById('nav-btn-finances'),
+                'time': document.getElementById('nav-btn-time')
+            };
+
+            for (const key in tabs) {
+                if (key === tabId) {
+                    tabs[key].classList.remove('opacity-0', 'pointer-events-none', 'z-0');
+                    tabs[key].classList.add('z-10');
+                    btns[key].classList.add('text-brand');
+                    btns[key].classList.remove('text-slate-400');
+                    if (key === 'map') setTimeout(() => map.invalidateSize(), 100);
+                } else {
+                    tabs[key].classList.add('opacity-0', 'pointer-events-none', 'z-0');
+                    tabs[key].classList.remove('z-10');
+                    btns[key].classList.remove('text-brand');
+                    btns[key].classList.add('text-slate-400');
+                }
+            }
         }
     </script>
 </body>
 </html>
+```eof
