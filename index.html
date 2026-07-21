@@ -432,7 +432,6 @@
             </form>
 
             <div id="memoryView" class="hidden flex-col gap-5 items-center">
-                <!-- Polaroid View no Mapa -->
                 <div class="polaroid-frame rotated-right w-full mt-4">
                     <div class="tape"></div>
                     <div id="viewImageContainer" class="w-full aspect-square bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200 mb-4"></div>
@@ -451,8 +450,6 @@
     </div>
 
     <!-- Modais Universais: Explorar, Salvar Item, Visualizar Item -->
-    
-    <!-- Modal Explorar/Busca -->
     <div id="exploreModal" class="hidden fixed inset-0 z-[1000] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeExploreModal()"></div>
         
@@ -493,7 +490,6 @@
         </div>
     </div>
 
-    <!-- Modal Salvar Item -->
     <div id="saveItemModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeSaveItemModal()"></div>
         
@@ -593,7 +589,6 @@
         </div>
     </div>
 
-    <!-- Modal Visualizar Item (Clean, Premium, Letterboxd Style) -->
     <div id="viewItemModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeViewItemModal()"></div>
         
@@ -637,7 +632,6 @@
                             <div id="vmCastContainer" class="flex gap-3 overflow-x-auto no-scrollbar pb-1"></div>
                         </div>
                         
-                        <!-- Dados Extras Filmes -->
                         <div id="vmMovieDataArea" class="hidden grid grid-cols-2 gap-2 mt-2">
                             <div class="bg-slate-50 p-2 rounded-lg border border-slate-100 text-center">
                                 <span class="font-bold uppercase tracking-wider text-[9px] text-slate-400 block mb-0.5">Orçamento</span>
@@ -649,7 +643,6 @@
                             </div>
                         </div>
                         
-                        <!-- Dados Extras Séries -->
                         <div id="vmTvDataArea" class="hidden grid grid-cols-2 gap-2 mt-2">
                             <div class="bg-slate-50 p-2 rounded-lg border border-slate-100 text-center">
                                 <span class="font-bold uppercase tracking-wider text-[9px] text-slate-400 block mb-0.5">Temporadas</span>
@@ -775,7 +768,6 @@
         </div>
     </div>
 
-    <!-- Ver Conta Modal -->
     <div id="viewFinanceModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeViewFinanceModal()"></div>
         <div class="relative bg-white w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 max-h-[90vh] overflow-y-auto no-scrollbar">
@@ -812,7 +804,6 @@
         </div>
     </div>
 
-    <!-- Modal Tempos Especiais -->
     <div id="timeSettingsModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeTimeSettings()"></div>
         <div class="relative bg-white w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6">
@@ -844,21 +835,18 @@
 
         let currentUser = null;
 
-        // Map & Album
         let map;
         let markersGroup;
         let memories = [];
         let albumIsBookMode = false;
         
-        // Entertainment
         let movies = [];
         let shows = [];
         let currentFilter = { movie: 'all', tv: 'all' };
         let tmdbApiKey = "";
         let currentTrailerKey = "";
-        let currentExploreType = "movie";
+        let currentExploreType = "movie"; 
         
-        // Modal states
         let currentCompressedMapImage = null;
         let currentCompressedItemImage = null;
         let currentViewingId = null;
@@ -867,13 +855,11 @@
         let smRating = 5;
         let pRating = 5;
 
-        // Finances
         let finances = [];
         let currentFinFilter = 'all';
         let currentFinCompressedImage = null;
         let currentViewFinanceId = null;
 
-        // Time
         let coupleDates = { conhecemos: null, namoro: null };
         let timerInterval = null;
         let currentListFilter = { movie: '', tv: '' };
@@ -1006,7 +992,7 @@
             memories.forEach(memory => {
                 if (memory.isHidden || !memory.lat || !memory.lng) return;
                 const marker = L.marker([memory.lat, memory.lng], { icon: heartIcon });
-                marker.on('click', () => openViewMemoryPanel(memory));
+                marker.on('click', function(e) { L.DomEvent.stopPropagation(e); openViewMemoryPanel(memory); });
                 markersGroup.addLayer(marker);
             });
         }
@@ -1757,11 +1743,6 @@
             closeViewItemModal();
         }
 
-        function formatMoney(value) {
-            if(!value || value === 0) return '-';
-            return '$' + (value / 1000000).toFixed(1) + 'M';
-        }
-
         function openViewItemModal(item) {
             try {
                 if(!item || !item.id) return;
@@ -1820,7 +1801,7 @@
                         const uniqueNames = new Set([...Object.keys(ratings), ...Object.keys(reviews)]);
                         
                         uniqueNames.forEach(personName => {
-                            if(personName.length > 15) return; // ignora lixo de banco de dados velho
+                            if(personName.length > 15) return; 
                             const personRating = ratings[personName] || '-';
                             const reviewTxt = reviews[personName] || '';
                             const avatarColor = personName === 'Luiz' ? 'bg-blue-100 text-blue-500' : 'bg-emerald-100 text-emerald-500';
@@ -2038,7 +2019,7 @@
         }
 
         // ==========================================
-        // ABA: NOSSAS CONTAS E TEMPO (Intocados e Limpos)
+        // ABA: NOSSAS CONTAS 💸
         // ==========================================
         function openFinanceModal() {
             document.getElementById('fin-title').value = '';
@@ -2348,7 +2329,39 @@
             `).join('');
         }
         
+        function switchTab(tabId) {
+            const tabs = {
+                'map': document.getElementById('tab-map'),
+                'movies': document.getElementById('tab-movies'),
+                'shows': document.getElementById('tab-shows'),
+                'finances': document.getElementById('tab-finances'),
+                'time': document.getElementById('tab-time')
+            };
+            const btns = {
+                'map': document.getElementById('nav-btn-map'),
+                'movies': document.getElementById('nav-btn-movies'),
+                'shows': document.getElementById('nav-btn-shows'),
+                'finances': document.getElementById('nav-btn-finances'),
+                'time': document.getElementById('nav-btn-time')
+            };
+
+            for (const key in tabs) {
+                if (key === tabId) {
+                    tabs[key].classList.remove('opacity-0', 'pointer-events-none', 'z-0');
+                    tabs[key].classList.add('z-10');
+                    btns[key].classList.add('text-brand');
+                    btns[key].classList.remove('text-slate-400');
+                    if (key === 'map') setTimeout(() => map.invalidateSize(), 100);
+                } else {
+                    tabs[key].classList.add('opacity-0', 'pointer-events-none', 'z-0');
+                    tabs[key].classList.remove('z-10');
+                    btns[key].classList.remove('text-brand');
+                    btns[key].classList.add('text-slate-400');
+                }
+            }
+        }
     </script>
 </body>
 </html>
+
 ```eof
