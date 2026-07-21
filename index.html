@@ -133,7 +133,6 @@
         </div>
     </div>
 
-    <!-- Estrutura Principal -->
     <main class="flex-1 relative overflow-hidden bg-slate-50 dark:bg-slate-900 transition-colors">
         
         <!-- ABA 1: MAPA -->
@@ -141,22 +140,17 @@
             <div id="map"></div>
             <button onclick="locateUser()" class="absolute bottom-6 right-4 z-[400] w-12 h-12 bg-white dark:bg-slate-800 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-brand transition-all"><i class="fa-solid fa-location-crosshairs text-xl"></i></button>
 
-            <!-- STREAMING_CHUNK:Novo Menu Superior do Mapa com Busca -->
-            <div class="absolute top-4 left-4 right-[100px] z-[400] pointer-events-none">
-                <div class="glass-panel rounded-2xl shadow-lg flex items-center p-2 pr-4 gap-3 w-full pointer-events-auto">
-                    <button onclick="toggleMenu()" class="w-10 h-10 shrink-0 rounded-xl bg-brand/10 text-brand flex items-center justify-center hover:bg-brand hover:text-white transition-colors" title="Abrir Álbum">
-                        <i class="fa-solid fa-images text-lg"></i>
-                    </button>
-                    <div class="flex-1 relative">
-                        <input type="text" id="mapSearchInput" placeholder="Buscar rua, parque, cidade..." class="w-full bg-transparent border-none focus:outline-none text-sm font-semibold text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500" onkeyup="if(event.key === 'Enter') searchMapLocation()">
+            <!-- Ajuste: top-4 deixado com mr-24 para não encavalar nos botões globais -->
+            <div class="absolute top-4 left-4 right-24 md:left-1/2 md:-translate-x-1/2 md:w-auto z-[400] flex items-center pointer-events-none gap-3">
+                <button onclick="toggleMenu()" class="pointer-events-auto glass-panel w-12 h-12 shrink-0 rounded-2xl shadow-lg flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors"><i class="fa-solid fa-images text-xl"></i></button>
+                <div class="glass-panel px-4 md:px-6 py-2 md:py-3 rounded-2xl shadow-lg flex items-center gap-3 pointer-events-auto flex-1 md:flex-none">
+                    <div class="w-10 h-10 shrink-0 rounded-full bg-brand-light dark:bg-brand/20 flex items-center justify-center text-brand"><i class="fa-solid fa-map-location-dot text-lg"></i></div>
+                    <div class="flex flex-col min-w-0">
+                        <h1 class="text-sm md:text-lg font-bold text-slate-800 dark:text-white leading-tight truncate">Nosso Mapa</h1>
+                        <p class="text-[10px] md:text-xs text-slate-500 dark:text-slate-400 font-medium truncate">Olá, <span id="loggedUserDisplay" class="font-bold text-brand"></span>! <i class="fa-solid fa-heart text-brand ml-1"></i></p>
                     </div>
-                    <button onclick="searchMapLocation()" class="text-slate-400 hover:text-brand transition-colors"><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
-                
-                <!-- Dropdown de Resultados da Pesquisa no Mapa -->
-                <div id="mapSearchResults" class="hidden mt-2 glass-panel rounded-2xl shadow-lg flex-col overflow-hidden max-h-48 overflow-y-auto pointer-events-auto"></div>
             </div>
-
             <div id="helpToast" class="absolute top-24 left-1/2 -translate-x-1/2 z-[400] bg-slate-800 dark:bg-slate-700 text-white px-4 py-2 rounded-full shadow-lg text-sm font-medium opacity-90 transition-opacity duration-500 pointer-events-none">Toque no mapa para adicionar uma memória.</div>
         </div>
 
@@ -165,7 +159,7 @@
             <div class="flex justify-between items-center mb-6 mt-10 md:mt-4">
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Filmes <i class="fa-solid fa-popcorn text-brand"></i></h1>
                 <div class="flex gap-2">
-                    <button onclick="pickRandomItem('movie')" class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 w-10 h-10 rounded-full shadow-sm flex items-center justify-center hover:bg-indigo-100 hover:scale-105 transition-all" title="Sortear Filme da Lista de Desejos"><i class="fa-solid fa-dice text-lg"></i></button>
+                    <button onclick="pickRandomItem('movie')" class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 w-10 h-10 rounded-full shadow-sm flex items-center justify-center hover:bg-indigo-100 hover:scale-105 transition-all"><i class="fa-solid fa-dice text-lg"></i></button>
                     <button onclick="openExploreModal('movie')" class="bg-brand text-white w-10 h-10 rounded-full shadow-md flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all"><i class="fa-solid fa-plus text-lg"></i></button>
                 </div>
             </div>
@@ -192,7 +186,7 @@
             <div class="flex justify-between items-center mb-6 mt-10 md:mt-4">
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Séries <i class="fa-solid fa-tv text-brand"></i></h1>
                 <div class="flex gap-2">
-                    <button onclick="pickRandomItem('tv')" class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 w-10 h-10 rounded-full shadow-sm flex items-center justify-center hover:bg-indigo-100 hover:scale-105 transition-all" title="Sortear Série Aleatória"><i class="fa-solid fa-dice text-lg"></i></button>
+                    <button onclick="pickRandomItem('tv')" class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 w-10 h-10 rounded-full shadow-sm flex items-center justify-center hover:bg-indigo-100 hover:scale-105 transition-all"><i class="fa-solid fa-dice text-lg"></i></button>
                     <button onclick="openExploreModal('tv')" class="bg-brand text-white w-10 h-10 rounded-full shadow-md flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all"><i class="fa-solid fa-plus text-lg"></i></button>
                 </div>
             </div>
@@ -309,7 +303,7 @@
 
     </main>
 
-    <!-- Barra de Navegação -->
+    <!-- Barra de Navegação Inferior -->
     <nav class="fixed bottom-0 w-full h-16 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] flex justify-around items-center z-[500] px-1 pb-safe transition-colors">
         <button id="nav-btn-map" onclick="switchTab('map')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-brand transition-colors relative group">
             <i class="fa-solid fa-map text-lg group-hover:scale-110 transition-transform"></i>
@@ -337,7 +331,6 @@
         </button>
     </nav>
 
-    <!-- Overlay Escuro Global -->
     <div id="modalOverlay" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[999]" onclick="closeAllPanels()"></div>
 
     <!-- Menu Diário Mapa (Álbum) -->
@@ -372,7 +365,7 @@
         <div id="memoryList" class="flex-1 overflow-y-auto p-4 pt-6 z-10 relative"></div>
     </div>
 
-    <!-- Modal de Configurações Globais -->
+    <!-- STREAMING_CHUNK:Novo Modal de Configurações Globais -->
     <div id="settingsModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeSettings()"></div>
         <div class="relative bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl flex flex-col slide-up shadow-2xl p-6 border border-slate-800">
@@ -410,7 +403,7 @@
         </div>
     </div>
 
-    <!-- Central de Notificações (Sino) -->
+    <!-- STREAMING_CHUNK:Central de Notificações (Sino) -->
     <div id="notificationsModal" class="hidden fixed inset-0 z-[1050] flex justify-end">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeNotifications()"></div>
         <div class="relative bg-slate-50 dark:bg-slate-900 w-full md:w-[400px] h-full shadow-2xl flex flex-col slide-in-right border-l border-slate-200 dark:border-slate-800">
@@ -420,22 +413,26 @@
             </div>
             
             <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-6 no-scrollbar pb-10">
+                <!-- Status do Parceiro -->
                 <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center gap-3">
                     <div id="partnerPresenceStatus" class="flex items-center gap-2 w-full justify-center">
                         <i class="fa-solid fa-spinner fa-spin text-slate-400"></i> <span class="text-sm font-medium text-slate-500">Verificando status...</span>
                     </div>
                 </div>
 
+                <!-- Avaliações Pendentes -->
                 <div>
                     <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ml-1"><i class="fa-solid fa-star text-yellow-500 mr-1"></i> Para Avaliar</h4>
                     <div id="notif-ratings-list" class="flex flex-col gap-2"></div>
                 </div>
 
+                <!-- Últimas do Álbum -->
                 <div>
                     <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ml-1"><i class="fa-solid fa-camera-retro text-brand mr-1"></i> Novas Fotos</h4>
                     <div id="notif-album-list" class="flex flex-col gap-2"></div>
                 </div>
 
+                <!-- Próximos Eventos -->
                 <div>
                     <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ml-1"><i class="fa-regular fa-calendar text-blue-500 mr-1"></i> Agenda</h4>
                     <div id="notif-events-list" class="flex flex-col gap-2"></div>
@@ -444,7 +441,7 @@
         </div>
     </div>
 
-    <!-- Resumo do Dia (Agenda) -->
+    <!-- STREAMING_CHUNK:Resumo do Dia (Agenda) -->
     <div id="daySummaryModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeDaySummary()"></div>
         <div class="relative bg-slate-50 dark:bg-slate-900 w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl overflow-hidden max-h-[85vh] border border-slate-800">
@@ -453,7 +450,71 @@
                 <button onclick="closeDaySummary()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
-            <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-6 no-scrollbar pb-10" id="daySummaryContent"></div>
+            <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-6 no-scrollbar pb-10" id="daySummaryContent">
+                <!-- Injetado via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Painel Nova Memória Mapa -->
+    <div id="memoryPanel" class="hidden fixed bottom-0 left-0 right-0 md:bottom-auto md:top-0 md:right-0 md:left-auto w-full md:w-[400px] h-[85vh] md:h-[100dvh] bg-white dark:bg-slate-900 md:rounded-l-2xl rounded-t-3xl shadow-2xl z-[1000] flex flex-col slide-up transition-transform duration-300">
+        <div class="flex justify-between items-center p-5 border-b border-slate-100 dark:border-slate-800 shrink-0">
+            <h2 id="panelTitle" class="text-xl font-bold text-slate-800 dark:text-white">Nova Memória</h2>
+            <button onclick="closePanel()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        
+        <div class="p-6 flex-1 overflow-y-auto no-scrollbar pb-24">
+            <form id="memoryForm" class="hidden flex-col gap-4">
+                <input type="hidden" id="latInput">
+                <input type="hidden" id="lngInput">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Onde estávamos?</label>
+                    <input type="text" id="placeName" required placeholder="Ex: Jardim Botânico..." class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Quando foi?</label>
+                    <input type="date" id="dateInput" required class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Nossa Foto</label>
+                    <div class="relative w-full h-40 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 flex flex-col items-center justify-center cursor-pointer overflow-hidden group" onclick="document.getElementById('photoInput').click()">
+                        <input type="file" id="photoInput" accept="image/*" class="hidden" onchange="previewMapImage(event)">
+                        <div id="uploadPlaceholder" class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400">
+                            <i class="fa-solid fa-camera text-3xl mb-2"></i>
+                            <span class="text-sm font-medium">Toque para anexar</span>
+                        </div>
+                        <img id="imagePreview" class="hidden absolute inset-0 w-full h-full object-cover">
+                        <div id="imageOverlay" class="hidden absolute inset-0 bg-black/40 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                            <i class="fa-solid fa-pen"></i> Trocar
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Notinha</label>
+                    <textarea id="notesInput" rows="3" placeholder="Foi incrível porque..." class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-800 dark:text-white resize-none font-journal text-lg"></textarea>
+                </div>
+                <button type="submit" class="mt-4 w-full bg-brand text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-[0.98] transition-transform">
+                    <i class="fa-solid fa-heart"></i> Salvar Memória no Álbum
+                </button>
+            </form>
+
+            <div id="memoryView" class="hidden flex-col gap-5 items-center">
+                <div class="polaroid-frame rotated-right w-full mt-4">
+                    <div class="tape"></div>
+                    <div id="viewImageContainer" class="w-full aspect-square bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border border-slate-200 dark:border-slate-700 mb-4"></div>
+                    <div class="px-2">
+                        <h3 id="viewTitle" class="text-3xl font-journal font-bold text-slate-800 dark:text-slate-200 leading-none"></h3>
+                        <p id="viewDate" class="font-journal text-slate-500 dark:text-slate-400 text-lg mt-1"></p>
+                        <p id="viewNotes" class="font-journal text-slate-700 dark:text-slate-300 leading-tight mt-4 text-xl"></p>
+                    </div>
+                </div>
+
+                <button onclick="deleteCurrentMemory()" class="mt-6 w-full text-slate-400 hover:text-red-500 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-sm font-semibold flex items-center justify-center gap-2 py-3 rounded-xl transition-colors">
+                    <i class="fa-solid fa-trash-can"></i> Rasgar esta foto
+                </button>
+            </div>
         </div>
     </div>
 
@@ -498,6 +559,7 @@
         </div>
     </div>
 
+    <!-- Modal Salvar Item -->
     <div id="saveItemModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeSaveItemModal()"></div>
         
@@ -710,7 +772,7 @@
         </div>
     </div>
 
-    <!-- Modais de Evento / Agenda -->
+    <!-- Modais de Evento / Agenda (Atualizado) -->
     <div id="eventModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeEventModal()"></div>
         <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 border border-slate-800">
@@ -985,51 +1047,6 @@
             map.on('locationerror', onLocationError);
         }
 
-        async function searchMapLocation() {
-            const query = document.getElementById('mapSearchInput').value.trim();
-            const resultsDiv = document.getElementById('mapSearchResults');
-            
-            if(!query) {
-                resultsDiv.classList.add('hidden');
-                return;
-            }
-
-            resultsDiv.innerHTML = '<div class="p-3 text-center text-slate-500 text-sm"><i class="fa-solid fa-spinner fa-spin"></i> Buscando...</div>';
-            resultsDiv.classList.remove('hidden');
-            resultsDiv.classList.add('flex');
-
-            try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`);
-                const data = await res.json();
-                
-                if(data.length === 0) {
-                    resultsDiv.innerHTML = '<div class="p-3 text-center text-slate-500 text-sm">Nenhum local encontrado.</div>';
-                    return;
-                }
-
-                resultsDiv.innerHTML = '';
-                data.forEach(place => {
-                    const item = document.createElement('div');
-                    item.className = 'p-3 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer border-b border-slate-100 dark:border-slate-700 last:border-0 text-sm text-slate-700 dark:text-slate-200 transition-colors flex items-center gap-2';
-                    item.innerHTML = `<i class="fa-solid fa-location-dot text-brand shrink-0"></i> <span class="truncate">${place.display_name}</span>`;
-                    item.onclick = () => {
-                        const lat = parseFloat(place.lat);
-                        const lon = parseFloat(place.lon);
-                        map.flyTo([lat, lon], 16);
-                        document.getElementById('mapSearchInput').value = place.display_name.split(',')[0];
-                        resultsDiv.classList.add('hidden');
-                        
-                        if(window.tempSearchMarker) map.removeLayer(window.tempSearchMarker);
-                        window.tempSearchMarker = L.marker([lat, lon]).addTo(map)
-                            .bindPopup('<b>' + place.display_name.split(',')[0] + '</b><br>Toque em qualquer lugar do mapa para salvar foto aqui.').openPopup();
-                    };
-                    resultsDiv.appendChild(item);
-                });
-            } catch(e) {
-                resultsDiv.innerHTML = '<div class="p-3 text-center text-red-500 text-sm">Erro ao buscar local.</div>';
-            }
-        }
-
         let userLocationMarker = null;
         let userLocationCircle = null;
 
@@ -1204,10 +1221,7 @@
             document.getElementById('memoryView').classList.add('hidden');
             document.getElementById('memoryView').classList.remove('flex');
             
-            // Try to set address from geocoding input if user used search
-            const searchVal = document.getElementById('mapSearchInput').value.trim();
-            document.getElementById('placeName').value = searchVal || '';
-            
+            document.getElementById('placeName').value = '';
             document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
             document.getElementById('notesInput').value = '';
             document.getElementById('photoInput').value = '';
@@ -1277,11 +1291,6 @@
                 timestamp: Date.now()
             };
             db.ref('memories/' + mem.id).set(mem);
-            
-            // Clear temporary marker if exists
-            if(window.tempSearchMarker) map.removeLayer(window.tempSearchMarker);
-            document.getElementById('mapSearchInput').value = '';
-            
             closePanel();
             showCustomMessage("Foto adicionada ao nosso diário! ❤️");
         });
@@ -1371,7 +1380,7 @@
             const pendingCount = arr.filter(m => m.status === 'watched' && (!m.ratings || !m.ratings[currentUser])).length;
             
             const badgeTop = document.getElementById('globalNotificationBadge');
-            if (pendingCount > 0 && badgeTop) badgeTop.classList.remove('hidden');
+            if (pendingCount > 0) badgeTop.classList.remove('hidden');
 
             const notifBadge = document.getElementById(`nav${type.charAt(0).toUpperCase() + type.slice(1)}Badge`);
             if(!notifBadge) return;
@@ -2375,7 +2384,7 @@
         }
 
         // ==========================================
-        // 6. ABA: AGENDA E RESUMO DO DIA 📅
+        // 6. ABA: AGENDA 📅 & RESUMO DO DIA
         // ==========================================
         function changeMonth(dir) {
             currentCalMonth += dir;
@@ -2418,7 +2427,7 @@
                 if(totalItems > 0) {
                     dots = `<div class="flex justify-center gap-0.5 mt-1 flex-wrap w-full px-1">`;
                     if(dayEvents.length > 0) dots += `<div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div>`;
-                    if(dayMemories.length > 0) dots += `<div class="w-1.5 h-1.5 rounded-full bg-[var(--brand)]"></div>`;
+                    if(dayMemories.length > 0) dots += `<div class="w-1.5 h-1.5 rounded-full bg-brand"></div>`;
                     if(dayMovies.length > 0 || dayShows.length > 0) dots += `<div class="w-1.5 h-1.5 rounded-full bg-yellow-400"></div>`;
                     dots += `</div>`;
                 }
@@ -2448,8 +2457,7 @@
                 upcoming.slice(0, 5).forEach(ev => {
                     const c = ev.color === 'brand' ? 'brand' : `${ev.color}-500`;
                     const div = document.createElement('div');
-                    div.className = 'bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center gap-3 relative overflow-hidden cursor-pointer hover:border-brand';
-                    div.onclick = () => openDaySummary(ev.date);
+                    div.className = 'bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center gap-3 relative overflow-hidden';
                     div.innerHTML = `
                         <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-${c}"></div>
                         <div class="flex-1 min-w-0 pl-2">
@@ -2457,6 +2465,7 @@
                             <p class="text-[11px] text-slate-500 dark:text-slate-400"><i class="fa-regular fa-calendar mr-1"></i> ${formatDateBR(ev.date)} ${ev.time ? `às ${ev.time}` : ''}</p>
                             ${ev.location ? `<p class="text-[10px] text-slate-400 truncate mt-0.5"><i class="fa-solid fa-location-dot"></i> ${ev.location}</p>` : ''}
                         </div>
+                        <button onclick="deleteEvent('${ev.id}')" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700 text-slate-400 hover:text-red-500 flex items-center justify-center transition-colors"><i class="fa-solid fa-trash-can text-xs"></i></button>
                     `;
                     list.appendChild(div);
                 });
@@ -2505,7 +2514,7 @@
 
         function openDaySummary(dateStr) {
             const container = document.getElementById('daySummaryContent');
-            document.getElementById('daySummaryTitle').innerText = `Dia ${formatDateBR(dateStr)}`;
+            document.getElementById('daySummaryTitle').innerText = `Resumo do dia: ${formatDateBR(dateStr)}`;
             container.innerHTML = '';
 
             const dayEvents = agendaEvents.filter(e => e.date === dateStr);
@@ -2528,9 +2537,9 @@
                                     ${ev.time ? `<p class="text-xs text-slate-500"><i class="fa-regular fa-clock"></i> ${ev.time}</p>` : ''}
                                     ${ev.location ? `<p class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-location-dot"></i> ${ev.location}</p>` : ''}
                                 </div>
-                                <button onclick="deleteEvent('${ev.id}')" class="text-slate-400 hover:text-red-500 w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700 flex items-center justify-center transition-colors"><i class="fa-solid fa-trash-can"></i></button>
+                                <button onclick="deleteEvent('${ev.id}')" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button>
                             </div>
-                            ${ev.description ? `<p class="text-sm text-slate-600 dark:text-slate-400 mt-3 bg-slate-50 dark:bg-slate-900 p-3 rounded-lg italic border-l-2 border-slate-200 dark:border-slate-600">"${ev.description}"</p>` : ''}
+                            ${ev.description ? `<p class="text-sm text-slate-600 dark:text-slate-400 mt-2 bg-slate-50 dark:bg-slate-900 p-2 rounded-lg italic">"${ev.description}"</p>` : ''}
                         </div>
                     `;
                 });
@@ -2541,12 +2550,12 @@
                 container.innerHTML += `<h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 mt-2"><i class="fa-solid fa-camera-retro text-brand mr-1"></i> Memórias do Álbum</h4>`;
                 dayMemories.forEach(m => {
                     container.innerHTML += `
-                        <div class="bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 mb-4 flex gap-3 cursor-pointer hover:border-brand" onclick="closeDaySummary(); switchTab('map'); openViewMemoryPanel(${JSON.stringify(m).replace(/"/g, '&quot;')})">
+                        <div class="bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 mb-4 flex gap-3 cursor-pointer" onclick="closeDaySummary(); switchTab('map'); openViewMemoryPanel(${JSON.stringify(m).replace(/"/g, '&quot;')})">
                             <div class="w-16 h-16 rounded-lg bg-slate-200 dark:bg-slate-700 overflow-hidden shrink-0">
-                                ${m.image ? `<img src="${m.image}" class="w-full h-full object-cover grayscale-[20%]">` : `<div class="w-full h-full flex items-center justify-center"><i class="fa-solid fa-camera text-slate-400"></i></div>`}
+                                ${m.image ? `<img src="${m.image}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center"><i class="fa-solid fa-camera text-slate-400"></i></div>`}
                             </div>
-                            <div class="flex-1 min-w-0">
-                                <h5 class="font-bold text-slate-800 dark:text-white text-sm truncate">${m.title}</h5>
+                            <div class="flex-1">
+                                <h5 class="font-bold text-slate-800 dark:text-white text-sm">${m.title}</h5>
                                 ${m.notes ? `<p class="text-xs text-slate-500 mt-1 line-clamp-2 italic">"${m.notes}"</p>` : ''}
                             </div>
                         </div>
@@ -2560,10 +2569,10 @@
                 [...dayMovies, ...dayShows].forEach(item => {
                     const type = item.id.startsWith('tv') ? 'shows' : 'movies';
                     container.innerHTML += `
-                        <div class="bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 mb-4 flex gap-3 cursor-pointer hover:border-brand" onclick="closeDaySummary(); switchTab('${type}'); openViewItemModal(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+                        <div class="bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 mb-4 flex gap-3 cursor-pointer" onclick="closeDaySummary(); switchTab('${type}'); openViewItemModal(${JSON.stringify(item).replace(/"/g, '&quot;')})">
                             <img src="${item.poster}" class="w-12 h-16 rounded object-cover shrink-0">
-                            <div class="flex-1 flex flex-col justify-center min-w-0">
-                                <h5 class="font-bold text-slate-800 dark:text-white text-sm truncate">${item.title}</h5>
+                            <div class="flex-1 flex flex-col justify-center">
+                                <h5 class="font-bold text-slate-800 dark:text-white text-sm">${item.title}</h5>
                                 <div class="text-[10px] text-slate-500 mt-1 uppercase font-bold tracking-wider">${type === 'shows' ? 'Série' : 'Filme'}</div>
                             </div>
                         </div>
@@ -2688,39 +2697,6 @@
             `).join('');
         }
         
-        // ==========================================
-        // 8. NAVEGAÇÃO ENTRE ABAS
-        // ==========================================
-        function switchTab(tabId) {
-            const tabs = ['map', 'movies', 'shows', 'finances', 'calendar', 'time'];
-
-            tabs.forEach(t => {
-                const el = document.getElementById('tab-' + t);
-                const btn = document.getElementById('nav-btn-' + t);
-                
-                if (t === tabId) {
-                    if(el) {
-                        el.classList.remove('opacity-0', 'pointer-events-none', 'z-0');
-                        el.classList.add('z-10');
-                    }
-                    if(btn) {
-                        btn.classList.add('text-brand');
-                        btn.classList.remove('text-slate-400', 'dark:text-slate-500');
-                    }
-                    if (t === 'map' && map) setTimeout(() => map.invalidateSize(), 100);
-                    if (t === 'calendar') setTimeout(() => { renderCalendar(); renderUpcomingEvents(); }, 100);
-                } else {
-                    if(el) {
-                        el.classList.add('opacity-0', 'pointer-events-none', 'z-0');
-                        el.classList.remove('z-10');
-                    }
-                    if(btn) {
-                        btn.classList.remove('text-brand');
-                        btn.classList.add('text-slate-400', 'dark:text-slate-500');
-                    }
-                }
-            });
-        }
     </script>
 </body>
 </html>
