@@ -15,6 +15,68 @@
     <!-- FontAwesome (Ícones) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Firebase Realtime Database SDK (Conexão em Tempo Real para o Casal) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getDatabase, ref, set, remove, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+
+        // Configuração do projeto Firebase do casal
+        const firebaseConfig = {
+            databaseURL: "https://nosso-app-7feab-default-rtdb.firebaseio.com"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Funções de sincronização global
+        window.syncFirebaseSaveMemory = function(mem) {
+            if (!mem || !mem.id) return;
+            set(ref(db, 'memories/' + mem.id), mem).catch(err => console.error("Erro no Firebase:", err));
+        };
+
+        window.syncFirebaseDeleteMemory = function(id) {
+            if (!id) return;
+            remove(ref(db, 'memories/' + id)).catch(err => console.error("Erro no Firebase:", err));
+        };
+
+        window.syncFirebaseSaveMovie = function(movie) {
+            if (!movie || !movie.id) return;
+            set(ref(db, 'movies/' + movie.id), movie).catch(err => console.error("Erro no Firebase:", err));
+        };
+
+        window.syncFirebaseDeleteMovie = function(id) {
+            if (!id) return;
+            remove(ref(db, 'movies/' + id)).catch(err => console.error("Erro no Firebase:", err));
+        };
+
+        // Escutar alterações do mapa em tempo real
+        onValue(ref(db, 'memories'), (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                memories = Object.values(data);
+            } else {
+                memories = [];
+            }
+            try { localStorage.setItem('couple_memories_cwb', JSON.stringify(memories)); } catch(e){}
+            if (typeof renderAllMarkers === 'function') renderAllMarkers();
+            if (typeof renderMemoryList === 'function' && document.getElementById('mainMenu') && !document.getElementById('mainMenu').classList.contains('-translate-x-full')) {
+                renderMemoryList(document.getElementById('searchInput')?.value || '');
+            }
+        });
+
+        // Escutar alterações dos filmes em tempo real
+        onValue(ref(db, 'movies'), (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                movies = Object.values(data);
+            } else {
+                movies = [];
+            }
+            try { localStorage.setItem('couple_movies_cwb', JSON.stringify(movies)); } catch(e){}
+            if (typeof renderMoviesGrid === 'function') renderMoviesGrid();
+        });
+    </script>
+
     <!-- Configuração do Tailwind -->
     <script>
         tailwind.config = {
@@ -129,7 +191,7 @@
                     </div>
                     <div>
                         <h1 class="text-lg font-bold text-slate-800 leading-tight">Nosso Mapa</h1>
-                        <p class="text-xs text-slate-500 font-medium">Curitiba, PR <i class="fa-solid fa-heart text-brand ml-1"></i></p>
+                        <p class="text-xs text-slate-500 font-medium">Curitiba, PR <i class="fa-solid fa-heart text-brand ml-1"></i> <span class="ml-1 text-[10px] text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-full font-bold">☁️ Nuvem Ativa</span></p>
                     </div>
                 </div>
                 <div class="w-12 md:hidden pointer-events-none"></div>
@@ -565,121 +627,16 @@
             const mem = memories.find(m => m.id === id);
             if(mem) {
                 mem.isHidden = !mem.isHidden;
-                saveMemories(); renderAllMarkers(); renderMemoryList(document.getElementById('searchInput').value);
+                saveMemories(); 
+                if (window.syncFirebaseSaveMemory) window.syncFirebaseSaveMemory(mem);
+                renderAllMarkers(); renderMemoryList(document.getElementById('searchInput').value);
             }
-        }
-
-        function panToMemory(id) {
-            const mem = memories.find(m => m.id === id);
-            if(mem) {
-                if(mem.isHidden) { showCustomMessage("Memória oculta. Clique no olhinho para revelar."); return; }
-                closeAllPanels(); openViewMemoryPanel(mem);
-            }
-        }
-
-        function formatDateBR(dateStr) {
-            if(!dateStr) return '';
-            const [y, m, d] = dateStr.split('-');
-            return `${d}/${m}/${y}`;
-        }
-
-        function openPanel() {
-            document.getElementById('modalOverlay').classList.remove('hidden');
-            document.getElementById('memoryPanel').classList.remove('hidden');
-            // Fecha o menu da esquerda para não sobrepor
-            document.getElementById('mainMenu').classList.add('-translate-x-full');
-        }
-
-        function closePanel() {
-            document.getElementById('memoryPanel').classList.add('hidden');
-            if (document.getElementById('mainMenu').classList.contains('-translate-x-full')) {
-                document.getElementById('modalOverlay').classList.add('hidden');
-            }
-            document.getElementById('memoryForm').reset();
-            document.getElementById('imagePreview').classList.add('hidden');
-            document.getElementById('uploadPlaceholder').classList.remove('hidden');
-            document.getElementById('imageOverlay').classList.add('hidden');
-            currentCompressedImage = null; currentViewingId = null;
-            if (tempMarker) { map.removeLayer(tempMarker); tempMarker = null; }
-        }
-
-        function openAddMemoryPanel(lat, lng) {
-            closePanel();
-            const tempIcon = L.divIcon({ className: 'custom-heart-marker', html: '<i class="fa-solid fa-location-dot" style="color:#64748b;"></i>', iconSize: [30, 30], iconAnchor: [15, 30] });
-            tempMarker = L.marker([lat, lng], { icon: tempIcon }).addTo(map);
-            
-            document.getElementById('latInput').value = lat;
-            document.getElementById('lngInput').value = lng;
-            document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
-            
-            document.getElementById('panelTitle').innerText = "Nova Memória";
-            document.getElementById('memoryForm').classList.remove('hidden');
-            document.getElementById('memoryForm').classList.add('flex');
-            document.getElementById('memoryView').classList.add('hidden');
-            document.getElementById('memoryView').classList.remove('flex');
-            openPanel();
-        }
-
-        function openViewMemoryPanel(mem) {
-            closePanel();
-            currentViewingId = mem.id;
-            map.panTo([mem.lat, mem.lng]);
-            
-            document.getElementById('viewTitle').innerText = mem.title;
-            document.getElementById('viewDate').innerText = formatDateBR(mem.date);
-            document.getElementById('viewNotes').innerText = mem.notes || "Sem notinha.";
-            
-            const imgC = document.getElementById('viewImageContainer');
-            if (mem.image) imgC.innerHTML = `<img src="${mem.image}" class="w-full h-full object-cover">`;
-            else imgC.innerHTML = `<div class="text-slate-400 flex flex-col items-center"><i class="fa-solid fa-image text-3xl mb-2"></i><span>Sem foto</span></div>`;
-            
-            document.getElementById('panelTitle').innerText = "Nossa Memória";
-            document.getElementById('memoryForm').classList.add('hidden');
-            document.getElementById('memoryForm').classList.remove('flex');
-            document.getElementById('memoryView').classList.remove('hidden');
-            document.getElementById('memoryView').classList.add('flex');
-            openPanel();
-        }
-
-        function processImageForStorage(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = e => {
-                    const img = new Image();
-                    img.src = e.target.result;
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const MAX_SIZE = 800;
-                        let w = img.width, h = img.height;
-                        if(w > h) { if(w > MAX_SIZE) { h *= MAX_SIZE/w; w = MAX_SIZE; } } 
-                        else { if(h > MAX_SIZE) { w *= MAX_SIZE/h; h = MAX_SIZE; } }
-                        canvas.width = w; canvas.height = h;
-                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                        resolve(canvas.toDataURL('image/jpeg', 0.6));
-                    }
-                    img.onerror = reject;
-                }
-                reader.onerror = reject;
-            });
-        }
-
-        async function previewImage(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            try {
-                currentCompressedImage = await processImageForStorage(file);
-                document.getElementById('imagePreview').src = currentCompressedImage;
-                document.getElementById('imagePreview').classList.remove('hidden');
-                document.getElementById('uploadPlaceholder').classList.add('hidden');
-                document.getElementById('imageOverlay').classList.remove('hidden');
-            } catch (err) { console.error(err); }
         }
 
         function setupEvents() {
             document.getElementById('memoryForm').addEventListener('submit', (e) => {
                 e.preventDefault();
-                memories.push({
+                const newMem = {
                     id: Date.now().toString(),
                     lat: parseFloat(document.getElementById('latInput').value),
                     lng: parseFloat(document.getElementById('lngInput').value),
@@ -687,17 +644,22 @@
                     date: document.getElementById('dateInput').value,
                     notes: document.getElementById('notesInput').value,
                     image: currentCompressedImage
-                });
-                saveMemories(); renderAllMarkers(); closePanel();
-                showCustomMessage("Memória guardada! ❤️");
+                };
+                memories.push(newMem);
+                saveMemories(); 
+                if (window.syncFirebaseSaveMemory) window.syncFirebaseSaveMemory(newMem);
+                renderAllMarkers(); closePanel();
+                showCustomMessage("Memória guardada na nuvem! ❤️");
             });
         }
 
         function deleteCurrentMemory() {
             if (!currentViewingId) return;
-            // Remove direto para facilitar UX no mobile (sem confirm bloqueante chato)
-            memories = memories.filter(m => m.id !== currentViewingId);
-            saveMemories(); renderAllMarkers(); closePanel();
+            const idToDelete = currentViewingId;
+            memories = memories.filter(m => m.id !== idToDelete);
+            saveMemories(); 
+            if (window.syncFirebaseDeleteMemory) window.syncFirebaseDeleteMemory(idToDelete);
+            renderAllMarkers(); closePanel();
             showCustomMessage("Memória apagada.");
         }
 
@@ -758,8 +720,12 @@
         }
 
         function deleteMovie(realIndex) {
+            const movieToDelete = movies[realIndex];
             movies.splice(realIndex, 1);
             saveMoviesToStorage();
+            if (movieToDelete && movieToDelete.id && window.syncFirebaseDeleteMovie) {
+                window.syncFirebaseDeleteMovie(movieToDelete.id);
+            }
             renderMoviesGrid();
             showCustomMessage("Filme removido da lista.");
         }
@@ -905,15 +871,17 @@
             if(!currentMovieData) return;
             
             const review = document.getElementById('smReview').value;
-            
-            movies.push({
+            const newMovie = {
+                id: Date.now().toString(),
                 ...currentMovieData,
                 rating: currentRating,
                 review: review,
                 addedAt: new Date().toISOString()
-            });
+            };
             
+            movies.push(newMovie);
             saveMoviesToStorage();
+            if (window.syncFirebaseSaveMovie) window.syncFirebaseSaveMovie(newMovie);
             renderMoviesGrid();
             closeSaveMovieModal();
             showCustomMessage("Filme adicionado ao Cine Casal! 🍿");
