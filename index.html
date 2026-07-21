@@ -67,21 +67,18 @@
         .polaroid-frame.rotated-right { transform: rotate(3deg); }
         .polaroid-frame:hover { transform: scale(1.05) rotate(0deg); z-index: 20; }
         
-        /* Fita adesiva estilo scrapbook */
         .tape {
             position: absolute; top: -10px; left: 50%; transform: translateX(-50%) rotate(-2deg);
             width: 80px; height: 25px; background-color: rgba(255, 255, 255, 0.4);
             box-shadow: 0 1px 3px rgba(0,0,0,0.1); backdrop-filter: blur(2px); z-index: 10; border-radius: 2px;
         }
 
-        /* Glassmorphism utility */
         .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
-        .dark-glass-panel { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
     </style>
 </head>
 <body class="flex flex-col h-[100dvh] text-slate-800 antialiased overflow-hidden relative">
 
-    <!-- STREAMING_CHUNK:Tela de Login -->
+    <!-- Tela de Login -->
     <div id="loginScreen" class="fixed inset-0 z-[10000] bg-slate-50 flex flex-col items-center justify-center p-6 slide-up">
         <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm flex flex-col items-center border border-slate-100">
             <div class="w-20 h-20 bg-brand-light rounded-full text-brand flex items-center justify-center text-4xl mb-4 shadow-inner">
@@ -107,7 +104,7 @@
         </div>
     </div>
 
-    <!-- STREAMING_CHUNK:Estrutura Principal -->
+    <!-- Estrutura Principal -->
     <main class="flex-1 relative overflow-hidden bg-slate-50">
         
         <!-- ABA 1: MAPA -->
@@ -118,7 +115,6 @@
                 <i class="fa-solid fa-location-crosshairs text-xl"></i>
             </button>
 
-            <!-- UI Flutuante Superior do Mapa -->
             <div class="absolute top-4 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-auto z-[400] flex justify-between md:justify-center items-center pointer-events-none gap-4">
                 <button onclick="toggleMenu()" class="pointer-events-auto glass-panel w-12 h-12 rounded-2xl shadow-lg flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors">
                     <i class="fa-solid fa-images text-xl"></i>
@@ -141,7 +137,6 @@
         </div>
 
         <!-- ABA 2: FILMES 🍿 -->
-        <!-- STREAMING_CHUNK:Aba Filmes -->
         <div id="tab-movies" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 overflow-y-auto">
             
             <div class="flex justify-between items-center mb-6">
@@ -170,7 +165,6 @@
                 <i class="fa-solid fa-chevron-right text-xs opacity-50 pl-2"></i>
             </div>
 
-            <!-- UI Reorganizada dos Filtros -->
             <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 mb-6 flex flex-col gap-3">
                 <div class="relative w-full">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
@@ -192,8 +186,7 @@
             </div>
         </div>
 
-        <!-- ABA 2.5: SÉRIES 📺 (NOVA ABA) -->
-        <!-- STREAMING_CHUNK:Aba Séries -->
+        <!-- ABA 2.5: SÉRIES 📺 -->
         <div id="tab-shows" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 overflow-y-auto">
             
             <div class="flex justify-between items-center mb-6">
@@ -222,7 +215,6 @@
                 <i class="fa-solid fa-chevron-right text-xs opacity-50 pl-2"></i>
             </div>
 
-            <!-- UI Reorganizada dos Filtros -->
             <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 mb-6 flex flex-col gap-3">
                 <div class="relative w-full">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
@@ -245,7 +237,6 @@
         </div>
 
         <!-- ABA 3: NOSSAS CONTAS -->
-        <!-- STREAMING_CHUNK:Aba Contas -->
         <div id="tab-finances" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
                 <div>
@@ -293,7 +284,6 @@
         </div>
 
         <!-- ABA 4: NOSSO TEMPO -->
-        <!-- STREAMING_CHUNK:Aba Tempo -->
         <div id="tab-time" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
                 <div>
@@ -330,7 +320,7 @@
 
     </main>
 
-    <!-- STREAMING_CHUNK:Barra de Navegação -->
+    <!-- Barra de Navegação -->
     <nav class="fixed bottom-0 w-full h-16 bg-white border-t border-slate-200 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] flex justify-around items-center z-[500] px-1 pb-safe">
         <button id="nav-btn-map" onclick="switchTab('map')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-brand transition-colors relative">
             <i class="fa-solid fa-map text-xl"></i>
@@ -359,9 +349,8 @@
     <!-- Overlay Escuro Global -->
     <div id="modalOverlay" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[999]" onclick="closeAllPanels()"></div>
 
-    <!-- STREAMING_CHUNK:Menu Diário Mapa (Life is Strange Album) -->
+    <!-- Menu Diário Mapa (Life is Strange Album) -->
     <div id="mainMenu" class="fixed top-0 left-0 w-full md:w-[450px] h-full bg-[#f4f1ea] shadow-[10px_0_30px_rgba(0,0,0,0.15)] z-[1000] flex flex-col transition-transform duration-300 -translate-x-full border-r border-[#e0d6c8]">
-        <!-- Textura de papel no fundo -->
         <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: url('data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100\' height=\'100\' filter=\'url(%23noise)\' opacity=\'0.5\'/%3E%3C/svg%3E'); mix-blend-mode: multiply;"></div>
         
         <div class="flex justify-between items-center p-5 border-b border-[#e0d6c8] bg-[#efeade] pt-8 relative z-10 shadow-sm">
@@ -398,7 +387,7 @@
         </div>
     </div>
 
-    <!-- STREAMING_CHUNK:Painel Nova Memória Mapa -->
+    <!-- Painel de Adicionar/Ver Memória (Mapa) -->
     <div id="memoryPanel" class="hidden fixed bottom-0 left-0 right-0 md:bottom-auto md:top-0 md:right-0 md:left-auto w-full md:w-[400px] h-[85vh] md:h-[100dvh] bg-white md:rounded-l-2xl rounded-t-3xl shadow-2xl z-[1000] flex flex-col slide-up transition-transform duration-300">
         <div class="flex justify-between items-center p-5 border-b border-slate-100 shrink-0">
             <h2 id="panelTitle" class="text-xl font-bold text-slate-800">Nova Memória</h2>
@@ -461,7 +450,8 @@
         </div>
     </div>
 
-    <!-- STREAMING_CHUNK:Modais Universal (Explore, Save, View) -->
+    <!-- Modais Universais: Explorar, Salvar Item, Visualizar Item -->
+    
     <!-- Modal Explorar/Busca -->
     <div id="exploreModal" class="hidden fixed inset-0 z-[1000] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeExploreModal()"></div>
@@ -503,7 +493,7 @@
         </div>
     </div>
 
-    <!-- Modal Salvar Item (Leterrboxd View) -->
+    <!-- Modal Salvar Item -->
     <div id="saveItemModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeSaveItemModal()"></div>
         
@@ -530,7 +520,6 @@
 
             <div class="p-5 pt-4">
                 
-                <!-- Informações Premium (Onde Assistir, Direção, Elenco) -->
                 <div id="smExtendedInfo" class="hidden border-b border-slate-100 pb-5 mb-5">
                     <p class="text-[13px] text-slate-500 italic mb-4 line-clamp-2 leading-relaxed" id="smTagline"></p>
                     
@@ -604,7 +593,7 @@
         </div>
     </div>
 
-    <!-- Modal Visualizar Item -->
+    <!-- Modal Visualizar Item (Clean, Premium, Letterboxd Style) -->
     <div id="viewItemModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeViewItemModal()"></div>
         
@@ -630,11 +619,9 @@
 
             <div class="p-6 pt-5">
                 
-                <!-- Informações Premium -->
                 <div id="vmExtendedInfo" class="hidden border-b border-slate-100 pb-5 mb-5">
                     <p class="text-[13px] text-slate-500 italic mb-4 line-clamp-3 leading-relaxed" id="vmTagline"></p>
                     
-                    <!-- Streaming Providers -->
                     <div id="vmProvidersArea" class="hidden mb-4 bg-slate-50 p-3 rounded-xl border border-slate-100">
                         <span class="font-bold uppercase tracking-wider text-[10px] text-brand block mb-2"><i class="fa-solid fa-display mr-1"></i> Assista no Brasil em:</span>
                         <div id="vmProvidersLogos" class="flex gap-2 flex-wrap"></div>
@@ -650,7 +637,7 @@
                             <div id="vmCastContainer" class="flex gap-3 overflow-x-auto no-scrollbar pb-1"></div>
                         </div>
                         
-                        <!-- Dados Extras de Filmes (Oculto p/ Séries) -->
+                        <!-- Dados Extras Filmes -->
                         <div id="vmMovieDataArea" class="hidden grid grid-cols-2 gap-2 mt-2">
                             <div class="bg-slate-50 p-2 rounded-lg border border-slate-100 text-center">
                                 <span class="font-bold uppercase tracking-wider text-[9px] text-slate-400 block mb-0.5">Orçamento</span>
@@ -662,7 +649,7 @@
                             </div>
                         </div>
                         
-                        <!-- Dados Extras de Séries (Oculto p/ Filmes) -->
+                        <!-- Dados Extras Séries -->
                         <div id="vmTvDataArea" class="hidden grid grid-cols-2 gap-2 mt-2">
                             <div class="bg-slate-50 p-2 rounded-lg border border-slate-100 text-center">
                                 <span class="font-bold uppercase tracking-wider text-[9px] text-slate-400 block mb-0.5">Temporadas</span>
@@ -684,7 +671,6 @@
                     
                     <div id="vmReviewsContainer" class="flex flex-col gap-3"></div>
 
-                    <!-- Área da Foto Polaroid daquele filme -->
                     <div id="vmPhotoSection" class="hidden flex-col items-center mt-6 mb-4">
                         <div class="polaroid-frame rotated-right w-64 max-w-full">
                             <div class="tape"></div>
@@ -693,7 +679,6 @@
                         </div>
                     </div>
 
-                    <!-- Área de Nota Pendente -->
                     <div id="vmPendingArea" class="hidden flex-col gap-3 p-5 bg-brand-light/20 border border-brand/20 rounded-2xl mt-2 relative overflow-hidden">
                         <div class="absolute -right-4 -bottom-4 text-brand-dark/5 text-6xl"><i class="fa-solid fa-star"></i></div>
                         <h4 class="font-bold text-brand-dark text-sm relative z-10 text-center uppercase tracking-widest"><i class="fa-solid fa-bell animate-pulse mr-1"></i> Sua vez, <span class="logged-user-name"></span>!</h4>
@@ -729,7 +714,7 @@
         </div>
     </div>
 
-    <!-- STREAMING_CHUNK:Modais de Contas Atualizado -->
+    <!-- Modais de Contas -->
     <div id="financeModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeFinanceModal()"></div>
         <div class="relative bg-white w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 max-h-[90vh] overflow-y-auto no-scrollbar">
@@ -852,7 +837,7 @@
         </div>
     </div>
 
-    <!-- STREAMING_CHUNK:JavaScript Engine Principal -->
+    <!-- JAVASCRIPT CORE -->
     <script>
         firebase.initializeApp({ databaseURL: "https://nosso-app-7feab-default-rtdb.firebaseio.com/" });
         const db = firebase.database();
@@ -865,13 +850,13 @@
         let memories = [];
         let albumIsBookMode = false;
         
-        // Entertainment (Movies & Shows)
+        // Entertainment
         let movies = [];
         let shows = [];
         let currentFilter = { movie: 'all', tv: 'all' };
         let tmdbApiKey = "";
         let currentTrailerKey = "";
-        let currentExploreType = "movie"; // 'movie' or 'tv'
+        let currentExploreType = "movie";
         
         // Modal states
         let currentCompressedMapImage = null;
@@ -900,9 +885,6 @@
             checkLogin();
         });
 
-        // ==========================================
-        // 1. SISTEMA DE IDENTIDADE
-        // ==========================================
         function checkLogin() {
             const savedUser = localStorage.getItem('couple_app_user');
             if (savedUser && (savedUser === 'Luiz' || savedUser === 'Matheus')) {
@@ -940,9 +922,6 @@
             }, 6000);
         }
 
-        // ==========================================
-        // 2. FIREBASE SYNC
-        // ==========================================
         function setupFirebaseSync() {
             db.ref('memories').on('value', (snap) => {
                 const data = snap.val();
@@ -987,7 +966,7 @@
         }
 
         // ==========================================
-        // 3. DIÁRIO (ALBUM) E MAPA
+        // MAPA & DIÁRIO
         // ==========================================
         function initMap() {
             if(map) return; 
@@ -1027,7 +1006,7 @@
             memories.forEach(memory => {
                 if (memory.isHidden || !memory.lat || !memory.lng) return;
                 const marker = L.marker([memory.lat, memory.lng], { icon: heartIcon });
-                marker.on('click', function(e) { L.DomEvent.stopPropagation(e); openViewMemoryPanel(memory); });
+                marker.on('click', () => openViewMemoryPanel(memory));
                 markersGroup.addLayer(marker);
             });
         }
@@ -1088,7 +1067,7 @@
             });
             
             if (filtered.length === 0) {
-                list.className = "flex-1 overflow-y-auto p-4 flex flex-col gap-6 pt-6 bg-[#f4f1ea]"; // Reset
+                list.className = "flex-1 overflow-y-auto p-4 flex flex-col gap-6 pt-6 bg-[#f4f1ea]"; 
                 list.innerHTML = `<div class="text-center text-slate-400 mt-20"><i class="fa-solid fa-ghost text-5xl mb-4 opacity-30"></i><p class="font-journal text-2xl">O álbum está vazio...</p></div>`;
                 return;
             }
@@ -1249,11 +1228,9 @@
             showCustomMessage("Foto adicionada ao nosso diário! ❤️");
         });
 
-
         // ==========================================
-        // 4. ENTRETENIMENTO (FILMES E SÉRIES) 🍿📺
+        // ENTRETENIMENTO (FILMES E SÉRIES) 🍿📺
         // ==========================================
-        
         function getActiveArray(type) { return type === 'movie' ? movies : shows; }
         
         function checkNotifications(type) {
@@ -1263,7 +1240,6 @@
             
             const notifBanner = document.getElementById(`${type}sNotification`);
             const notifBadge = document.getElementById(`nav${type.charAt(0).toUpperCase() + type.slice(1)}Badge`);
-            
             if(!notifBanner) return;
 
             if (pendingCount > 0) {
@@ -1285,32 +1261,24 @@
                 return;
             }
             
-            const randomIndex = Math.floor(Math.random() * wantList.length);
-            const picked = wantList[randomIndex];
-            
+            const picked = wantList[Math.floor(Math.random() * wantList.length)];
             showCustomMessage(`Sorteando... 🎲`, 1000);
+            
             setTimeout(() => {
                 currentExploreType = type;
                 openViewItemModal(picked);
             }, 1000);
         }
 
-        // Modais Exploração
         function openExploreModal(type) {
-            currentExploreType = type; // 'movie' ou 'tv'
+            currentExploreType = type; 
             document.getElementById('exploreModal').classList.remove('hidden');
             document.getElementById('exploreTitle').innerHTML = type === 'movie' ? 'Descobrir Filmes 🍿' : 'Descobrir Séries 📺';
             document.getElementById('apiSearchInput').value = '';
             document.getElementById('apiSearchInput').placeholder = type === 'movie' ? 'Buscar nome do filme...' : 'Buscar nome da série...';
             
             const resultsDiv = document.getElementById('apiSearchResults');
-            resultsDiv.innerHTML = `
-                <div class="text-center text-slate-400 mt-10">
-                    <i class="fa-solid fa-compass text-5xl mb-4 opacity-30"></i>
-                    <p class="font-medium text-sm">Busque pelo nome ou clique em Buscar para ver tendências mundiais.</p>
-                </div>`;
-            
-            // Auto carrega tendências se tiver chave
+            resultsDiv.innerHTML = `<div class="text-center text-slate-400 mt-10"><i class="fa-solid fa-compass text-5xl mb-4 opacity-30"></i><p class="font-medium text-sm">Busque pelo nome ou clique em Buscar para ver tendências mundiais.</p></div>`;
             if(tmdbApiKey) searchAPI();
         }
 
@@ -1346,13 +1314,9 @@
             resultsDiv.innerHTML = '<div class="text-center text-brand mt-10"><i class="fa-solid fa-spinner fa-spin text-3xl"></i></div>';
             
             try {
-                let url = '';
-                if(term) {
-                    url = `https://api.themoviedb.org/3/search/${type}?api_key=${tmdbApiKey}&language=pt-BR&query=${encodeURIComponent(term)}&page=1&include_adult=false`;
-                } else {
-                    // Tendências Padrão se busca vazia
-                    url = `https://api.themoviedb.org/3/trending/${type}/week?api_key=${tmdbApiKey}&language=pt-BR`;
-                }
+                let url = term 
+                    ? `https://api.themoviedb.org/3/search/${type}?api_key=${tmdbApiKey}&language=pt-BR&query=${encodeURIComponent(term)}&page=1&include_adult=false` 
+                    : `https://api.themoviedb.org/3/trending/${type}/week?api_key=${tmdbApiKey}&language=pt-BR`;
 
                 const response = await fetch(url);
                 if (response.status === 401) throw new Error("Chave inválida");
@@ -1364,7 +1328,6 @@
                     resultsDiv.innerHTML = '<p class="text-center text-slate-500 mt-10">Nenhum resultado encontrado.</p>';
                     return;
                 }
-                
                 data.results.forEach(m => renderSearchResultItem(m, resultsDiv, type));
             } catch (err) {
                 resultsDiv.innerHTML = '<p class="text-center text-red-500 mt-10">Erro na busca ou chave inválida.</p>';
@@ -1403,8 +1366,7 @@
                 const b = document.getElementById(btns[key]);
                 if(!b) continue;
                 if(key === f) {
-                    if(key==='trending') b.className = "px-4 py-1.5 rounded-full bg-slate-800 text-white text-xs font-bold shadow-sm whitespace-nowrap transition-colors";
-                    else b.className = "px-4 py-1.5 rounded-full bg-slate-800 text-white text-xs font-bold shadow-sm whitespace-nowrap transition-colors";
+                    b.className = "px-4 py-1.5 rounded-full bg-slate-800 text-white text-xs font-bold shadow-sm whitespace-nowrap transition-colors";
                 } else {
                     let colorClass = "text-slate-600";
                     if(key === 'want') colorClass = "text-blue-600";
@@ -1445,10 +1407,8 @@
                 const data = await res.json();
                 grid.innerHTML = '';
                 
-                // FEATURE: Filtra o que já foi assistido!
                 const arr = getActiveArray(type);
                 const watchedIds = arr.filter(i => i.status === 'watched').map(i => parseInt(i.tmdbId));
-                
                 const toDisplay = data.results.filter(apiItem => !watchedIds.includes(apiItem.id));
 
                 if(toDisplay.length === 0) {
@@ -1464,11 +1424,7 @@
                     
                     const div = document.createElement('div');
                     div.className = 'group relative bg-slate-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-slate-100/50 flex flex-col cursor-pointer transform transition-all duration-300 hover:-translate-y-1';
-                    
-                    div.onclick = () => {
-                        currentExploreType = type;
-                        openSaveItemModal(m.id, title, year, posterPath, m.genre_ids, type);
-                    };
+                    div.onclick = () => { currentExploreType = type; openSaveItemModal(m.id, title, year, posterPath, m.genre_ids, type); };
                     
                     div.innerHTML = `
                         <div class="h-48 md:h-64 relative w-full">
@@ -1510,7 +1466,7 @@
             
             let filtered = arr.filter(m => {
                 if(currentFilter[type] !== 'all' && m.status !== currentFilter[type]) return false;
-                if(search && !m.title.toLowerCase().includes(search)) return false;
+                if(search && !(m.title||'').toLowerCase().includes(search)) return false;
                 if(genreFilter && (!m.genres || !m.genres.includes(parseInt(genreFilter)))) return false;
                 if(currentListFilter[type] && m.listName !== currentListFilter[type]) return false;
                 return true;
@@ -1528,9 +1484,7 @@
                     if(item.ratings) {
                         const vals = Object.values(item.ratings);
                         if(vals.length > 0) avgRating = vals.reduce((a,b) => a + Number(b), 0) / vals.length;
-                    } else if(item.rating) {
-                        avgRating = Number(item.rating);
-                    }
+                    } else if(item.rating) avgRating = Number(item.rating);
                     const safeAvg = isNaN(avgRating) ? 0 : avgRating;
 
                     const starsHtml = Array(5).fill(0).map((_, i) => 
@@ -1539,10 +1493,7 @@
 
                     const div = document.createElement('div');
                     div.className = 'group relative bg-slate-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-slate-100/50 flex flex-col cursor-pointer transform transition-all duration-300 hover:-translate-y-1';
-                    div.onclick = () => {
-                        currentExploreType = type;
-                        openViewItemModal(item);
-                    }
+                    div.onclick = () => { currentExploreType = type; openViewItemModal(item); }
 
                     let statusBadge = item.status === 'want' 
                         ? `<div class="absolute top-2 right-2 bg-blue-500/90 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded-full shadow-sm z-10 border border-white/20">QUEREMOS</div>`
@@ -1580,7 +1531,6 @@
             const arr = getActiveArray(type);
             const genreSelect = document.querySelector(`#tab-${type}s #filter-genre`);
             const listsContainer = document.querySelector(`#tab-${type}s #custom-lists-container`);
-            
             if(!genreSelect || !listsContainer) return;
 
             const currentGenre = genreSelect.value;
@@ -1604,7 +1554,6 @@
                 listsContainer.classList.add('flex');
                 
                 let lHtml = `<button onclick="setListFilter('${type}', '')" class="px-4 py-1.5 rounded-full text-[10px] uppercase tracking-wider font-bold shadow-sm whitespace-nowrap transition-all ${currentListFilter[type] === '' ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 border border-slate-200'}">Todas</button>`;
-                
                 Array.from(uniqueLists).forEach(list => {
                     if(list) {
                         lHtml += `<button onclick="setListFilter('${type}', '${list}')" class="px-4 py-1.5 rounded-full text-[10px] uppercase tracking-wider font-bold shadow-sm whitespace-nowrap transition-all ${currentListFilter[type] === list ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 border border-slate-200'}">${list}</button>`;
@@ -1617,18 +1566,16 @@
             }
         }
 
-        // =====================================
-        // Salvar Item (Letterboxd Style) - Unificado
-        // =====================================
+        // SALVAR E VISUALIZAR
         function openSaveItemModal(id, title, year, posterUrl, genres, type) {
             currentExploreType = type;
             tempItemData = { id, title, year, poster: posterUrl, genres: genres, type: type };
             currentTrailerKey = "";
             
-            document.getElementById('smTitle').innerText = title;
-            document.getElementById('smYear').innerText = year;
-            document.getElementById('smPoster').src = posterUrl;
-            document.getElementById('smHeroImage').src = posterUrl; 
+            document.getElementById('smTitle').innerText = title || '';
+            document.getElementById('smYear').innerText = year || '';
+            document.getElementById('smPoster').src = posterUrl || '';
+            document.getElementById('smHeroImage').src = posterUrl || ''; 
             
             document.getElementById('smExtendedInfo').classList.add('hidden');
             document.getElementById('smTrailerBtn').classList.add('hidden');
@@ -1649,7 +1596,6 @@
             document.getElementById('saveItemModal').classList.remove('hidden');
 
             if(id && tmdbApiKey) {
-                // Fetch Base Details
                 fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${tmdbApiKey}&language=pt-BR&append_to_response=videos,credits`)
                 .then(r => r.json())
                 .then(data => {
@@ -1696,15 +1642,12 @@
                             });
                         }
                     }
-                    
                     if(data.backdrop_path) {
                         document.getElementById('smHeroImage').src = `https://image.tmdb.org/t/p/w780${data.backdrop_path}`;
                     }
-
                     document.getElementById('smExtendedInfo').classList.remove('hidden');
                 }).catch(e => console.log(e));
 
-                // Fetch Watch Providers (Streaming BR)
                 fetch(`https://api.themoviedb.org/3/${type}/${id}/watch/providers?api_key=${tmdbApiKey}`)
                 .then(r => r.json())
                 .then(data => {
@@ -1805,8 +1748,8 @@
         function submitPendingRating() {
             if(!currentViewingId || !currentUser) return;
             const dbNode = currentExploreType === 'movie' ? 'movies' : 'shows';
-
             const reviewText = document.getElementById('pendingReview').value;
+            
             db.ref(`${dbNode}/${currentViewingId}/ratings/${currentUser}`).set(pRating);
             if(reviewText) db.ref(`${dbNode}/${currentViewingId}/reviews/${currentUser}`).set(reviewText);
             
@@ -1814,9 +1757,6 @@
             closeViewItemModal();
         }
 
-        // =====================================
-        // Visualizar Item (Letterboxd Style)
-        // =====================================
         function formatMoney(value) {
             if(!value || value === 0) return '-';
             return '$' + (value / 1000000).toFixed(1) + 'M';
@@ -1824,6 +1764,7 @@
 
         function openViewItemModal(item) {
             try {
+                if(!item || !item.id) return;
                 currentViewingId = item.id; 
                 currentExploreType = item.id.startsWith('tv') ? 'tv' : 'movie';
                 const type = currentExploreType;
@@ -1879,6 +1820,7 @@
                         const uniqueNames = new Set([...Object.keys(ratings), ...Object.keys(reviews)]);
                         
                         uniqueNames.forEach(personName => {
+                            if(personName.length > 15) return; // ignora lixo de banco de dados velho
                             const personRating = ratings[personName] || '-';
                             const reviewTxt = reviews[personName] || '';
                             const avatarColor = personName === 'Luiz' ? 'bg-blue-100 text-blue-500' : 'bg-emerald-100 text-emerald-500';
@@ -1993,9 +1935,8 @@
                         }
 
                         document.getElementById('vmExtendedInfo').classList.remove('hidden');
-                    }).catch(err => console.log("Infos extras não carregadas", err));
+                    }).catch(err => console.log(err));
 
-                    // Providers API
                     fetch(`https://api.themoviedb.org/3/${type}/${item.tmdbId}/watch/providers?api_key=${tmdbApiKey}`)
                     .then(r => r.json())
                     .then(data => {
@@ -2033,8 +1974,71 @@
             document.getElementById('trailerIframe').src = '';
         }
 
+        function compressImage(file, callback) {
+            if (!file) { callback(null); return; }
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function(event) {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_SIZE = 800;
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
+                    else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
+                    canvas.width = width; canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    callback(canvas.toDataURL('image/jpeg', 0.6));
+                };
+            };
+        }
+
+        function previewMapImage(event) {
+            compressImage(event.target.files[0], (base64) => {
+                currentCompressedMapImage = base64;
+                const preview = document.getElementById('imagePreview');
+                preview.src = base64;
+                preview.classList.remove('hidden');
+                document.getElementById('uploadPlaceholder').classList.add('hidden');
+            });
+        }
+
+        function previewItemImage(event) {
+            compressImage(event.target.files[0], (base64) => {
+                currentCompressedItemImage = base64;
+                const preview = document.getElementById('smImagePreview');
+                preview.src = base64;
+                preview.classList.remove('hidden');
+                document.getElementById('smUploadPlaceholder').classList.add('hidden');
+            });
+        }
+
+        function formatDateBR(dateStr) {
+            if(!dateStr) return "";
+            const parts = dateStr.split('-');
+            if(parts.length !== 3) return dateStr;
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+
+        function showCustomMessage(msg, duration = 3000) {
+            const old = document.getElementById('sysToast');
+            if(old) old.remove();
+            const toast = document.createElement('div');
+            toast.id = 'sysToast';
+            toast.className = 'fixed top-10 md:bottom-24 md:top-auto left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl text-sm font-semibold z-[9999] slide-up text-center w-max max-w-[90vw] pointer-events-none border border-slate-700';
+            toast.innerText = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(() => toast.remove(), 500);
+            }, duration);
+        }
+
         // ==========================================
-        // 5. ABA: NOSSAS CONTAS 💸
+        // ABA: NOSSAS CONTAS E TEMPO (Intocados e Limpos)
         // ==========================================
         function openFinanceModal() {
             document.getElementById('fin-title').value = '';
@@ -2097,9 +2101,11 @@
         }
 
         function clearFinancesHistory() {
-            if(confirm("Apagar todas as contas já marcadas como PAGAS? Isso não apaga as pendentes.")) {
+            if(confirm("Apagar todas as contas já marcadas como PAGAS? Isso não apaga as contas pendentes.")) {
                 finances.forEach(f => {
-                    if(f.paid) db.ref('finances/' + f.id).remove();
+                    if(f.paid) {
+                        db.ref('finances/' + f.id).remove();
+                    }
                 });
                 showCustomMessage("Histórico limpo!");
             }
@@ -2117,11 +2123,8 @@
                     const payer = f.payer || (f.creditor || 'N/A');
                     const isSplit = f.type === 'split';
 
-                    if (payer === 'Matheus') {
-                        balance += isSplit ? (f.amount / 2) : f.amount;
-                    } else if (payer === 'Luiz') {
-                        balance -= isSplit ? (f.amount / 2) : f.amount;
-                    }
+                    if (payer === 'Matheus') balance += isSplit ? (f.amount / 2) : f.amount;
+                    else if (payer === 'Luiz') balance -= isSplit ? (f.amount / 2) : f.amount;
                 }
 
                 if(currentFinFilter === 'paid' && !f.paid) return false;
@@ -2240,9 +2243,6 @@
             }
         }
 
-        // ==========================================
-        // 6. ABA: NOSSO TEMPO ⏳
-        // ==========================================
         function openTimeSettings() {
             document.getElementById('ts-conhecemos').value = coupleDates.conhecemos || '';
             document.getElementById('ts-namoro').value = coupleDates.namoro || '';
@@ -2269,9 +2269,7 @@
             try {
                 updateTimerUI();
                 timerInterval = setInterval(updateTimerUI, 1000); 
-            } catch (e) {
-                console.error("Erro no relógio:", e);
-            }
+            } catch (e) { console.error(e); }
         }
 
         function updateTimerUI() {
@@ -2350,40 +2348,6 @@
             `).join('');
         }
         
-        // ==========================================
-        // UI GERAL
-        // ==========================================
-        function switchTab(tabId) {
-            const tabs = {
-                'map': document.getElementById('tab-map'),
-                'movies': document.getElementById('tab-movies'),
-                'shows': document.getElementById('tab-shows'),
-                'finances': document.getElementById('tab-finances'),
-                'time': document.getElementById('tab-time')
-            };
-            const btns = {
-                'map': document.getElementById('nav-btn-map'),
-                'movies': document.getElementById('nav-btn-movies'),
-                'shows': document.getElementById('nav-btn-shows'),
-                'finances': document.getElementById('nav-btn-finances'),
-                'time': document.getElementById('nav-btn-time')
-            };
-
-            for (const key in tabs) {
-                if (key === tabId) {
-                    tabs[key].classList.remove('opacity-0', 'pointer-events-none', 'z-0');
-                    tabs[key].classList.add('z-10');
-                    btns[key].classList.add('text-brand');
-                    btns[key].classList.remove('text-slate-400');
-                    if (key === 'map') setTimeout(() => map.invalidateSize(), 100);
-                } else {
-                    tabs[key].classList.add('opacity-0', 'pointer-events-none', 'z-0');
-                    tabs[key].classList.remove('z-10');
-                    btns[key].classList.remove('text-brand');
-                    btns[key].classList.add('text-slate-400');
-                }
-            }
-        }
     </script>
 </body>
 </html>
