@@ -33,10 +33,13 @@
     </script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        /* Fonte Inter e Fonte Kalam (estilo caligrafia/diário) importadas juntas */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Kalam:wght@400;700&display=swap');
 
         body { margin: 0; padding: 0; background-color: #f8fafc; }
         #map { width: 100%; height: 100%; z-index: 1; }
+
+        .font-journal { font-family: 'Kalam', cursive; }
 
         .custom-heart-marker { display: flex; justify-content: center; align-items: center; background: none; border: none; cursor: pointer; pointer-events: auto !important; z-index: 1000 !important;}
         .custom-heart-marker i { color: #fb7185; font-size: 28px; filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.3)); transition: transform 0.2s; pointer-events: none !important; }
@@ -61,6 +64,13 @@
         
         .polaroid-frame { background: white; padding: 10px 10px 30px 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-radius: 4px; transform: rotate(-2deg); transition: transform 0.3s; }
         .polaroid-frame:hover { transform: scale(1.05) rotate(0deg); z-index: 10; }
+        
+        /* Fita adesiva estilo scrapbook */
+        .tape {
+            background-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            backdrop-filter: blur(2px);
+        }
     </style>
 </head>
 <body class="flex flex-col h-[100dvh] text-slate-800 antialiased overflow-hidden relative">
@@ -152,9 +162,7 @@
             <div class="flex flex-col gap-3 mb-4 shrink-0">
                 <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                     <button onclick="setMovieFilter('all')" id="filter-all" class="px-4 py-2 rounded-full bg-brand text-white text-sm font-bold shadow-md whitespace-nowrap transition-colors">Todos</button>
-                    <!-- Novo Botão Em Alta -->
                     <button onclick="setMovieFilter('trending')" id="filter-trending" class="px-4 py-2 rounded-full bg-white text-slate-600 border border-slate-200 text-sm font-bold whitespace-nowrap transition-colors"><i class="fa-solid fa-fire text-orange-500 mr-1"></i> Em Alta</button>
-                    
                     <button onclick="setMovieFilter('want')" id="filter-want" class="px-4 py-2 rounded-full bg-white text-slate-600 border border-slate-200 text-sm font-bold whitespace-nowrap transition-colors">Queremos Assistir</button>
                     <button onclick="setMovieFilter('watched')" id="filter-watched" class="px-4 py-2 rounded-full bg-white text-slate-600 border border-slate-200 text-sm font-bold whitespace-nowrap transition-colors">Já Assistimos</button>
                 </div>
@@ -292,26 +300,27 @@
     <!-- Overlay Escuro Global -->
     <div id="modalOverlay" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[999]" onclick="closeAllPanels()"></div>
 
-    <!-- STREAMING_CHUNK:Menu Diário Mapa -->
-    <div id="mainMenu" class="fixed top-0 left-0 w-[85%] md:w-[350px] h-full bg-slate-50 shadow-2xl z-[1000] flex flex-col transition-transform duration-300 -translate-x-full">
-        <div class="flex justify-between items-center p-5 border-b border-brand-light bg-white pt-8">
-            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                <i class="fa-solid fa-book-open text-brand"></i> Nosso Diário
+    <!-- STREAMING_CHUNK:Menu Diário Mapa (Estilo Life is Strange) -->
+    <div id="mainMenu" class="fixed top-0 left-0 w-[85%] md:w-[350px] h-full bg-[#f4f1ea] shadow-[10px_0_30px_rgba(0,0,0,0.15)] z-[1000] flex flex-col transition-transform duration-300 -translate-x-full border-r border-[#e0d6c8]">
+        <div class="flex justify-between items-center p-5 border-b border-[#e0d6c8] bg-[#efeade] pt-8 relative overflow-hidden">
+            <div class="absolute -top-2 left-4 w-20 h-4 bg-white/40 -rotate-2"></div>
+            <h2 class="text-2xl font-journal font-bold text-slate-800 flex items-center gap-2 relative z-10">
+                <i class="fa-solid fa-camera-retro text-brand"></i> Álbum de Fotos
             </h2>
-            <button onclick="toggleMenu()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center">
+            <button onclick="toggleMenu()" class="w-8 h-8 rounded-full bg-white/50 hover:bg-white text-slate-600 flex items-center justify-center relative z-10 transition-colors">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-        <div class="p-4 bg-white border-b border-slate-100 shadow-sm z-10">
+        <div class="p-4 bg-[#efeade] border-b border-[#e0d6c8] shadow-sm z-10">
             <div class="relative">
                 <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" id="searchInput" placeholder="Buscar lugar ou memória..." onkeyup="filterMemories()" class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50 text-sm">
+                <input type="text" id="searchInput" placeholder="Buscar no álbum..." onkeyup="filterMemories()" class="w-full pl-11 pr-4 py-3 rounded-xl border border-[#e0d6c8] focus:outline-none focus:border-brand bg-[#fdfdfb] text-sm font-medium">
             </div>
         </div>
-        <div id="memoryList" class="flex-1 overflow-y-auto p-4 flex flex-col gap-3"></div>
+        <div id="memoryList" class="flex-1 overflow-y-auto p-4 flex flex-col gap-6 pt-6 bg-[#f4f1ea]"></div>
         
-        <div class="p-4 bg-white border-t border-slate-100">
-            <button onclick="logout()" class="w-full text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 text-sm font-semibold flex items-center justify-center gap-2 py-3 rounded-xl transition-colors">
+        <div class="p-4 bg-[#efeade] border-t border-[#e0d6c8]">
+            <button onclick="logout()" class="w-full text-slate-500 hover:text-slate-800 bg-white/50 hover:bg-white text-sm font-semibold flex items-center justify-center gap-2 py-3 rounded-xl transition-colors">
                 <i class="fa-solid fa-right-from-bracket"></i> Trocar de Usuário
             </button>
         </div>
@@ -370,7 +379,6 @@
                     <h3 id="viewTitle" class="text-2xl font-bold text-slate-800"></h3>
                 </div>
                 
-                <!-- CORREÇÃO 2: Design da Citação Arrumado! Super elegante e sem sobrepor o texto -->
                 <div class="bg-brand-light/20 p-5 pt-6 rounded-2xl border border-brand/20 relative mt-4 mb-2 shadow-sm">
                     <div class="absolute -top-4 left-5 bg-white w-8 h-8 rounded-full flex items-center justify-center shadow-sm border border-brand/10">
                         <i class="fa-solid fa-quote-left text-brand/40 text-sm"></i>
@@ -424,73 +432,103 @@
         </div>
     </div>
 
-    <!-- Modal Salvar Filme -->
+    <!-- STREAMING_CHUNK:Modal Adicionar Filme (Letterboxd Style) -->
     <div id="saveMovieModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeSaveMovieModal()"></div>
         
-        <div class="relative bg-white w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 max-h-[90vh] overflow-y-auto no-scrollbar">
-            <button onclick="closeSaveMovieModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200 z-10"><i class="fa-solid fa-xmark"></i></button>
+        <div class="relative bg-white w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto no-scrollbar pb-6">
             
-            <div class="flex gap-4 items-center mb-6 pr-8">
-                <img id="smPoster" src="" class="w-20 h-28 object-cover rounded-lg shadow-md bg-slate-200 shrink-0">
-                <div>
-                    <h3 id="smTitle" class="font-bold text-lg text-slate-800 leading-tight mb-1"></h3>
-                    <p id="smYear" class="text-sm text-slate-500 font-medium"></p>
-                </div>
-            </div>
+            <button onclick="closeSaveMovieModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 z-20 backdrop-blur-sm"><i class="fa-solid fa-xmark"></i></button>
 
-            <div class="flex gap-2 p-1 bg-slate-100 rounded-xl mb-6">
-                <button id="sm-btn-want" onclick="setMovieStatus('want')" class="flex-1 py-2 rounded-lg text-sm font-bold bg-white text-brand shadow-sm transition-all">Queremos Assistir</button>
-                <button id="sm-btn-watched" onclick="setMovieStatus('watched')" class="flex-1 py-2 rounded-lg text-sm font-bold text-slate-500 hover:text-slate-700 transition-all">Já Assistimos</button>
-            </div>
-
-            <div id="sm-watched-fields" class="hidden flex-col gap-4 mb-6">
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2 text-center">Sua Nota Inicial</label>
-                    <div class="flex justify-center gap-3 text-3xl text-slate-200" id="starRatingContainer">
-                        <i class="fa-solid fa-star cursor-pointer transition-colors" onclick="setRating(1)"></i>
-                        <i class="fa-solid fa-star cursor-pointer transition-colors" onclick="setRating(2)"></i>
-                        <i class="fa-solid fa-star cursor-pointer transition-colors" onclick="setRating(3)"></i>
-                        <i class="fa-solid fa-star cursor-pointer transition-colors" onclick="setRating(4)"></i>
-                        <i class="fa-solid fa-star cursor-pointer transition-colors" onclick="setRating(5)"></i>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Quando assistimos?</label>
-                    <input type="date" id="smDate" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50 text-slate-600">
-                </div>
+            <!-- HEADER IGUAL O DE VISUALIZAÇÃO -->
+            <div id="smHeader" class="w-full h-48 bg-slate-200 relative shrink-0">
+                <img id="smHeroImage" src="" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/10"></div>
                 
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Lista (Ex: Favoritos, Halloween...)</label>
-                    <input type="text" id="smList" placeholder="Adicionar a uma lista..." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50 text-slate-600">
-                </div>
+                <button id="smTrailerBtn" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-brand/90 hover:bg-brand text-white rounded-full flex items-center justify-center text-lg shadow-[0_0_20px_rgba(251,113,133,0.5)] transition-all hover:scale-110 backdrop-blur-sm" onclick="playTrailer()"><i class="fa-solid fa-play ml-1"></i></button>
 
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">O que achou?</label>
-                    <textarea id="smReview" rows="2" placeholder="Foi incrível..." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50 resize-none"></textarea>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Foto Nossa Assistindo (Polaroid!)</label>
-                    <div class="relative w-full h-32 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 hover:bg-slate-100 flex flex-col items-center justify-center cursor-pointer overflow-hidden group" onclick="document.getElementById('smPhotoInput').click()">
-                        <input type="file" id="smPhotoInput" accept="image/*" class="hidden" onchange="previewMovieImage(event)">
-                        <div id="smUploadPlaceholder" class="flex flex-col items-center justify-center text-slate-500">
-                            <i class="fa-solid fa-camera-retro text-3xl mb-2"></i>
-                            <span class="text-xs font-medium text-center px-4">Momento pipoca<br>(Vai virar uma fotinha no álbum)</span>
+                <div class="absolute bottom-4 left-4 right-4 flex gap-3 items-end">
+                    <img id="smPoster" src="" class="w-16 h-24 object-cover rounded-lg shadow-md border border-white/20">
+                    <div class="flex-1 pb-1">
+                        <h2 id="smTitle" class="text-xl font-bold text-white leading-tight drop-shadow-md"></h2>
+                        <div class="flex items-center gap-2 mt-1 text-xs text-slate-300 font-medium">
+                            <span id="smYear"></span>
+                            <span id="smRuntime" class="hidden"><i class="fa-regular fa-clock"></i> <span id="smRuntimeText"></span></span>
                         </div>
-                        <img id="smImagePreview" class="hidden absolute inset-0 w-full h-full object-cover">
                     </div>
                 </div>
             </div>
 
-            <button onclick="saveMovieToList()" class="w-full bg-brand text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-[0.98] transition-transform">
-                Guardar no nosso acervo
-            </button>
+            <div class="p-6 pt-5">
+                
+                <!-- INFOS EXTRAS (Letterboxd Style) -->
+                <div id="smExtendedInfo" class="hidden border-b border-slate-100 pb-5 mb-5">
+                    <p class="text-[13px] text-slate-500 italic mb-4 line-clamp-3 leading-relaxed" id="smTagline"></p>
+                    <div class="flex flex-col gap-3">
+                        <div class="flex items-center gap-2 text-sm text-slate-700">
+                            <span class="font-bold uppercase tracking-wider text-[10px] text-slate-400 w-14">Direção</span>
+                            <span id="smDirector" class="font-semibold text-brand truncate"></span>
+                        </div>
+                        <div>
+                            <span class="font-bold uppercase tracking-wider text-[10px] text-slate-400 block mb-2">Elenco Principal</span>
+                            <div id="smCastContainer" class="flex gap-3 overflow-x-auto no-scrollbar pb-1"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-2 p-1 bg-slate-100 rounded-xl mb-6">
+                    <button id="sm-btn-want" onclick="setMovieStatus('want')" class="flex-1 py-2 rounded-lg text-sm font-bold bg-white text-brand shadow-sm transition-all">Queremos Assistir</button>
+                    <button id="sm-btn-watched" onclick="setMovieStatus('watched')" class="flex-1 py-2 rounded-lg text-sm font-bold text-slate-500 hover:text-slate-700 transition-all">Já Assistimos</button>
+                </div>
+
+                <div id="sm-watched-fields" class="hidden flex-col gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2 text-center">Sua Nota Inicial</label>
+                        <div class="flex justify-center gap-3 text-3xl text-slate-200" id="starRatingContainer">
+                            <i class="fa-solid fa-star cursor-pointer transition-colors" onclick="setRating(1)"></i>
+                            <i class="fa-solid fa-star cursor-pointer transition-colors" onclick="setRating(2)"></i>
+                            <i class="fa-solid fa-star cursor-pointer transition-colors" onclick="setRating(3)"></i>
+                            <i class="fa-solid fa-star cursor-pointer transition-colors" onclick="setRating(4)"></i>
+                            <i class="fa-solid fa-star cursor-pointer transition-colors" onclick="setRating(5)"></i>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Quando assistimos?</label>
+                        <input type="date" id="smDate" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50 text-slate-600">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Lista (Ex: Favoritos, Halloween...)</label>
+                        <input type="text" id="smList" placeholder="Adicionar a uma lista..." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50 text-slate-600">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">O que achou?</label>
+                        <textarea id="smReview" rows="2" placeholder="Foi incrível..." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50 resize-none"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Foto Nossa Assistindo (Polaroid!)</label>
+                        <div class="relative w-full h-32 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 hover:bg-slate-100 flex flex-col items-center justify-center cursor-pointer overflow-hidden group" onclick="document.getElementById('smPhotoInput').click()">
+                            <input type="file" id="smPhotoInput" accept="image/*" class="hidden" onchange="previewMovieImage(event)">
+                            <div id="smUploadPlaceholder" class="flex flex-col items-center justify-center text-slate-500">
+                                <i class="fa-solid fa-camera-retro text-3xl mb-2"></i>
+                                <span class="text-xs font-medium text-center px-4">Momento pipoca<br>(Vai virar uma fotinha no álbum)</span>
+                            </div>
+                            <img id="smImagePreview" class="hidden absolute inset-0 w-full h-full object-cover">
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="saveMovieToList()" class="w-full bg-brand text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-[0.98] transition-transform">
+                    Guardar no nosso acervo
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- STREAMING_CHUNK:Visualizar Filme (Experiência Letterboxd) -->
+    <!-- STREAMING_CHUNK:Visualizar Filme -->
     <div id="viewMovieModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeViewMovieModal()"></div>
         
@@ -517,7 +555,7 @@
 
             <div class="p-6 pt-5">
                 
-                <!-- EXPERIÊNCIA LETTERBOXD (Informações Técnicas Ocultas por padrão) -->
+                <!-- EXPERIÊNCIA LETTERBOXD -->
                 <div id="vmExtendedInfo" class="hidden border-b border-slate-100 pb-5 mb-5">
                     <p class="text-[13px] text-slate-500 italic mb-4 line-clamp-3 leading-relaxed" id="vmTagline"></p>
                     <div class="flex flex-col gap-3">
@@ -734,7 +772,7 @@
         let movies = [];
         let currentMovieFilter = 'all';
         let tmdbApiKey = "";
-        let currentTrailerKey = ""; // P/ YouTube
+        let currentTrailerKey = "";
         
         let currentCompressedMapImage = null;
         let currentCompressedMovieImage = null;
@@ -841,11 +879,10 @@
         }
 
         // ==========================================
-        // ABA: MAPA & MEMÓRIAS
+        // ABA: MAPA & MEMÓRIAS (LIFE IS STRANGE)
         // ==========================================
         function initMap() {
             if(map) return; 
-            
             map = L.map('map', { zoomControl: false }).setView(CURITIBA_COORDS, 13);
             L.control.zoom({ position: 'bottomleft' }).addTo(map);
 
@@ -938,28 +975,32 @@
             const filtered = memories.filter(m => m.title.toLowerCase().includes(filterText.toLowerCase()) || (m.notes && m.notes.toLowerCase().includes(filterText.toLowerCase())));
             
             if (filtered.length === 0) {
-                list.innerHTML = `<div class="text-center text-slate-400 mt-10"><i class="fa-solid fa-ghost text-4xl mb-2 opacity-50"></i><p>Nada encontrado.</p></div>`;
+                list.innerHTML = `<div class="text-center text-slate-400 mt-10"><i class="fa-solid fa-ghost text-4xl mb-2 opacity-50"></i><p class="font-journal text-lg">O álbum está vazio...</p></div>`;
                 return;
             }
 
-            filtered.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(mem => {
+            // Life is Strange Polaroid Style
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach((mem, index) => {
                 const isHidden = mem.isHidden || false;
                 const opacityClass = isHidden ? 'opacity-50 grayscale' : '';
+                const rotClass = index % 2 === 0 ? '-rotate-2' : 'rotate-3';
+                
                 const item = document.createElement('div');
-                item.className = `flex items-center p-3 bg-white rounded-xl shadow-sm border border-slate-100 ${opacityClass}`;
+                item.className = `relative bg-white p-3 pb-8 shadow-[0_4px_15px_rgba(0,0,0,0.08)] transition-all ${rotClass} hover:rotate-0 hover:z-10 group cursor-pointer mb-6 w-[90%] mx-auto border border-slate-200 ${opacityClass}`;
                 item.innerHTML = `
-                    <div class="flex-1 flex items-center gap-3 cursor-pointer overflow-hidden" onclick="panToMemory('${mem.id}')">
-                        <div class="w-12 h-12 rounded-lg bg-slate-100 shrink-0 overflow-hidden border border-slate-200">
-                            ${mem.image ? `<img src="${mem.image}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center"><i class="fa-solid fa-image text-slate-300"></i></div>`}
-                        </div>
-                        <div class="min-w-0">
-                            <h4 class="font-bold text-slate-800 text-sm truncate">${mem.title}</h4>
-                            <p class="text-xs text-slate-500">${formatDateBR(mem.date)}</p>
-                        </div>
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-12 h-5 bg-[#e5dfd3] opacity-80 shadow-sm -rotate-1 z-10"></div>
+                    <div class="aspect-square w-full bg-slate-100 overflow-hidden border border-slate-100" onclick="panToMemory('${mem.id}')">
+                        ${mem.image ? `<img src="${mem.image}" class="w-full h-full object-cover grayscale-[20%] sepia-[20%] group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-500">` : `<div class="w-full h-full flex items-center justify-center bg-slate-200"><i class="fa-solid fa-camera text-slate-400 text-4xl"></i></div>`}
                     </div>
-                    <button onclick="toggleVisibility('${mem.id}', event)" class="w-10 h-10 flex items-center justify-center shrink-0 ml-2 rounded-full hover:bg-slate-50">
-                        <i class="fa-solid ${isHidden ? 'fa-eye-slash text-slate-400' : 'fa-eye text-brand'}"></i>
-                    </button>`;
+                    <div class="mt-4 flex justify-between items-start px-1 relative">
+                        <div onclick="panToMemory('${mem.id}')" class="min-w-0 flex-1">
+                            <h4 class="font-journal font-bold text-slate-800 text-xl leading-none">${mem.title}</h4>
+                            <p class="font-journal text-slate-500 text-sm mt-1">${formatDateBR(mem.date)}</p>
+                        </div>
+                        <button onclick="toggleVisibility('${mem.id}', event)" class="w-8 h-8 flex items-center justify-center shrink-0 ml-2 rounded-full hover:bg-slate-100 absolute -right-1 -top-1">
+                            <i class="fa-solid ${isHidden ? 'fa-eye-slash text-slate-300' : 'fa-eye text-brand'} text-sm"></i>
+                        </button>
+                    </div>`;
                 list.appendChild(item);
             });
         }
@@ -1215,7 +1256,6 @@
                     const div = document.createElement('div');
                     div.className = 'group relative bg-slate-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-slate-100/50 flex flex-col cursor-pointer transform transition-all duration-300 hover:-translate-y-1';
                     
-                    // Clicar abre para salvar direto!
                     div.onclick = () => openSaveMovieModal(m.id, m.title, year, posterPath, m.genre_ids);
                     
                     div.innerHTML = `
@@ -1357,12 +1397,21 @@
             }
         }
 
+        // =====================================
+        // NOVO: Adicionar Filme (Letterboxd Style)
+        // =====================================
         function openSaveMovieModal(id, title, year, posterUrl, genres) {
             tempMovieData = { id, title, year, poster: posterUrl, genres: genres };
+            currentTrailerKey = "";
             
             document.getElementById('smTitle').innerText = title;
             document.getElementById('smYear').innerText = year;
             document.getElementById('smPoster').src = posterUrl;
+            document.getElementById('smHeroImage').src = posterUrl; // Fallback
+            
+            document.getElementById('smExtendedInfo').classList.add('hidden');
+            document.getElementById('smTrailerBtn').classList.add('hidden');
+            document.getElementById('smRuntime').classList.add('hidden');
             
             setMovieStatus('want');
             setRating(5);
@@ -1376,6 +1425,55 @@
             
             closeSearchMovieModal();
             document.getElementById('saveMovieModal').classList.remove('hidden');
+
+            if(id && tmdbApiKey) {
+                fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${tmdbApiKey}&language=pt-BR&append_to_response=videos,credits`)
+                .then(r => r.json())
+                .then(data => {
+                    if(data.videos && data.videos.results) {
+                        const trailer = data.videos.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+                        if(trailer) {
+                            currentTrailerKey = trailer.key;
+                            document.getElementById('smTrailerBtn').classList.remove('hidden');
+                        }
+                    }
+                    
+                    document.getElementById('smTagline').innerText = data.tagline ? `"${data.tagline}"` : '';
+                    
+                    if(data.runtime) {
+                        const hours = Math.floor(data.runtime / 60);
+                        const minutes = data.runtime % 60;
+                        document.getElementById('smRuntimeText').innerText = `${hours}h ${minutes}m`;
+                        document.getElementById('smRuntime').classList.remove('hidden');
+                    }
+
+                    if(data.credits) {
+                        const director = data.credits.crew.find(c => c.job === 'Director');
+                        document.getElementById('smDirector').innerText = director ? director.name : 'Desconhecido';
+                        
+                        const castContainer = document.getElementById('smCastContainer');
+                        castContainer.innerHTML = '';
+                        if(data.credits.cast && data.credits.cast.length > 0) {
+                            const topCast = data.credits.cast.slice(0, 4);
+                            topCast.forEach(actor => {
+                                const img = actor.profile_path ? `https://image.tmdb.org/t/p/w185${actor.profile_path}` : 'https://placehold.co/100x100/e2e8f0/64748b?text=Ator';
+                                castContainer.innerHTML += `
+                                    <div class="flex flex-col items-center gap-1 min-w-[55px] max-w-[65px]">
+                                        <img src="${img}" class="w-12 h-12 rounded-full object-cover border border-slate-200 shadow-sm">
+                                        <span class="text-[9px] font-bold text-slate-600 text-center leading-tight truncate w-full">${actor.name}</span>
+                                    </div>
+                                `;
+                            });
+                        }
+                    }
+                    
+                    if(data.backdrop_path) {
+                        document.getElementById('smHeroImage').src = `https://image.tmdb.org/t/p/w780${data.backdrop_path}`;
+                    }
+
+                    document.getElementById('smExtendedInfo').classList.remove('hidden');
+                }).catch(e => console.log(e));
+            }
         }
 
         function closeSaveMovieModal() { document.getElementById('saveMovieModal').classList.add('hidden'); }
@@ -1474,7 +1572,6 @@
             closeViewMovieModal();
         }
 
-        // Letterboxd Experience & Trailer Formatter
         function formatMoney(value) {
             if(!value || value === 0) return 'Não divulgado';
             return '$ ' + (value / 1000000).toFixed(1) + 'M';
@@ -1492,12 +1589,14 @@
             document.getElementById('trailerIframe').src = '';
         }
 
+        // =====================================
+        // NOVO: Visualizar Filme (Letterboxd Style)
+        // =====================================
         function openViewMovieModal(movie) {
             try {
                 currentViewingId = movie.id; 
-                currentTrailerKey = ""; // reseta
+                currentTrailerKey = ""; 
                 
-                // Resets de interface Letterboxd
                 document.getElementById('vmExtendedInfo').classList.add('hidden');
                 document.getElementById('vmTrailerBtn').classList.add('hidden');
                 document.getElementById('vmRuntime').classList.add('hidden');
@@ -1595,12 +1694,10 @@
 
                 document.getElementById('viewMovieModal').classList.remove('hidden');
 
-                // CHAMADA MÁGICA LETTERBOXD + TRAILER (Ocorre em segundo plano)
                 if(movie.tmdbId && tmdbApiKey) {
                     fetch(`https://api.themoviedb.org/3/movie/${movie.tmdbId}?api_key=${tmdbApiKey}&language=pt-BR&append_to_response=videos,credits`)
                     .then(r => r.json())
                     .then(data => {
-                        // Trailer
                         if(data.videos && data.videos.results) {
                             const trailer = data.videos.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
                             if(trailer) {
@@ -1609,7 +1706,6 @@
                             }
                         }
                         
-                        // Infos Estilo Letterboxd
                         document.getElementById('vmTagline').innerText = data.tagline ? `"${data.tagline}"` : '';
                         
                         if(data.runtime) {
@@ -1642,7 +1738,6 @@
                         document.getElementById('vmBudget').innerText = formatMoney(data.budget);
                         document.getElementById('vmRevenue').innerText = formatMoney(data.revenue);
                         
-                        // Atualiza pano de fundo se existir
                         if(data.backdrop_path) {
                             document.getElementById('vmHeroImage').src = `https://image.tmdb.org/t/p/w780${data.backdrop_path}`;
                         }
@@ -1919,7 +2014,7 @@
         }
 
         // ==========================================
-        // ABA: NOSSO TEMPO ⏳ (Correção de Formatos)
+        // ABA: NOSSO TEMPO ⏳
         // ==========================================
         function openTimeSettings() {
             document.getElementById('ts-conhecemos').value = coupleDates.conhecemos || '';
@@ -1944,7 +2039,6 @@
 
             if(timerInterval) clearInterval(timerInterval);
             
-            // Força a rodar uma vez na hora e dps agenda
             try {
                 updateTimerUI();
                 timerInterval = setInterval(updateTimerUI, 1000); 
@@ -1982,13 +2076,11 @@
         }
 
         function calcTimeDiff(dateString) {
-            // Conversão super segura para iOS e Android
             const startDate = new Date(dateString.replace(/-/g, '/').replace('T', ' '));
             if (isNaN(startDate.getTime())) return null;
 
             const now = new Date();
             let diff = now - startDate;
-            // Se a data for no futuro (estiver contando para algo), usamos math absolute
             if (diff < 0) diff = Math.abs(diff);
 
             const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -2063,4 +2155,5 @@
     </script>
 </body>
 </html>
+
 ```eof
