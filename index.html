@@ -120,10 +120,9 @@
                     <select id="filter-genre" onchange="renderMoviesGrid()" class="w-24 px-2 py-2 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:border-brand text-slate-600 truncate shadow-sm">
                         <option value="">Gêneros</option>
                     </select>
-                    <select id="filter-list" onchange="renderMoviesGrid()" class="w-24 px-2 py-2 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:border-brand text-slate-600 truncate shadow-sm">
-                        <option value="">Listas</option>
-                    </select>
                 </div>
+                <!-- Container ajustado para os botões das Listas -->
+                <div id="custom-lists-container" class="hidden gap-2 overflow-x-auto no-scrollbar pb-1"></div>
             </div>
 
             <div id="moviesGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-10">
@@ -192,24 +191,24 @@
             </div>
             
             <div id="time-display-area" class="flex flex-col items-center justify-center gap-6 mt-4">
-                <!-- Namoro -->
-                <div class="bg-white w-full rounded-3xl shadow-sm border border-slate-100 p-6 flex flex-col items-center relative overflow-hidden">
-                    <div class="absolute -top-4 -right-4 text-brand/10 text-6xl"><i class="fa-solid fa-heart"></i></div>
-                    <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 z-10">Juntos há</h2>
+                <!-- Conhecemos (Corrigido para corresponder ao JS) -->
+                <div id="card-conhecemos" class="hidden bg-white w-full rounded-3xl shadow-sm border border-slate-100 p-6 flex-col items-center relative overflow-hidden">
+                    <div class="absolute -top-4 -right-4 text-brand/10 text-6xl"><i class="fa-solid fa-calendar-check"></i></div>
+                    <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 z-10">Nos conhecemos há</h2>
+                    <div id="counter-conhecemos" class="grid grid-cols-4 gap-2 md:gap-4 w-full z-10">
+                        <!-- Valores injetados via JS -->
+                    </div>
+                    <p id="lbl-conhecemos" class="text-xs text-slate-400 mt-4 font-medium z-10"></p>
+                </div>
+
+                <!-- Namoro (Corrigido para corresponder ao JS) -->
+                <div id="card-namoro" class="hidden bg-brand w-full rounded-3xl shadow-lg border border-brand-dark p-6 flex-col items-center relative overflow-hidden">
+                    <div class="absolute -top-4 -right-4 text-white/10 text-6xl"><i class="fa-solid fa-heart"></i></div>
+                    <h2 class="text-sm font-bold text-white/80 uppercase tracking-widest mb-4 z-10">Namoramos há</h2>
                     <div id="counter-namoro" class="grid grid-cols-4 gap-2 md:gap-4 w-full z-10">
                         <!-- Valores injetados via JS -->
                     </div>
-                    <p id="date-namoro-label" class="text-xs text-slate-400 mt-4 font-medium z-10"></p>
-                </div>
-
-                <!-- Noivado/Casamento -->
-                <div id="card-noivado" class="hidden bg-white w-full rounded-3xl shadow-sm border border-slate-100 p-6 flex flex-col items-center relative overflow-hidden">
-                    <div class="absolute -top-4 -right-4 text-brand/10 text-6xl"><i class="fa-solid fa-ring"></i></div>
-                    <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 z-10">Casados / Noivos há</h2>
-                    <div id="counter-noivado" class="grid grid-cols-4 gap-2 md:gap-4 w-full z-10">
-                        <!-- Valores injetados via JS -->
-                    </div>
-                    <p id="date-noivado-label" class="text-xs text-slate-400 mt-4 font-medium z-10"></p>
+                    <p id="lbl-namoro" class="text-xs text-white/80 mt-4 font-medium z-10"></p>
                 </div>
             </div>
             
@@ -1654,6 +1653,7 @@
                 document.getElementById('card-conhecemos').classList.remove('hidden');
                 document.getElementById('card-conhecemos').classList.add('flex');
             } else {
+                document.getElementById('card-conhecemos').classList.remove('flex');
                 document.getElementById('card-conhecemos').classList.add('hidden');
                 document.getElementById('lbl-conhecemos').innerText = '--';
             }
@@ -1665,6 +1665,7 @@
                 document.getElementById('card-namoro').classList.remove('hidden');
                 document.getElementById('card-namoro').classList.add('flex');
             } else {
+                document.getElementById('card-namoro').classList.remove('flex');
                 document.getElementById('card-namoro').classList.add('hidden');
                 document.getElementById('lbl-namoro').innerText = '--';
             }
