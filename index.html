@@ -933,6 +933,40 @@
             }, 6000);
         }
 
+        // Função adicionada para corrigir a navegação das abas
+        function switchTab(tabId) {
+            const tabs = ['map', 'movies', 'shows', 'finances', 'calendar', 'time'];
+            
+            tabs.forEach(t => {
+                const el = document.getElementById('tab-' + t);
+                const btn = document.getElementById('nav-btn-' + t);
+                
+                if (el) {
+                    if (t === tabId) {
+                        el.classList.remove('z-0', 'opacity-0', 'pointer-events-none');
+                        el.classList.add('z-10');
+                    } else {
+                        el.classList.add('z-0', 'opacity-0', 'pointer-events-none');
+                        el.classList.remove('z-10');
+                    }
+                }
+                
+                if (btn) {
+                    if (t === tabId) {
+                        btn.classList.add('text-brand');
+                        btn.classList.remove('text-slate-400', 'dark:text-slate-500');
+                    } else {
+                        btn.classList.remove('text-brand');
+                        btn.classList.add('text-slate-400', 'dark:text-slate-500');
+                    }
+                }
+            });
+
+            if (tabId === 'map' && typeof map !== 'undefined' && map) {
+                setTimeout(() => { map.invalidateSize(); }, 300);
+            }
+        }
+
         function openSettings() { document.getElementById('settingsModal').classList.remove('hidden'); }
         function closeSettings() { document.getElementById('settingsModal').classList.add('hidden'); }
 
@@ -1022,7 +1056,7 @@
                 const data = snap.val();
                 if(data) coupleDates = data;
                 document.getElementById('time-display-area').classList.remove('hidden');
-                document.getElementById('time-empty-state').classList.add('hidden');
+                document.getElementById('time-empty-state')?.classList.add('hidden');
                 startTimer();
             });
 
@@ -2609,8 +2643,8 @@
         }
 
         function startTimer() {
-            document.getElementById('time-empty-state').classList.add('hidden');
-            document.getElementById('time-empty-state').classList.remove('flex');
+            document.getElementById('time-empty-state')?.classList.add('hidden');
+            document.getElementById('time-empty-state')?.classList.remove('flex');
             document.getElementById('time-display-area').classList.remove('hidden');
 
             if(timerInterval) clearInterval(timerInterval);
@@ -2700,4 +2734,3 @@
     </script>
 </body>
 </html>
-```eof
