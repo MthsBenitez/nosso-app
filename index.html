@@ -169,9 +169,20 @@
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                     <input type="text" id="search-movie" placeholder="Buscar no nosso acervo..." onkeyup="renderGrid('movie')" class="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border-none focus:ring-2 focus:ring-brand/20 text-sm font-medium dark:text-white">
                 </div>
-                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1 items-center">
                     <button onclick="setFilter('movie', 'all')" id="btn-movie-all" class="px-4 py-1.5 rounded-full bg-slate-800 dark:bg-white text-white dark:text-slate-800 text-xs font-bold shadow-sm whitespace-nowrap transition-colors">Todos</button>
                     <button onclick="setFilter('movie', 'trending')" id="btn-movie-trending" class="px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold whitespace-nowrap transition-colors"><i class="fa-solid fa-fire text-orange-500 mr-1"></i> Em Alta</button>
+                    
+                    <select id="streaming-movie" onchange="handleStreamingSelect('movie', this.value)" class="px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-purple-600 dark:text-purple-400 text-xs font-bold whitespace-nowrap transition-colors border-none focus:ring-0 appearance-none cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 text-center shrink-0 outline-none">
+                        <option value="">Streamings ▾</option>
+                        <option value="8">Netflix</option>
+                        <option value="119">Prime Video</option>
+                        <option value="337">Disney+</option>
+                        <option value="1899">Max</option>
+                        <option value="350">Apple TV+</option>
+                        <option value="307">Globoplay</option>
+                    </select>
+
                     <button onclick="setFilter('movie', 'want')" id="btn-movie-want" class="px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-blue-600 dark:text-blue-400 text-xs font-bold whitespace-nowrap transition-colors">Queremos</button>
                     <button onclick="setFilter('movie', 'watched')" id="btn-movie-watched" class="px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 text-xs font-bold whitespace-nowrap transition-colors">Assistidos</button>
                 </div>
@@ -196,9 +207,20 @@
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                     <input type="text" id="search-tv" placeholder="Buscar nas séries..." onkeyup="renderGrid('tv')" class="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border-none focus:ring-2 focus:ring-brand/20 text-sm font-medium dark:text-white">
                 </div>
-                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1 items-center">
                     <button onclick="setFilter('tv', 'all')" id="btn-tv-all" class="px-4 py-1.5 rounded-full bg-slate-800 dark:bg-white text-white dark:text-slate-800 text-xs font-bold shadow-sm whitespace-nowrap transition-colors">Todas</button>
                     <button onclick="setFilter('tv', 'trending')" id="btn-tv-trending" class="px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold whitespace-nowrap transition-colors"><i class="fa-solid fa-fire text-orange-500 mr-1"></i> Em Alta</button>
+                    
+                    <select id="streaming-tv" onchange="handleStreamingSelect('tv', this.value)" class="px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-purple-600 dark:text-purple-400 text-xs font-bold whitespace-nowrap transition-colors border-none focus:ring-0 appearance-none cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 text-center shrink-0 outline-none">
+                        <option value="">Streamings ▾</option>
+                        <option value="8">Netflix</option>
+                        <option value="119">Prime Video</option>
+                        <option value="337">Disney+</option>
+                        <option value="1899">Max</option>
+                        <option value="350">Apple TV+</option>
+                        <option value="307">Globoplay</option>
+                    </select>
+
                     <button onclick="setFilter('tv', 'want')" id="btn-tv-want" class="px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-blue-600 dark:text-blue-400 text-xs font-bold whitespace-nowrap transition-colors">Queremos</button>
                     <button onclick="setFilter('tv', 'watched')" id="btn-tv-watched" class="px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 text-xs font-bold whitespace-nowrap transition-colors">Assistidas</button>
                 </div>
@@ -1528,7 +1550,101 @@
             container.appendChild(item);
         }
 
+        function handleStreamingSelect(type, providerId) {
+            if (!providerId) {
+                setFilter(type, 'all');
+            } else {
+                loadStreamingGrid(type, providerId);
+            }
+        }
+
+        async function loadStreamingGrid(type, providerId) {
+            if(!tmdbApiKey) {
+                showCustomMessage("Cole a chave da API (TMDb) na lupa de busca primeiro!");
+                document.getElementById(`streaming-${type}`).value = "";
+                setFilter(type, 'all');
+                return;
+            }
+            
+            const btns = { 'all': `btn-${type}-all`, 'want': `btn-${type}-want`, 'watched': `btn-${type}-watched`, 'trending': `btn-${type}-trending` };
+            for(let key in btns) {
+                const b = document.getElementById(btns[key]);
+                if(!b) continue;
+                let colorClass = "text-slate-600 dark:text-slate-300";
+                if(key === 'want') colorClass = "text-blue-600 dark:text-blue-400";
+                if(key === 'watched') colorClass = "text-emerald-600 dark:text-emerald-400";
+                b.className = `px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 ${colorClass} hover:bg-slate-200 dark:hover:bg-slate-600 text-xs font-bold whitespace-nowrap transition-colors`;
+            }
+            
+            const selectEl = document.getElementById(`streaming-${type}`);
+            if(selectEl) {
+                selectEl.className = "px-4 py-1.5 rounded-full bg-purple-500 text-white text-xs font-bold shadow-md whitespace-nowrap transition-colors border-none focus:ring-0 appearance-none cursor-pointer text-center outline-none shrink-0";
+            }
+
+            const grid = document.getElementById(`grid-${type}`);
+            const empty = document.getElementById(`empty-${type}`);
+            grid.innerHTML = '<div class="col-span-full flex flex-col items-center py-20 text-purple-500 gap-4"><i class="fa-solid fa-spinner fa-spin text-5xl"></i><span class="font-bold">Buscando melhores avaliados...</span></div>';
+            empty.classList.add('hidden');
+            
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/discover/${type}?api_key=${tmdbApiKey}&language=pt-BR&watch_region=BR&with_watch_providers=${providerId}&sort_by=vote_average.desc&vote_count.gte=500`);
+                const data = await res.json();
+                grid.innerHTML = '';
+                
+                const arr = getActiveArray(type);
+                const watchedIds = arr.filter(i => i.status === 'watched').map(i => parseInt(i.tmdbId));
+                const toDisplay = data.results.filter(apiItem => !watchedIds.includes(apiItem.id));
+
+                if(toDisplay.length === 0) {
+                    grid.innerHTML = '<div class="col-span-full text-center text-slate-500 py-10">Vocês já assistiram os melhores desta plataforma! 🤯</div>';
+                    return;
+                }
+                
+                const providerNames = {
+                    "8": "Netflix", "119": "Prime", "337": "Disney+", "1899": "Max", "350": "Apple TV+", "307": "Globoplay"
+                };
+                const pName = providerNames[providerId] || "Streaming";
+
+                toDisplay.forEach(m => {
+                    const posterPath = m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : 'https://placehold.co/400x600/e2e8f0/64748b?text=Sem+Poster';
+                    const yearData = type === 'movie' ? m.release_date : m.first_air_date;
+                    const year = yearData ? yearData.substring(0,4) : 'N/A';
+                    const title = type === 'movie' ? m.title : m.name;
+                    
+                    const div = document.createElement('div');
+                    div.className = 'group relative bg-slate-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-slate-100/50 dark:border-slate-700 flex flex-col cursor-pointer transform transition-all duration-300 hover:-translate-y-1';
+                    div.onclick = () => { currentExploreType = type; openSaveItemModal(m.id, title, year, posterPath, m.genre_ids, type); };
+                    
+                    div.innerHTML = `
+                        <div class="h-48 md:h-64 relative w-full">
+                            <img src="${posterPath}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
+                            <div class="absolute top-2 right-2 bg-purple-500/90 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded-full shadow-sm z-10 border border-white/20 uppercase tracking-widest"><i class="fa-solid fa-play"></i> ${pName}</div>
+                            <div class="absolute bottom-3 left-3 right-3 z-10 flex flex-col justify-end">
+                                <h4 class="font-bold text-sm md:text-base text-white leading-tight drop-shadow-lg line-clamp-2">${title}</h4>
+                                <div class="flex justify-between items-end mt-2">
+                                    <p class="text-[10px] text-white/80 font-semibold bg-black/40 px-2 py-0.5 rounded-md backdrop-blur-sm border border-white/10">${year}</p>
+                                    <span class="text-[10px] text-purple-300 font-bold bg-white/10 px-2 rounded backdrop-blur"><i class="fa-solid fa-star"></i> ${m.vote_average.toFixed(1)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(div);
+                });
+            } catch (e) {
+                showCustomMessage("Erro ao buscar no streaming.");
+                document.getElementById(`streaming-${type}`).value = "";
+                setFilter(type, 'all');
+            }
+        }
+
         function setFilter(type, f) {
+            const streamingSelect = document.getElementById(`streaming-${type}`);
+            if(streamingSelect) {
+                streamingSelect.value = "";
+                streamingSelect.className = "px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-purple-600 dark:text-purple-400 text-xs font-bold whitespace-nowrap transition-colors border-none focus:ring-0 appearance-none cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 text-center shrink-0 outline-none";
+            }
+
             if(f === 'trending') {
                 loadTrendingGrid(type);
                 return;
@@ -1552,6 +1668,12 @@
         }
 
         async function loadTrendingGrid(type) {
+            const streamingSelect = document.getElementById(`streaming-${type}`);
+            if(streamingSelect) {
+                streamingSelect.value = "";
+                streamingSelect.className = "px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-purple-600 dark:text-purple-400 text-xs font-bold whitespace-nowrap transition-colors border-none focus:ring-0 appearance-none cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 text-center shrink-0 outline-none";
+            }
+
             if(!tmdbApiKey) {
                 showCustomMessage("Cole a chave da API (TMDb) na lupa de busca primeiro!");
                 setFilter(type, 'all');
