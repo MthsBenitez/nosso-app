@@ -19,6 +19,10 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
+    <!-- Google Identity & API (Para o Google Agenda) -->
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+
     <script>
         const savedTheme = localStorage.getItem('couple_app_theme') || 'rosa';
         const isDark = localStorage.getItem('couple_app_dark') === 'true';
@@ -262,6 +266,9 @@
             </div>
 
             <div id="financesList" class="flex flex-col gap-3 pb-10"></div>
+            <div id="financesEmpty" class="hidden flex-col items-center justify-center text-slate-400 dark:text-slate-500 mt-6 gap-2">
+                <i class="fa-solid fa-check-circle text-4xl opacity-30"></i><p class="text-sm font-medium">Nenhuma conta encontrada.</p>
+            </div>
         </div>
 
         <!-- ABA 4: AGENDA 📅 -->
@@ -272,6 +279,11 @@
             </div>
             
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-4 mb-6">
+                <!-- Botão do Google Agenda Integrado -->
+                <button onclick="handleGoogleAuthClick()" class="w-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold py-3 rounded-xl flex items-center justify-center gap-2 mb-4 hover:bg-blue-100 transition-colors border border-blue-200 dark:border-blue-800">
+                    <i class="fa-brands fa-google"></i> Sincronizar Google Agenda
+                </button>
+                
                 <div class="flex justify-between items-center mb-4 px-2">
                     <button onclick="changeMonth(-1)" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"><i class="fa-solid fa-chevron-left"></i></button>
                     <h2 id="calendar-month-year" class="font-bold text-lg text-slate-800 dark:text-white capitalize"></h2>
@@ -387,7 +399,7 @@
         <div id="memoryList" class="flex-1 overflow-y-auto p-4 pt-6 z-10 relative"></div>
     </div>
 
-    <!-- STREAMING_CHUNK:Novo Modal de Configurações Globais -->
+    <!-- Modais de Configurações Globais -->
     <div id="settingsModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeSettings()"></div>
         <div class="relative bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl flex flex-col slide-up shadow-2xl p-6 border border-slate-800">
@@ -416,16 +428,20 @@
                     </label>
                 </div>
                 
+                <button onclick="requestNotificationPermission()" class="w-full text-brand hover:text-brand-dark bg-brand-light/20 hover:bg-brand-light/40 text-sm font-semibold flex items-center justify-center gap-2 py-3 rounded-xl transition-colors border border-brand/20">
+                    <i class="fa-solid fa-bell"></i> Ativar Notificações no Celular
+                </button>
+
                 <button onclick="logout()" class="w-full text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-semibold flex items-center justify-center gap-2 py-3 rounded-xl transition-colors border border-slate-200 dark:border-slate-700">
                     <i class="fa-solid fa-right-from-bracket"></i> Trocar de Usuário
                 </button>
 
-                <p class="text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-2">Versão 1.0.0 Premium</p>
+                <p class="text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-2">Versão 1.1.0 Premium</p>
             </div>
         </div>
     </div>
 
-    <!-- STREAMING_CHUNK:Central de Notificações (Sino) -->
+    <!-- Central de Notificações (Sino) -->
     <div id="notificationsModal" class="hidden fixed inset-0 z-[1050] flex justify-end">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeNotifications()"></div>
         <div class="relative bg-slate-50 dark:bg-slate-900 w-full md:w-[400px] h-full shadow-2xl flex flex-col slide-in-right border-l border-slate-200 dark:border-slate-800">
@@ -463,7 +479,7 @@
         </div>
     </div>
 
-    <!-- STREAMING_CHUNK:Resumo do Dia (Agenda) -->
+    <!-- Resumo do Dia (Agenda) -->
     <div id="daySummaryModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeDaySummary()"></div>
         <div class="relative bg-slate-50 dark:bg-slate-900 w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl overflow-hidden max-h-[85vh] border border-slate-800">
@@ -794,7 +810,7 @@
         </div>
     </div>
 
-    <!-- Modais de Evento / Agenda (Atualizado) -->
+    <!-- Modais de Evento / Agenda -->
     <div id="eventModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeEventModal()"></div>
         <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 border border-slate-800">
@@ -844,6 +860,86 @@
         </div>
     </div>
 
+    <!-- Modais Faltantes da Aba Contas (Adicionados) -->
+    <!-- Modal Nova Conta -->
+    <div id="financeModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeFinanceModal()"></div>
+        <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 border border-slate-800 max-h-[90vh] overflow-y-auto no-scrollbar">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Nova Conta 💸</h2>
+                <button onclick="closeFinanceModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="flex flex-col gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Título da Conta</label>
+                    <input type="text" id="fin-title" placeholder="Ex: Luz, Mercado..." class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-brand">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Valor (R$)</label>
+                    <input type="number" id="fin-amount" step="0.01" placeholder="Ex: 150.00" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-brand">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Quem Pagou?</label>
+                    <select id="fin-payer" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-brand">
+                        <option value="Luiz">Luiz</option>
+                        <option value="Matheus">Matheus</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Tipo de Divisão</label>
+                    <select id="fin-type" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-brand">
+                        <option value="split">Dividir valor (50/50)</option>
+                        <option value="full">O outro deve o valor total</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Data</label>
+                    <input type="date" id="fin-date" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-brand">
+                </div>
+                <label class="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <input type="checkbox" id="fin-paid" class="w-5 h-5 accent-brand rounded"> Já está pago / resolvido
+                </label>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Comprovante (Opcional)</label>
+                    <div class="relative w-full h-24 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" onclick="document.getElementById('finPhotoInput').click()">
+                        <input type="file" id="finPhotoInput" accept="image/*" class="hidden" onchange="previewFinImage(event)">
+                        <div id="finUploadPlaceholder" class="flex flex-col items-center text-slate-500">
+                            <i class="fa-solid fa-receipt mb-1 text-xl"></i><span class="text-xs font-bold uppercase tracking-wider">Anexar</span>
+                        </div>
+                        <img id="finImagePreview" class="hidden absolute inset-0 w-full h-full object-cover rounded-xl">
+                    </div>
+                </div>
+
+                <button onclick="saveFinance()" class="mt-4 w-full bg-brand text-white font-bold py-4 rounded-xl shadow-lg active:scale-[0.98] transition-transform text-lg flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-check"></i> Salvar Conta
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ver Conta -->
+    <div id="viewFinanceModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeViewFinanceModal()"></div>
+        <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 border border-slate-800 max-h-[90vh] overflow-y-auto no-scrollbar">
+            <button onclick="closeViewFinanceModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
+            <h2 id="vf-title" class="text-2xl font-bold text-slate-800 dark:text-white mb-1 pr-8"></h2>
+            <p id="vf-date" class="text-sm font-bold text-slate-500 mb-4"></p>
+            <div class="text-4xl font-black text-brand mb-4 text-center" id="vf-amount"></div>
+            <div id="vf-desc" class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-slate-700 dark:text-slate-300 text-sm font-medium mb-4 text-center leading-relaxed border border-slate-100 dark:border-slate-700"></div>
+            <div id="vf-status-box" class="mb-6"></div>
+            <div id="vf-receipt-container" class="hidden mb-6 flex-col items-center">
+                <p class="text-xs font-bold text-slate-500 mb-2 uppercase tracking-widest"><i class="fa-solid fa-paperclip mr-1"></i> Comprovante</p>
+                <img id="vf-receipt" class="w-full max-h-48 object-cover rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            </div>
+            <button id="vf-toggle-btn" onclick="toggleFinancePaid()" class="w-full mb-3"></button>
+            <button onclick="deleteFinance()" class="w-full text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 py-3 rounded-xl font-bold text-sm uppercase tracking-wider transition-colors">
+                <i class="fa-solid fa-trash-can mr-1"></i> Apagar Conta
+            </button>
+        </div>
+    </div>
+
+
     <!-- JAVASCRIPT CORE -->
     <script>
         firebase.initializeApp({ databaseURL: "https://nosso-app-7feab-default-rtdb.firebaseio.com/" });
@@ -852,6 +948,9 @@
         let currentUser = null;
         let partnerOnline = false;
         let partnerLastSeen = null;
+
+        // Flags para notificações Push (evita notificar ao carregar a página inicialmente)
+        let initialLoad = { movies: true, shows: true, finances: true, events: true, memories: true };
 
         // Map & Album
         let map;
@@ -894,10 +993,43 @@
         const CURITIBA_COORDS = [-25.4284, -49.2733];
         const TMDB_GENRES = { 28: "Ação", 12: "Aventura", 16: "Animação", 35: "Comédia", 80: "Crime", 99: "Documentário", 18: "Drama", 10751: "Família", 14: "Fantasia", 36: "História", 27: "Terror", 10402: "Música", 9648: "Mistério", 10749: "Romance", 878: "Ficção científica", 10770: "Cinema TV", 53: "Thriller", 10752: "Guerra", 37: "Faroeste", 10759: "Ação e Aventura", 10762: "Kids", 10765: "Sci-Fi & Fantasy", 10768: "War & Politics" };
 
+        // Integração Google Agenda - (Substitua pelos seus dados do Google Cloud Console se desejar testar a funcionalidade em produção)
+        const GOOGLE_CLIENT_ID = 'SEU_CLIENT_ID_AQUI.apps.googleusercontent.com';
+        const GOOGLE_API_KEY = 'SUA_API_KEY_AQUI';
+        const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest';
+        const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
+
+        let tokenClient;
+        let gapiInited = false;
+        let gisInited = false;
+
         document.addEventListener('DOMContentLoaded', () => {
             checkLogin();
             document.getElementById('darkModeToggle').checked = localStorage.getItem('couple_app_dark') === 'true';
         });
+
+        // ==========================================
+        // 0. NOTIFICAÇÕES PUSH
+        // ==========================================
+        function requestNotificationPermission() {
+            if ("Notification" in window && Notification.permission !== "granted") {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") showCustomMessage("Notificações ativadas com sucesso!");
+                });
+            } else if ("Notification" in window && Notification.permission === "granted") {
+                showCustomMessage("As notificações já estão ativadas no seu navegador!");
+            }
+        }
+
+        function sendPushNotification(title, body) {
+            if ("Notification" in window && Notification.permission === "granted") {
+                // Só envia notificação se a aba/app não estiver em foco no exato momento
+                if (document.visibilityState !== "visible") {
+                    new Notification(title, { body: body, icon: 'https://cdn-icons-png.flaticon.com/512/833/833472.png' });
+                }
+            }
+        }
+
 
         // ==========================================
         // 1. SISTEMA DE IDENTIDADE E TEMAS
@@ -924,6 +1056,12 @@
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('loggedUserDisplay').innerText = currentUser;
                 document.querySelectorAll('.logged-user-name').forEach(el => el.innerText = currentUser);
+                
+                // Pedir permissão de notificação silenciosamente se ainda for default
+                if ("Notification" in window && Notification.permission === "default") {
+                    Notification.requestPermission();
+                }
+                
                 initApp();
             } else {
                 document.getElementById('loginScreen').classList.remove('hidden');
@@ -937,6 +1075,11 @@
             document.getElementById('loggedUserDisplay').innerText = currentUser;
             document.querySelectorAll('.logged-user-name').forEach(el => el.innerText = currentUser);
             document.getElementById('fin-payer').value = currentUser;
+
+            if ("Notification" in window && Notification.permission === "default") {
+                Notification.requestPermission();
+            }
+
             initApp();
         }
 
@@ -955,7 +1098,6 @@
             }, 6000);
         }
 
-        // Função adicionada para corrigir a navegação das abas
         function switchTab(tabId) {
             const tabs = ['map', 'movies', 'shows', 'finances', 'calendar', 'time'];
             
@@ -1041,37 +1183,52 @@
         function setupFirebaseSync() {
             db.ref('memories').on('value', (snap) => {
                 const data = snap.val();
-                memories = data ? Object.values(data) : [];
+                const newMemories = data ? Object.values(data) : [];
+                if (!initialLoad.memories && newMemories.length > memories.length) sendPushNotification("Novo Momento 📸", "Uma nova foto foi adicionada no álbum!");
+                memories = newMemories;
                 renderAllMarkers();
                 updateAlbumYearFilter();
                 if (!document.getElementById('mainMenu').classList.contains('-translate-x-full')) renderMemoryList();
+                initialLoad.memories = false;
             });
 
             db.ref('movies').on('value', (snap) => {
                 const data = snap.val();
-                movies = data ? Object.entries(data).map(([key, val]) => ({...val, id: val.id || key})) : [];
+                const newArr = data ? Object.entries(data).map(([key, val]) => ({...val, id: val.id || key})) : [];
+                if (!initialLoad.movies && newArr.length > movies.length) sendPushNotification("Novo Filme Adicionado 🍿", "Tem filme novo na lista de vocês!");
+                movies = newArr;
                 checkNotifications('movie');
                 renderGrid('movie');
+                initialLoad.movies = false;
             });
             
             db.ref('shows').on('value', (snap) => {
                 const data = snap.val();
-                shows = data ? Object.entries(data).map(([key, val]) => ({...val, id: val.id || key})) : [];
+                const newArr = data ? Object.entries(data).map(([key, val]) => ({...val, id: val.id || key})) : [];
+                if (!initialLoad.shows && newArr.length > shows.length) sendPushNotification("Nova Série Adicionada 📺", "Tem série nova na lista de vocês!");
+                shows = newArr;
                 checkNotifications('tv');
                 renderGrid('tv');
+                initialLoad.shows = false;
             });
 
             db.ref('finances').on('value', (snap) => {
                 const data = snap.val();
-                finances = data ? Object.values(data) : [];
+                const newArr = data ? Object.values(data) : [];
+                if (!initialLoad.finances && newArr.length > finances.length) sendPushNotification("Nova Conta Adicionada 💸", "Uma despesa foi inserida nas contas.");
+                finances = newArr;
                 renderFinances();
+                initialLoad.finances = false;
             });
 
             db.ref('events').on('value', (snap) => {
                 const data = snap.val();
-                agendaEvents = data ? Object.values(data) : [];
+                const newArr = data ? Object.values(data) : [];
+                if (!initialLoad.events && newArr.length > agendaEvents.length) sendPushNotification("Novo Evento 🗓️", "Tem um novo compromisso na agenda!");
+                agendaEvents = newArr;
                 renderCalendar();
                 renderUpcomingEvents();
+                initialLoad.events = false;
             });
 
             db.ref('settings/dates').on('value', (snap) => {
@@ -1087,6 +1244,95 @@
                 document.getElementById('apiKeyInput').value = tmdbApiKey;
             });
         }
+
+        // ==========================================
+        // Integração Google Agenda API
+        // ==========================================
+        function gapiLoaded() { gapi.load('client', initializeGapiClient); }
+        async function initializeGapiClient() {
+            try {
+                await gapi.client.init({ apiKey: GOOGLE_API_KEY, discoveryDocs: [DISCOVERY_DOC] });
+                gapiInited = true;
+            } catch(e) { console.error("Erro ao inicializar GAPI", e); }
+        }
+        function gisLoaded() {
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: GOOGLE_CLIENT_ID,
+                scope: SCOPES,
+                callback: (resp) => {
+                    if (resp.error !== undefined) {
+                        showCustomMessage("Erro na autenticação do Google.");
+                        throw (resp);
+                    }
+                    fetchGoogleEvents();
+                }
+            });
+            gisInited = true;
+        }
+
+        function handleGoogleAuthClick() {
+            if (GOOGLE_CLIENT_ID.includes('SEU_CLIENT_ID')) {
+                showCustomMessage("API do Google Agenda ainda não configurada no código-fonte.");
+                return;
+            }
+            if (!gapiInited || !gisInited) {
+                showCustomMessage("API do Google ainda está carregando...");
+                return;
+            }
+            if (gapi.client.getToken() === null) {
+                tokenClient.requestAccessToken({prompt: 'consent'});
+            } else {
+                tokenClient.requestAccessToken({prompt: ''});
+            }
+        }
+
+        async function fetchGoogleEvents() {
+            showCustomMessage("Buscando eventos da sua agenda...");
+            try {
+                const request = {
+                    calendarId: 'primary',
+                    timeMin: (new Date()).toISOString(),
+                    showDeleted: false,
+                    singleEvents: true,
+                    maxResults: 20,
+                    orderBy: 'startTime'
+                };
+                const response = await gapi.client.calendar.events.list(request);
+                const events = response.result.items;
+                
+                let count = 0;
+                events.forEach(ev => {
+                    const start = ev.start.dateTime || ev.start.date;
+                    if(!start) return;
+                    
+                    const dateStr = start.split('T')[0];
+                    const timeStr = start.includes('T') ? start.split('T')[1].substring(0,5) : '';
+                    const personColor = currentUser === 'Luiz' ? 'blue' : 'emerald'; // Cores distintas pra saber de quem é
+                    
+                    const gEvent = {
+                        id: 'gcal_' + ev.id,
+                        title: `${ev.summary} (${currentUser})`, // Identifica de quem é a agenda
+                        date: dateStr,
+                        time: timeStr,
+                        description: ev.description || '',
+                        location: ev.location || '',
+                        color: personColor, 
+                        isGoogle: true,
+                        timestamp: Date.now()
+                    };
+                    
+                    // Salva no banco de dados para que o companheiro possa ver também!
+                    db.ref('events/' + gEvent.id).set(gEvent);
+                    count++;
+                });
+                
+                showCustomMessage(`${count} eventos do Google sincronizados!`);
+            } catch (err) {
+                console.error(err);
+                showCustomMessage("Erro ao importar do Google Agenda.");
+            }
+        }
+
 
         // ==========================================
         // 3. MAPA & DIÁRIO
@@ -2200,13 +2446,14 @@
                             document.getElementById('vmDirectorLabel').innerText = type === 'movie' ? 'Direção' : 'Criador';
                             document.getElementById('vmDirector').innerText = director ? director.name : 'Desconhecido';
                             
-                            const castContainer = document.getElementById('vmCastContainer');
-                            castContainer.innerHTML = '';
+                            const castContainer = document.getElementById('smCastContainer'); // FIX: should use vmCastContainer but maintaining structure logic
+                            const vmCastContainer = document.getElementById('vmCastContainer');
+                            vmCastContainer.innerHTML = '';
                             if(data.credits.cast && data.credits.cast.length > 0) {
                                 const topCast = data.credits.cast.slice(0, 4);
                                 topCast.forEach(actor => {
                                     const img = actor.profile_path ? `https://image.tmdb.org/t/p/w185${actor.profile_path}` : 'https://placehold.co/100x100/e2e8f0/64748b?text=Ator';
-                                    castContainer.innerHTML += `
+                                    vmCastContainer.innerHTML += `
                                         <div class="flex flex-col items-center gap-1 min-w-[55px] max-w-[65px]">
                                             <img src="${img}" class="w-12 h-12 rounded-full object-cover border border-slate-200 shadow-sm">
                                             <span class="text-[9px] font-bold text-slate-600 dark:text-slate-300 text-center leading-tight truncate w-full">${actor.name}</span>
@@ -2501,11 +2748,11 @@
             const btn = document.getElementById('vf-toggle-btn');
             if(f.paid) {
                 statusBox.innerHTML = `<div class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2 w-full justify-center"><i class="fa-solid fa-check-circle text-lg"></i> Resolvido (Pago)</div>`;
-                btn.innerText = "Desfazer (Marcar como Pendente)";
+                btn.innerHTML = "<i class='fa-solid fa-rotate-left mr-1'></i> Desfazer (Marcar como Pendente)";
                 btn.className = "w-full mb-3 bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200 dark:border-slate-700 font-bold py-3.5 rounded-xl transition-colors";
             } else {
                 statusBox.innerHTML = `<div class="bg-red-50 text-red-600 border border-red-200 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2 w-full justify-center"><i class="fa-solid fa-clock text-lg"></i> Pagamento Pendente</div>`;
-                btn.innerText = "Marcar como Pago";
+                btn.innerHTML = "<i class='fa-solid fa-check mr-1'></i> Marcar como Pago";
                 btn.className = "w-full mb-3 bg-brand text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-[0.98] transition-transform text-lg";
             }
 
@@ -2617,7 +2864,9 @@
                     div.innerHTML = `
                         <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-${c}"></div>
                         <div class="flex-1 min-w-0 pl-2">
-                            <h4 class="font-bold text-slate-800 dark:text-white text-sm truncate leading-tight">${ev.title}</h4>
+                            <h4 class="font-bold text-slate-800 dark:text-white text-sm truncate leading-tight">
+                                ${ev.isGoogle ? '<i class="fa-brands fa-google text-[10px] text-blue-500 mr-1"></i>' : ''}${ev.title}
+                            </h4>
                             <p class="text-[11px] text-slate-500 dark:text-slate-400"><i class="fa-regular fa-calendar mr-1"></i> ${formatDateBR(ev.date)} ${ev.time ? `às ${ev.time}` : ''}</p>
                             ${ev.location ? `<p class="text-[10px] text-slate-400 truncate mt-0.5"><i class="fa-solid fa-location-dot"></i> ${ev.location}</p>` : ''}
                         </div>
@@ -2689,8 +2938,10 @@
                         <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 mb-4 border-l-4 border-l-${c}">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <h5 class="font-bold text-slate-800 dark:text-white">${ev.title}</h5>
-                                    ${ev.time ? `<p class="text-xs text-slate-500"><i class="fa-regular fa-clock"></i> ${ev.time}</p>` : ''}
+                                    <h5 class="font-bold text-slate-800 dark:text-white">
+                                        ${ev.isGoogle ? '<i class="fa-brands fa-google text-blue-500 mr-1 text-sm"></i>' : ''}${ev.title}
+                                    </h5>
+                                    ${ev.time ? `<p class="text-xs text-slate-500 mt-1"><i class="fa-regular fa-clock"></i> ${ev.time}</p>` : ''}
                                     ${ev.location ? `<p class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-location-dot"></i> ${ev.location}</p>` : ''}
                                 </div>
                                 <button onclick="deleteEvent('${ev.id}')" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button>
