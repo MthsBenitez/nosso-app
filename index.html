@@ -163,6 +163,19 @@
             <div id="helpToast" class="absolute top-24 left-1/2 -translate-x-1/2 z-[400] bg-slate-800 dark:bg-slate-700 text-white px-4 py-2 rounded-full shadow-lg text-sm font-medium opacity-90 transition-opacity duration-500 pointer-events-none">Toque no mapa para adicionar uma memória.</div>
         </div>
 
+        <!-- COLOQUE ESTE NOVO BLOCO AQUI: BARRA DE BUSCA DIRETA NO MAPA -->
+            <div class="absolute top-20 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-[400px] z-[400] pointer-events-auto">
+                <div class="glass-panel flex items-center px-4 py-3 rounded-2xl shadow-lg border border-slate-200/50 dark:border-slate-700/50">
+                    <i class="fa-solid fa-magnifying-glass text-slate-400 mr-3"></i>
+                    <input type="text" id="mapSearchInput" placeholder="Encontrar um lugar no mapa..." class="w-full bg-transparent border-none focus:outline-none text-sm text-slate-800 dark:text-white placeholder-slate-500 font-medium" onkeyup="if(event.key === 'Enter') searchMapLocation()">
+                    <button onclick="searchMapLocation()" class="ml-2 w-8 h-8 flex items-center justify-center bg-brand/10 hover:bg-brand text-brand hover:text-white rounded-full transition-colors"><i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+                <div id="mapSearchResults" class="mt-2 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-xl shadow-xl overflow-hidden max-h-48 overflow-y-auto hidden flex-col border border-slate-100 dark:border-slate-700"></div>
+            </div>
+            <!-- FIM DO NOVO BLOCO -->
+
+        </div>
+
         <!-- ABA 2: FILMES 🍿 -->
         <div id="tab-movies" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
             <div class="flex justify-between items-center mb-6 mt-10 md:mt-4">
@@ -1651,6 +1664,66 @@
             closePanel();
             showCustomMessage("Foto adicionada ao nosso diário! ❤️");
         });
+
+        // ==========================================
+        // COLOQUE ESTE NOVO BLOCO AQUI: BUSCA NO MAPA
+        // ==========================================
+        async function searchMapLocation() {
+            const q = document.getElementById('mapSearchInput').value.trim();
+            const resContainer = document.getElementById('mapSearchResults');
+            
+            if(!q) {
+                resContainer.classList.add('hidden');
+                resContainer.classList.remove('flex');
+                return;
+            }
+            
+            resContainer.innerHTML = '<div class="p-3 text-center text-brand text-xs font-bold"><i class="fa-solid fa-spinner fa-spin"></i> Buscando...</div>';
+            resContainer.classList.remove('hidden');
+            resContainer.classList.add('flex');
+            
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5`);
+                const data = await res.json();
+                resContainer.innerHTML = '';
+                
+                if(data.length === 0) {
+                    resContainer.innerHTML = '<div class="p-3 text-center text-slate-500 text-xs font-medium">Nenhum local encontrado.</div>';
+                    return;
+                }
+                
+                data.forEach(place => {
+                    const nameParts = place.display_name.split(',');
+                    const shortName = nameParts[0];
+                    const subtitle = nameParts.slice(1, 3).join(',').trim();
+                    
+                    const div = document.createElement('div');
+                    div.className = 'p-3 border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition-colors';
+                    div.onclick = () => flyToMapLocation(place.lat, place.lon, shortName);
+                    div.innerHTML = `
+                        <p class="font-bold text-slate-800 dark:text-white text-sm truncate">${shortName}</p>
+                        <p class="text-[10px] text-slate-500 truncate">${subtitle}</p>
+                    `;
+                    resContainer.appendChild(div);
+                });
+            } catch (err) {
+                resContainer.innerHTML = '<div class="p-3 text-center text-red-500 text-xs font-medium">Erro na busca.</div>';
+            }
+        }
+
+        function flyToMapLocation(lat, lng, name) {
+            map.flyTo([parseFloat(lat), parseFloat(lng)], 16); // Voa como um "zoom" para o lugar
+            
+            const resContainer = document.getElementById('mapSearchResults');
+            resContainer.classList.add('hidden');
+            resContainer.classList.remove('flex');
+            
+            document.getElementById('mapSearchInput').value = name; // Atualiza o input com o nome achado
+            showCustomMessage(`Indo para ${name}...`);
+        }
+        // ==========================================
+        // FIM DO NOVO BLOCO
+        // ==========================================
 
         // ==========================================
         // 3.1 WISHLIST DE LUGARES
