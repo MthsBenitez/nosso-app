@@ -51,7 +51,7 @@
         body { margin: 0; padding: 0; }
         #map { width: 100%; height: 100%; z-index: 1; }
 
-        html.dark .leaflet-layer, html.dark .leaflet-control-zoom-in, html.dark .leaflet-control-zoom-out { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
+        html.dark .leaflet-control-zoom-in, html.dark .leaflet-control-zoom-out { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
 
         .font-journal { font-family: 'Kalam', cursive; }
 
@@ -985,6 +985,7 @@
 
         // Map & Album
         let map;
+        let mapTileLayer;
         let markersGroup;
         let memories = [];
         let places = []; // NOVA VARIÁVEL
@@ -1079,6 +1080,14 @@
                 document.documentElement.classList.remove('dark');
             }
             localStorage.setItem('couple_app_dark', isDark);
+            
+            // Troca os blocos do mapa para a versão Dark nativa de forma suave
+            if(mapTileLayer) {
+                const tileUrl = isDark 
+                    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png' 
+                    : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+                mapTileLayer.setUrl(tileUrl);
+            }
         }
 
         function checkLogin() {
@@ -1346,11 +1355,12 @@
                     
                     const dateStr = start.split('T')[0];
                     const timeStr = start.includes('T') ? start.split('T')[1].substring(0,5) : '';
-                    const personColor = currentUser === 'Luiz' ? 'blue' : 'emerald'; // Cores distintas pra saber de quem é
+                    const personColor = currentUser === 'Luiz' ? 'blue' : 'emerald'; 
                     
+                    // Adicionamos o nome da pessoa no ID para não sobrescrever a agenda um do outro
                     const gEvent = {
-                        id: 'gcal_' + ev.id,
-                        title: `${ev.summary} (${currentUser})`, // Identifica de quem é a agenda
+                        id: 'gcal_' + currentUser + '_' + ev.id,
+                        title: `${ev.summary} (${currentUser})`, 
                         date: dateStr,
                         time: timeStr,
                         description: ev.description || '',
@@ -1360,7 +1370,6 @@
                         timestamp: Date.now()
                     };
                     
-                    // Salva no banco de dados para que o companheiro possa ver também!
                     db.ref('events/' + gEvent.id).set(gEvent);
                     count++;
                 });
@@ -1380,7 +1389,14 @@
             if(map) return; 
             map = L.map('map', { zoomControl: false }).setView(CURITIBA_COORDS, 13);
             L.control.zoom({ position: 'bottomleft' }).addTo(map);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+            
+            // Verifica o tema atual ao carregar o aplicativo para puxar o mapa certo
+            const isDark = document.documentElement.classList.contains('dark');
+            const tileUrl = isDark 
+                ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png' 
+                : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+                
+            mapTileLayer = L.tileLayer(tileUrl, { maxZoom: 19 }).addTo(map);
             markersGroup = L.featureGroup().addTo(map);
 
             map.on('click', e => openAddMemoryPanel(e.latlng.lat, e.latlng.lng));
