@@ -1121,7 +1121,11 @@
             if (savedUser && (savedUser === 'Luiz' || savedUser === 'Matheus')) {
                 currentUser = savedUser;
                 document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('loggedUserDisplay').innerText = currentUser;
+                
+                // CORREÇÃO: Só tenta alterar o elemento se ele existir no HTML
+                const userDisplay = document.getElementById('loggedUserDisplay');
+                if (userDisplay) userDisplay.innerText = currentUser;
+                
                 document.querySelectorAll('.logged-user-name').forEach(el => el.innerText = currentUser);
                 
                 // Pedir permissão de notificação silenciosamente se ainda for default
@@ -1139,9 +1143,16 @@
             localStorage.setItem('couple_app_user', name);
             currentUser = name;
             document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('loggedUserDisplay').innerText = currentUser;
+            
+            // CORREÇÃO: Só tenta alterar o elemento se ele existir no HTML
+            const userDisplay = document.getElementById('loggedUserDisplay');
+            if (userDisplay) userDisplay.innerText = currentUser;
+            
             document.querySelectorAll('.logged-user-name').forEach(el => el.innerText = currentUser);
-            document.getElementById('fin-payer').value = currentUser;
+            
+            // Boa prática: garantir que o campo do financeiro existe antes de preencher
+            const finPayer = document.getElementById('fin-payer');
+            if (finPayer) finPayer.value = currentUser;
 
             if ("Notification" in window && Notification.permission === "default") {
                 Notification.requestPermission();
