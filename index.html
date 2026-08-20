@@ -191,7 +191,7 @@
 
         <!-- ABA 2: FILMES 🍿 -->
         <div id="tab-movies" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
-            <div class="flex justify-between items-center mb-6 mt-10 md:mt-4">
+            <div class="flex justify-between items-center mb-6 mt-16">
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Filmes <i class="fa-solid fa-popcorn text-brand"></i></h1>
                 <div class="flex gap-2">
                     <button onclick="pickRandomItem('movie')" class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 w-10 h-10 rounded-full shadow-sm flex items-center justify-center hover:bg-indigo-100 hover:scale-105 transition-all"><i class="fa-solid fa-dice text-lg"></i></button>
@@ -229,7 +229,7 @@
 
         <!-- ABA 2.5: SÉRIES 📺 -->
         <div id="tab-shows" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
-            <div class="flex justify-between items-center mb-6 mt-10 md:mt-4">
+            <div class="flex justify-between items-center mb-6 mt-16">
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Séries <i class="fa-solid fa-tv text-brand"></i></h1>
                 <div class="flex gap-2">
                     <button onclick="pickRandomItem('tv')" class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 w-10 h-10 rounded-full shadow-sm flex items-center justify-center hover:bg-indigo-100 hover:scale-105 transition-all"><i class="fa-solid fa-dice text-lg"></i></button>
@@ -267,7 +267,7 @@
 
         <!-- ABA 3: NOSSAS CONTAS -->
         <div id="tab-finances" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
-            <div class="flex justify-between items-center mb-6 mt-10 md:mt-4">
+            <div class="flex justify-between items-center mb-6 mt-16">
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Contas <i class="fa-solid fa-file-invoice-dollar text-brand"></i></h1>
                 <div class="flex gap-2">
                     <button onclick="clearFinancesHistory()" class="bg-white dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 w-10 h-10 rounded-full shadow-sm flex items-center justify-center hover:text-red-500 transition-all"><i class="fa-solid fa-broom text-lg"></i></button>
@@ -275,16 +275,22 @@
                 </div>
             </div>
             
-            <div class="grid grid-cols-2 gap-3 mb-6">
-                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center text-center relative overflow-hidden">
-                    <div class="absolute -right-2 -top-2 text-slate-100 dark:text-slate-700 text-5xl opacity-50"><i class="fa-solid fa-user-astronaut"></i></div>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 relative z-10">Luiz deve:</span>
-                    <span id="fin-luiz-owes" class="text-xl md:text-2xl font-bold text-red-500 dark:text-red-400 relative z-10">R$ 0,00</span>
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-3xl shadow-md border border-slate-100 dark:border-slate-700 flex flex-col md:flex-row items-center justify-around gap-4 mb-6 relative overflow-hidden">
+                <div class="absolute inset-0 opacity-5 bg-gradient-to-tr from-brand to-transparent pointer-events-none"></div>
+                <div class="text-center z-10 w-full flex-1">
+                    <div class="flex justify-center items-center gap-2 mb-1">
+                        <i class="fa-solid fa-user-astronaut text-blue-400 text-lg"></i>
+                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Luiz deve:</span>
+                    </div>
+                    <span id="fin-luiz-owes" class="text-2xl font-black text-slate-700 dark:text-white block">R$ 0,00</span>
                 </div>
-                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center text-center relative overflow-hidden">
-                    <div class="absolute -right-2 -top-2 text-slate-100 dark:text-slate-700 text-5xl opacity-50"><i class="fa-solid fa-user-ninja"></i></div>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 relative z-10">Matheus deve:</span>
-                    <span id="fin-matheus-owes" class="text-xl md:text-2xl font-bold text-red-500 dark:text-red-400 relative z-10">R$ 0,00</span>
+                <div class="w-full md:w-px h-px md:h-12 bg-slate-100 dark:bg-slate-700 my-1 md:my-0"></div>
+                <div class="text-center z-10 w-full flex-1">
+                    <div class="flex justify-center items-center gap-2 mb-1">
+                        <i class="fa-solid fa-user-ninja text-emerald-400 text-lg"></i>
+                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Matheus deve:</span>
+                    </div>
+                    <span id="fin-matheus-owes" class="text-2xl font-black text-slate-700 dark:text-white block">R$ 0,00</span>
                 </div>
             </div>
 
@@ -304,7 +310,7 @@
 
         <!-- ABA 4: AGENDA 📅 -->
         <div id="tab-calendar" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
-            <div class="flex justify-between items-center mb-6 mt-10 md:mt-4">
+            <div class="flex justify-between items-center mb-6 mt-16">
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Agenda <i class="fa-solid fa-calendar-days text-brand"></i></h1>
                 <button onclick="openAddEventModal()" class="bg-brand text-white w-10 h-10 rounded-full shadow-md flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all"><i class="fa-solid fa-plus text-lg"></i></button>
             </div>
@@ -344,7 +350,7 @@
 
         <!-- ABA 5: NOSSO TEMPO -->
         <div id="tab-time" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
-            <div class="flex justify-between items-center mb-6 mt-10 md:mt-4">
+            <div class="flex justify-between items-center mb-6 mt-16">
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Tempo <i class="fa-solid fa-clock text-brand"></i></h1>
                 <button onclick="openTimeSettings()" class="bg-white dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 w-10 h-10 rounded-full shadow-sm flex items-center justify-center hover:text-brand transition-all"><i class="fa-solid fa-pen"></i></button>
             </div>
@@ -599,7 +605,7 @@
                 <div class="relative flex gap-2">
                     <div class="relative flex-1">
                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input type="text" id="searchPlaceInput" placeholder="Buscar cidade, país, local..." class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-900 dark:text-white text-sm" onkeyup="if(event.key === 'Enter') searchLocation()">
+                        <input type="text" id="searchPlaceInput" placeholder="Buscar cidade, país, local..." class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-900 dark:text-white text-sm" oninput="debounceSearchPlace()">
                     </div>
                     <button onclick="searchLocation()" class="bg-brand hover:bg-brand-dark text-white px-4 rounded-xl font-bold transition-colors text-sm shadow-sm">Buscar</button>
                 </div>
@@ -633,7 +639,7 @@
                 </div>
 
                 <div class="relative">
-                    <input type="text" id="apiSearchInput" placeholder="Buscar título..." class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 bg-slate-50 dark:bg-slate-900 dark:text-white transition-all text-sm font-medium" onkeyup="if(event.key === 'Enter') searchAPI()">
+                    <input type="text" id="apiSearchInput" placeholder="Buscar título..." class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 bg-slate-50 dark:bg-slate-900 dark:text-white transition-all text-sm font-medium" oninput="debounceSearchAPI()">
                     <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
                 </div>
                 <div class="flex justify-between items-center mt-3">
@@ -1830,36 +1836,47 @@
         // ==========================================
         function updateLiveMarker(name, lat, lng, isMe) {
             if(!map) return;
-            // Cores diferentes para você e seu namorado
-            const bgColor = name === 'Luiz' ? '#3b82f6' : '#10b981'; // Azul e Verde
+            const bgColor = name === 'Luiz' ? '#3b82f6' : '#10b981'; 
             
-            // Design fofo com o Coraçãozinho e a Inicial flutuando
             const iconHtml = `
-                <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 40px; height: 50px;">
-                    <div class="animate-ping absolute inset-0 rounded-full opacity-40" style="background-color: ${bgColor};"></div>
-                    <div style="position: relative; z-index: 10; width: 34px; height: 34px; border-radius: 50%; border: 3px solid white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); background-color: ${bgColor}; color: white; font-weight: 800; font-size: 16px;">
+                <div class="relative flex flex-col items-center justify-center pointer-events-none w-10 h-10">
+                    <div class="absolute inset-0 rounded-full animate-ping opacity-50" style="background-color: ${bgColor};"></div>
+                    <div class="relative w-8 h-8 rounded-full border-2 border-white shadow-lg flex items-center justify-center z-10" style="background-color: ${bgColor}; color: white; font-weight: bold; font-size: 14px;">
                         ${name.charAt(0)}
                     </div>
-                    <div style="color: var(--brand); font-size: 20px; filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.5)); margin-top: -6px; z-index: 11;">
+                    <div style="color: var(--brand); font-size: 16px; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.5)); margin-top: -4px; z-11">
                         <i class="fa-solid fa-heart"></i>
                     </div>
                 </div>
             `;
             
-            const icon = L.divIcon({
-                className: 'custom-live-marker',
-                html: iconHtml,
-                iconSize: [40, 50],
-                iconAnchor: [20, 45]
-            });
+            const icon = L.divIcon({ className: 'custom-live-marker', html: iconHtml, iconSize: [40, 40], iconAnchor: [20, 36] });
 
             if(liveMarkers[name]) {
-                liveMarkers[name].setLatLng([lat, lng]); // Move suavemente
+                liveMarkers[name].setLatLng([lat, lng]); 
             } else {
                 liveMarkers[name] = L.marker([lat, lng], {icon: icon, zIndexOffset: isMe ? 1000 : 900}).addTo(map);
             }
         }
 
+        // Funções de Debounce (Busca Automática)
+        let searchMapTimeout;
+        function debounceSearchMap() {
+            clearTimeout(searchMapTimeout);
+            searchMapTimeout = setTimeout(searchMapLocation, 600);
+        }
+
+        let searchPlaceTimeout;
+        function debounceSearchPlace() {
+            clearTimeout(searchPlaceTimeout);
+            searchPlaceTimeout = setTimeout(searchLocation, 600);
+        }
+
+        let searchAPITimeout;
+        function debounceSearchAPI() {
+            clearTimeout(searchAPITimeout);
+            searchAPITimeout = setTimeout(searchAPI, 600);
+        }
         // ==========================================
         // 3.1 WISHLIST DE LUGARES
         function toggleWishlist() {
