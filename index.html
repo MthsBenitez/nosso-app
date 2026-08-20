@@ -32,7 +32,7 @@
                     colors: {
                         brand: { light: 'var(--brand-light)', DEFAULT: 'var(--brand)', dark: 'var(--brand-dark)' }
                     },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] }
                 }
             }
         }
@@ -275,22 +275,24 @@
                 </div>
             </div>
             
-            <div class="bg-white dark:bg-slate-800 p-5 rounded-3xl shadow-md border border-slate-100 dark:border-slate-700 flex flex-col md:flex-row items-center justify-around gap-4 mb-6 relative overflow-hidden">
-                <div class="absolute inset-0 opacity-5 bg-gradient-to-tr from-brand to-transparent pointer-events-none"></div>
-                <div class="text-center z-10 w-full flex-1">
-                    <div class="flex justify-center items-center gap-2 mb-1">
-                        <i class="fa-solid fa-user-astronaut text-blue-400 text-lg"></i>
-                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Luiz deve:</span>
+            <div class="bg-white dark:bg-slate-800 p-2 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 mb-6 flex flex-col md:flex-row gap-2 relative overflow-hidden">
+                <div class="flex-1 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-[20px] flex items-center gap-4 border border-slate-100 dark:border-slate-700/50 hover:border-blue-200 dark:hover:border-blue-900/50 transition-colors">
+                    <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-500 flex items-center justify-center text-xl shrink-0 shadow-inner">
+                        <i class="fa-solid fa-user-astronaut"></i>
                     </div>
-                    <span id="fin-luiz-owes" class="text-2xl font-black text-slate-700 dark:text-white block">R$ 0,00</span>
+                    <div class="flex flex-col min-w-0">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Luiz deve:</span>
+                        <span id="fin-luiz-owes" class="text-xl md:text-2xl font-black text-slate-700 dark:text-white truncate">R$ 0,00</span>
+                    </div>
                 </div>
-                <div class="w-full md:w-px h-px md:h-12 bg-slate-100 dark:bg-slate-700 my-1 md:my-0"></div>
-                <div class="text-center z-10 w-full flex-1">
-                    <div class="flex justify-center items-center gap-2 mb-1">
-                        <i class="fa-solid fa-user-ninja text-emerald-400 text-lg"></i>
-                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Matheus deve:</span>
+                <div class="flex-1 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-[20px] flex items-center gap-4 border border-slate-100 dark:border-slate-700/50 hover:border-emerald-200 dark:hover:border-emerald-900/50 transition-colors">
+                    <div class="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-500 flex items-center justify-center text-xl shrink-0 shadow-inner">
+                        <i class="fa-solid fa-user-ninja"></i>
                     </div>
-                    <span id="fin-matheus-owes" class="text-2xl font-black text-slate-700 dark:text-white block">R$ 0,00</span>
+                    <div class="flex flex-col min-w-0">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Matheus deve:</span>
+                        <span id="fin-matheus-owes" class="text-xl md:text-2xl font-black text-slate-700 dark:text-white truncate">R$ 0,00</span>
+                    </div>
                 </div>
             </div>
 
