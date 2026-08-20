@@ -39,9 +39,9 @@
     </script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Kalam:wght@400;700&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400&display=swap');
 
-        /* TEMAS DE CORES PASTÉIS */
+            /* TEMAS DE CORES PASTÉIS */
         :root { --brand-light: #ffe4e6; --brand: #fb7185; --brand-dark: #be123c; }
         :root[data-theme="lilas"] { --brand-light: #f3e8ff; --brand: #c084fc; --brand-dark: #7e22ce; }
         :root[data-theme="azul"] { --brand-light: #dbeafe; --brand: #60a5fa; --brand-dark: #1d4ed8; }
@@ -55,9 +55,7 @@
         /* Removemos as duplicatas do zoom no modo dark */
         html.dark .leaflet-control-zoom-in, html.dark .leaflet-control-zoom-out { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
 
-        .font-journal { font-family: 'Kalam', cursive; }
-
-        .font-journal { font-family: 'Kalam', cursive; }
+        .font-journal { font-family: 'Poppins', sans-serif; }
 
         .custom-heart-marker { display: flex; justify-content: center; align-items: center; background: none; border: none; cursor: pointer; pointer-events: auto !important; z-index: 1000 !important;}
         .custom-heart-marker i { color: var(--brand); font-size: 28px; filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.3)); transition: transform 0.2s; pointer-events: none !important; }
@@ -266,7 +264,7 @@
         </div>
 
         <!-- ABA 3: NOSSAS CONTAS -->
-        <div id="tab-finances" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
+        <div id="tab-finances" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-32 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
             <div class="flex justify-between items-center mb-6 mt-16">
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Contas <i class="fa-solid fa-file-invoice-dollar text-brand"></i></h1>
                 <div class="flex gap-2">
@@ -304,7 +302,7 @@
                 </div>
             </div>
 
-            <div id="financesList" class="flex flex-col gap-3 pb-10"></div>
+            <div id="financesList" class="flex-1 overflow-y-auto no-scrollbar flex flex-col gap-3 pb-4"></div>
             <div id="financesEmpty" class="hidden flex-col items-center justify-center text-slate-400 dark:text-slate-500 mt-6 gap-2">
                 <i class="fa-solid fa-check-circle text-4xl opacity-30"></i><p class="text-sm font-medium">Nenhuma conta encontrada.</p>
             </div>
