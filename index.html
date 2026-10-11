@@ -1123,7 +1123,7 @@
             
             // O CSS agora cuida do Dark Mode nativamente invertendo as cores do mapa
             if(mapTileLayer) {
-                mapTileLayer.setUrl('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png');
+                mapTileLayer.setUrl('https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=cb1_4h30_1_3e49b51852b89fd3835055e6');
             }
         }
 
@@ -1499,7 +1499,7 @@
             
             // Novo provedor gratuito do CartoDB Voyager (bonito, moderno e limpo)
             const isDark = document.documentElement.classList.contains('dark');
-            const tileUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+            const tileUrl = 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=cb1_4h30_1_3e49b51852b89fd3835055e6';
                 
             mapTileLayer = L.tileLayer(tileUrl, { maxZoom: 19 }).addTo(map);
             markersGroup = L.featureGroup().addTo(map);
