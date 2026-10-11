@@ -373,7 +373,7 @@
 
                 <div id="card-aniversario" class="hidden bg-purple-500 dark:bg-purple-700 w-full rounded-3xl shadow-lg border border-purple-600 p-6 flex-col items-center relative overflow-hidden">
                     <div class="absolute -top-4 -right-4 text-white/10 text-6xl"><i class="fa-solid fa-champagne-glasses"></i></div>
-                    <h2 class="text-sm font-bold text-white/80 uppercase tracking-widest mb-4 z-10">Faltam para 1 Ano!</h2>
+                    <h2 class="text-sm font-bold text-white/80 uppercase tracking-widest mb-4 z-10">1 Ano de Conhecidos!</h2>
                     <div id="counter-aniversario" class="grid grid-cols-4 gap-2 md:gap-4 w-full z-10"></div>
                     <p class="text-xs text-white/80 mt-4 font-medium z-10 uppercase tracking-wider">Contagem Regressiva</p>
                 </div>
@@ -1123,7 +1123,7 @@
             
             // O CSS agora cuida do Dark Mode nativamente invertendo as cores do mapa
             if(mapTileLayer) {
-                mapTileLayer.setUrl('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+                mapTileLayer.setUrl('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png');
             }
         }
 
@@ -1497,9 +1497,9 @@
             L.control.zoom({ position: 'bottomleft' }).addTo(map);
             
             
-            // Novo provedor gratuito do OpenStreetMap (o CSS fará a inversão no modo escuro)
+            // Novo provedor gratuito do CartoDB Voyager (bonito, moderno e limpo)
             const isDark = document.documentElement.classList.contains('dark');
-            const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+            const tileUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
                 
             mapTileLayer = L.tileLayer(tileUrl, { maxZoom: 19 }).addTo(map);
             markersGroup = L.featureGroup().addTo(map);
@@ -2259,7 +2259,7 @@
                     div.onclick = () => { currentExploreType = type; openSaveItemModal(m.id, title, year, posterPath, m.genre_ids, type); };
                     
                     div.innerHTML = `
-                        <div class="h-48 md:h-64 relative w-full">
+                        <div class="aspect-[2/3] relative w-full">
                             <img src="${posterPath}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
                             <div class="absolute top-2 right-2 bg-purple-500/90 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded-full shadow-sm z-10 border border-white/20 uppercase tracking-widest"><i class="fa-solid fa-play"></i> ${pName}</div>
@@ -2366,7 +2366,7 @@
                     div.onclick = () => { currentExploreType = type; openSaveItemModal(m.id, title, year, posterPath, m.genre_ids, type); };
                     
                     div.innerHTML = `
-                        <div class="h-48 md:h-64 relative w-full">
+                        <div class="aspect-[2/3] relative w-full">
                             <img src="${posterPath}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
                             <div class="absolute top-2 right-2 bg-orange-500/90 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded-full shadow-sm z-10 border border-white/20 uppercase tracking-widest"><i class="fa-solid fa-arrow-trend-up"></i> Top</div>
@@ -2447,7 +2447,7 @@
                     if(pendingBadge) listBadge = ''; 
 
                     div.innerHTML = `
-                        <div class="h-48 md:h-64 relative w-full">
+                        <div class="aspect-[2/3] relative w-full">
                             <img src="${item.poster}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
                             ${statusBadge}
@@ -3442,22 +3442,9 @@
                     document.getElementById('card-conhecemos').classList.remove('hidden');
                     document.getElementById('card-conhecemos').classList.add('flex');
                 }
-            } else {
-                document.getElementById('card-conhecemos').classList.remove('flex');
-                document.getElementById('card-conhecemos').classList.add('hidden');
-            }
 
-            if(coupleDates.namoro) {
-                const res = calcTimeDiff(coupleDates.namoro);
-                if(res) {
-                    document.getElementById('counter-namoro').innerHTML = buildCounterHTML(res, true);
-                    document.getElementById('lbl-namoro').innerText = formatDateTimeBRSafe(coupleDates.namoro);
-                    document.getElementById('card-namoro').classList.remove('hidden');
-                    document.getElementById('card-namoro').classList.add('flex');
-                }
-
-                // Cálculo para Faltam para 1 Ano (Contagem Regressiva)
-                const targetDate = new Date(coupleDates.namoro.replace(/-/g, '/').replace('T', ' '));
+                // Cálculo para Faltam para 1 Ano de Conhecidos (Contagem Regressiva)
+                const targetDate = new Date(coupleDates.conhecemos.replace(/-/g, '/').replace('T', ' '));
                 targetDate.setFullYear(targetDate.getFullYear() + 1); // Soma 1 ano exato
                 const diffAniversario = targetDate - new Date();
                 
@@ -3471,10 +3458,23 @@
                     document.getElementById('card-aniversario').classList.add('hidden');
                 }
             } else {
-                document.getElementById('card-namoro').classList.remove('flex');
-                document.getElementById('card-namoro').classList.add('hidden');
+                document.getElementById('card-conhecemos').classList.remove('flex');
+                document.getElementById('card-conhecemos').classList.add('hidden');
                 document.getElementById('card-aniversario').classList.remove('flex');
                 document.getElementById('card-aniversario').classList.add('hidden');
+            }
+
+            if(coupleDates.namoro) {
+                const res = calcTimeDiff(coupleDates.namoro);
+                if(res) {
+                    document.getElementById('counter-namoro').innerHTML = buildCounterHTML(res, true);
+                    document.getElementById('lbl-namoro').innerText = formatDateTimeBRSafe(coupleDates.namoro);
+                    document.getElementById('card-namoro').classList.remove('hidden');
+                    document.getElementById('card-namoro').classList.add('flex');
+                }
+            } else {
+                document.getElementById('card-namoro').classList.remove('flex');
+                document.getElementById('card-namoro').classList.add('hidden');
             }
         }
 
