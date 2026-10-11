@@ -379,33 +379,118 @@
                 </div>
         </div>
 
+    <!-- ABA 6: COMPRAS 🛒 -->
+        <div id="tab-shopping" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
+            <div class="flex justify-between items-center mb-6 mt-16">
+                <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Compras <i class="fa-solid fa-cart-shopping text-brand"></i></h1>
+            </div>
+            
+            <!-- Formulário de Nova Compra -->
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 mb-6 flex flex-col gap-3">
+                <div class="flex gap-2">
+                    <input type="text" id="new-shop-item" placeholder="O que precisamos?" class="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-900 dark:text-white text-sm font-medium" onkeyup="if(event.key === 'Enter') addShoppingItem()">
+                    <select id="new-shop-category" class="w-28 px-2 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-900 dark:text-white text-xs font-bold text-slate-600">
+                        <option value="mercado">Mercado 🍎</option>
+                        <option value="casa">Casa 🏠</option>
+                        <option value="outros">Outros 📦</option>
+                    </select>
+                </div>
+                <button onclick="addShoppingItem()" class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3.5 rounded-xl shadow-md transition-transform active:scale-[0.98] flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Adicionar na Lista
+                </button>
+            </div>
+
+            <!-- Listas Separadas -->
+            <div class="flex-1 flex flex-col gap-6 pb-10">
+                <!-- Mercado -->
+                <div>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-basket-shopping text-orange-500"></i> Mercado</h3>
+                    <div id="list-mercado" class="flex flex-col gap-2"></div>
+                </div>
+                <!-- Casa -->
+                <div>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-house-chimney text-blue-500"></i> Casa</h3>
+                    <div id="list-casa" class="flex flex-col gap-2"></div>
+                </div>
+                <!-- Outros -->
+                <div>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-box text-emerald-500"></i> Outros</h3>
+                    <div id="list-outros" class="flex flex-col gap-2"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 7: SPOTIFY 🎵 -->
+        <div id="tab-spotify" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
+            <div class="flex justify-between items-center mb-6 mt-16">
+                <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Música <i class="fa-brands fa-spotify text-green-500"></i></h1>
+            </div>
+
+            <button onclick="mockSpotifyConnection()" class="w-full bg-[#1DB954] hover:bg-[#1ed760] text-white font-bold py-4 rounded-2xl shadow-lg transition-transform active:scale-[0.98] flex items-center justify-center gap-2 mb-8 border border-green-400">
+                <i class="fa-solid fa-link"></i> Conectar Spotify (Simulador)
+            </button>
+
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Ouvindo Agora 🎧</h3>
+            
+            <!-- Card Luiz -->
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 mb-4 flex items-center gap-4 relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 text-slate-100 dark:text-slate-700/30 text-6xl pointer-events-none"><i class="fa-brands fa-spotify"></i></div>
+                <div class="w-16 h-16 rounded-xl bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 flex items-center justify-center text-blue-500 text-2xl shrink-0 z-10 shadow-inner" id="spo-img-luiz">
+                    <i class="fa-solid fa-user-astronaut"></i>
+                </div>
+                <div class="flex-1 min-w-0 z-10">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Luiz está ouvindo</p>
+                    <h4 class="font-bold text-slate-800 dark:text-white text-base truncate" id="spo-song-luiz">Silêncio...</h4>
+                    <p class="text-xs text-slate-500 truncate" id="spo-artist-luiz">Nenhuma música tocando</p>
+                </div>
+            </div>
+
+            <!-- Card Matheus -->
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center gap-4 relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 text-slate-100 dark:text-slate-700/30 text-6xl pointer-events-none"><i class="fa-brands fa-spotify"></i></div>
+                <div class="w-16 h-16 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-800 flex items-center justify-center text-emerald-500 text-2xl shrink-0 z-10 shadow-inner" id="spo-img-matheus">
+                    <i class="fa-solid fa-user-ninja"></i>
+                </div>
+                <div class="flex-1 min-w-0 z-10">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Matheus está ouvindo</p>
+                    <h4 class="font-bold text-slate-800 dark:text-white text-base truncate" id="spo-song-matheus">Silêncio...</h4>
+                    <p class="text-xs text-slate-500 truncate" id="spo-artist-matheus">Nenhuma música tocando</p>
+                </div>
+            </div>
+
+        </div>
+
     </main>
 
     <!-- Barra de Navegação Inferior -->
     <nav class="fixed bottom-0 w-full h-16 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] flex justify-around items-center z-[500] px-1 pb-safe transition-colors">
         <button id="nav-btn-map" onclick="switchTab('map')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-brand transition-colors relative group">
-            <i class="fa-solid fa-map text-lg group-hover:scale-110 transition-transform"></i>
-            <span class="text-[8px] font-bold uppercase tracking-wide">Diário</span>
+            <i class="fa-solid fa-map text-[15px] group-hover:scale-110 transition-transform"></i>
+            <span class="text-[7px] font-bold uppercase tracking-wide">Diário</span>
         </button>
         <button id="nav-btn-movies" onclick="switchTab('movies')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
-            <i class="fa-solid fa-clapperboard text-lg group-hover:scale-110 transition-transform"></i>
-            <span class="text-[8px] font-bold uppercase tracking-wide">Filmes</span>
+            <i class="fa-solid fa-clapperboard text-[15px] group-hover:scale-110 transition-transform"></i>
+            <span class="text-[7px] font-bold uppercase tracking-wide">Filmes</span>
         </button>
         <button id="nav-btn-shows" onclick="switchTab('shows')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
-            <i class="fa-solid fa-tv text-lg group-hover:scale-110 transition-transform"></i>
-            <span class="text-[8px] font-bold uppercase tracking-wide">Séries</span>
+            <i class="fa-solid fa-tv text-[15px] group-hover:scale-110 transition-transform"></i>
+            <span class="text-[7px] font-bold uppercase tracking-wide">Séries</span>
         </button>
         <button id="nav-btn-finances" onclick="switchTab('finances')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
-            <i class="fa-solid fa-file-invoice-dollar text-lg group-hover:scale-110 transition-transform"></i>
-            <span class="text-[8px] font-bold uppercase tracking-wide">Contas</span>
+            <i class="fa-solid fa-file-invoice-dollar text-[15px] group-hover:scale-110 transition-transform"></i>
+            <span class="text-[7px] font-bold uppercase tracking-wide">Contas</span>
         </button>
         <button id="nav-btn-calendar" onclick="switchTab('calendar')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
-            <i class="fa-solid fa-calendar-days text-lg group-hover:scale-110 transition-transform"></i>
-            <span class="text-[8px] font-bold uppercase tracking-wide">Agenda</span>
+            <i class="fa-solid fa-calendar-days text-[15px] group-hover:scale-110 transition-transform"></i>
+            <span class="text-[7px] font-bold uppercase tracking-wide">Agenda</span>
         </button>
-        <button id="nav-btn-time" onclick="switchTab('time')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
-            <i class="fa-solid fa-clock text-lg group-hover:scale-110 transition-transform"></i>
-            <span class="text-[8px] font-bold uppercase tracking-wide">Tempo</span>
+        <button id="nav-btn-shopping" onclick="switchTab('shopping')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
+            <i class="fa-solid fa-cart-shopping text-[15px] group-hover:scale-110 transition-transform"></i>
+            <span class="text-[7px] font-bold uppercase tracking-wide">Compras</span>
+        </button>
+        <button id="nav-btn-spotify" onclick="switchTab('spotify')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-green-500 dark:text-slate-500 dark:hover:text-green-500 transition-colors relative group">
+            <i class="fa-brands fa-spotify text-[15px] group-hover:scale-110 transition-transform"></i>
+            <span class="text-[7px] font-bold uppercase tracking-wide">Música</span>
         </button>
     </nav>
 
@@ -1063,6 +1148,10 @@
         let timerInterval = null;
         let currentListFilter = { movie: '', tv: '' };
 
+        // Variáveis das Novas Abas
+        let shoppingItems = [];
+        let spotifyData = { luiz: null, matheus: null };
+
         const CURITIBA_COORDS = [-25.4284, -49.2733];
         const TMDB_GENRES = { 28: "Ação", 12: "Aventura", 16: "Animação", 35: "Comédia", 80: "Crime", 99: "Documentário", 18: "Drama", 10751: "Família", 14: "Fantasia", 36: "História", 27: "Terror", 10402: "Música", 9648: "Mistério", 10749: "Romance", 878: "Ficção científica", 10770: "Cinema TV", 53: "Thriller", 10752: "Guerra", 37: "Faroeste", 10759: "Ação e Aventura", 10762: "Kids", 10765: "Sci-Fi & Fantasy", 10768: "War & Politics" };
 
@@ -1188,7 +1277,7 @@
         }
 
         function switchTab(tabId) {
-            const tabs = ['map', 'movies', 'shows', 'finances', 'calendar', 'time'];
+            const tabs = ['map', 'movies', 'shows', 'finances', 'calendar', 'time', 'shopping', 'spotify'];
             
             tabs.forEach(t => {
                 const el = document.getElementById('tab-' + t);
@@ -1219,7 +1308,6 @@
                 setTimeout(() => { map.invalidateSize(); }, 300);
             }
         }
-
         function openSettings() { document.getElementById('settingsModal').classList.remove('hidden'); }
         function closeSettings() { document.getElementById('settingsModal').classList.add('hidden'); }
 
@@ -1396,6 +1484,20 @@
             db.ref('settings/tmdbKey').on('value', (snap) => {
                 tmdbApiKey = snap.val() || "";
                 document.getElementById('apiKeyInput').value = tmdbApiKey;
+            });
+
+            // Sincronização em Tempo Real: Lista de Compras
+            db.ref('shopping').on('value', (snap) => {
+                const data = snap.val();
+                shoppingItems = data ? Object.values(data) : [];
+                renderShoppingList();
+            });
+
+            // Sincronização em Tempo Real: Spotify
+            db.ref('spotify').on('value', (snap) => {
+                const data = snap.val();
+                if(data) spotifyData = data;
+                renderSpotifyUI();
             });
         }
 
@@ -3537,6 +3639,120 @@
                     <span class="${labelClass}">${b.label}</span>
                 </div>
             `).join('');
+        }
+
+        // ==========================================
+        // 8. LISTA DE COMPRAS (COMPARTILHADA)
+        // ==========================================
+        function addShoppingItem() {
+            const input = document.getElementById('new-shop-item');
+            const cat = document.getElementById('new-shop-category').value;
+            const text = input.value.trim();
+            if(!text) return;
+
+            const id = 'shop_' + Date.now();
+            db.ref('shopping/' + id).set({
+                id: id,
+                name: text,
+                category: cat,
+                checked: false,
+                addedBy: currentUser || 'Desconhecido',
+                timestamp: Date.now()
+            });
+
+            input.value = '';
+            showCustomMessage("Adicionado à lista! 🛒");
+        }
+
+        function toggleShoppingItem(id, currentStatus) {
+            db.ref('shopping/' + id + '/checked').set(!currentStatus);
+        }
+
+        function deleteShoppingItem(id) {
+            if(confirm("Remover este item da lista?")) {
+                db.ref('shopping/' + id).remove();
+            }
+        }
+
+        function renderShoppingList() {
+            const cats = ['mercado', 'casa', 'outros'];
+            
+            cats.forEach(c => {
+                const container = document.getElementById('list-' + c);
+                if(!container) return;
+                container.innerHTML = '';
+                
+                const items = shoppingItems.filter(i => i.category === c).sort((a, b) => a.checked - b.checked || b.timestamp - a.timestamp);
+                
+                if(items.length === 0) {
+                    container.innerHTML = `<p class="text-xs text-slate-400 italic bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-dashed border-slate-200 dark:border-slate-700">Nenhum item pendente.</p>`;
+                    return;
+                }
+
+                items.forEach(i => {
+                    const checkedClass = i.checked ? 'opacity-50 line-through text-slate-400' : 'text-slate-800 dark:text-white';
+                    const boxClass = i.checked ? 'bg-slate-100 dark:bg-slate-800/50 border-transparent' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm';
+                    const iconColor = i.checked ? 'text-slate-300' : 'text-brand';
+
+                    container.innerHTML += `
+                        <div class="flex items-center gap-3 p-3 rounded-xl border ${boxClass} transition-colors">
+                            <button onclick="toggleShoppingItem('${i.id}', ${i.checked})" class="w-6 h-6 rounded border-2 border-slate-300 flex items-center justify-center flex-shrink-0 transition-colors ${i.checked ? 'bg-slate-300 border-slate-300' : 'hover:border-brand'}">
+                                ${i.checked ? '<i class="fa-solid fa-check text-white text-xs"></i>' : ''}
+                            </button>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-bold truncate ${checkedClass} transition-all">${i.name}</p>
+                                <p class="text-[9px] font-bold uppercase tracking-wider text-slate-400 mt-0.5"><i class="fa-solid fa-user-plus mr-1"></i> ${i.addedBy}</p>
+                            </div>
+                            <button onclick="deleteShoppingItem('${i.id}')" class="w-8 h-8 rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        // ==========================================
+        // 9. LÓGICA DO SPOTIFY MOCK (UI)
+        // ==========================================
+        function mockSpotifyConnection() {
+            if(!currentUser) return;
+            const song = prompt("Qual música você está ouvindo agora?");
+            if(!song) return;
+            const artist = prompt("De qual artista?");
+            if(!artist) return;
+
+            // Simula o salvamento no banco de dados para os dois verem!
+            db.ref('spotify/' + currentUser.toLowerCase()).set({
+                song: song,
+                artist: artist,
+                timestamp: Date.now()
+            });
+
+            showCustomMessage("Status musical atualizado! 🎵");
+        }
+
+        function renderSpotifyUI() {
+            ['luiz', 'matheus'].forEach(user => {
+                const songEl = document.getElementById('spo-song-' + user);
+                const artEl = document.getElementById('spo-artist-' + user);
+                const imgBox = document.getElementById('spo-img-' + user);
+                
+                if(!songEl || !artEl || !imgBox) return;
+
+                const data = spotifyData[user];
+                if(data && data.song) {
+                    songEl.innerText = data.song;
+                    artEl.innerText = data.artist || "Artista Desconhecido";
+                    songEl.classList.add('text-green-500'); // Destaca em verde
+                    imgBox.innerHTML = `<i class="fa-solid fa-music fa-bounce"></i>`;
+                } else {
+                    songEl.innerText = "Silêncio...";
+                    artEl.innerText = "Nenhuma música tocando";
+                    songEl.classList.remove('text-green-500');
+                    imgBox.innerHTML = user === 'luiz' ? '<i class="fa-solid fa-user-astronaut"></i>' : '<i class="fa-solid fa-user-ninja"></i>';
+                }
+            });
         }
         
     </script>
