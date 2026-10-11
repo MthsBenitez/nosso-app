@@ -52,7 +52,8 @@
         /* Correção: Travando o mapa na tela para ele não sumir */
         #map { position: absolute; top: 0; bottom: 0; left: 0; right: 0; z-index: 1; }
 
-        /* Removemos as duplicatas do zoom no modo dark */
+        /* Ajustes do Mapa (Inversão inteligente de cores no modo escuro sem precisar de API) */
+        html.dark .leaflet-tile-pane { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
         html.dark .leaflet-control-zoom-in, html.dark .leaflet-control-zoom-out { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
 
         .font-journal { font-family: 'Poppins', sans-serif; }
@@ -263,8 +264,8 @@
             <div id="empty-tv" class="hidden flex-col items-center justify-center text-slate-400 dark:text-slate-500 mt-10 gap-4"><i class="fa-solid fa-tv text-6xl opacity-30"></i><p class="text-center font-medium">Nenhuma série por aqui.</p></div>
         </div>
 
-        <!-- ABA 3: NOSSAS CONTAS -->
-        <div id="tab-finances" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-32 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
+        <!-- Padronizamos o padding bottom de 32 (128px) para 20 (80px), tirando a "barra invisível" -->
+        <div id="tab-finances" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
             <div class="flex justify-between items-center mb-6 mt-16">
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Contas <i class="fa-solid fa-file-invoice-dollar text-brand"></i></h1>
                 <div class="flex gap-2">
@@ -369,7 +370,13 @@
                     <div id="counter-namoro" class="grid grid-cols-4 gap-2 md:gap-4 w-full z-10"></div>
                     <p id="lbl-namoro" class="text-xs text-white/80 mt-4 font-medium z-10"></p>
                 </div>
-            </div>
+
+                <div id="card-aniversario" class="hidden bg-purple-500 dark:bg-purple-700 w-full rounded-3xl shadow-lg border border-purple-600 p-6 flex-col items-center relative overflow-hidden">
+                    <div class="absolute -top-4 -right-4 text-white/10 text-6xl"><i class="fa-solid fa-champagne-glasses"></i></div>
+                    <h2 class="text-sm font-bold text-white/80 uppercase tracking-widest mb-4 z-10">Faltam para 1 Ano!</h2>
+                    <div id="counter-aniversario" class="grid grid-cols-4 gap-2 md:gap-4 w-full z-10"></div>
+                    <p class="text-xs text-white/80 mt-4 font-medium z-10 uppercase tracking-wider">Contagem Regressiva</p>
+                </div>
         </div>
 
     </main>
@@ -853,9 +860,10 @@
                     </div>
                 </div>
 
-                <div id="vmWantInfo" class="hidden text-center py-8 text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 mb-4">
+                <div id="vmWantInfo" class="hidden flex-col items-center text-center py-8 text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 mb-4">
                     <i class="fa-solid fa-ticket text-6xl mb-4 text-slate-200 dark:text-slate-700"></i>
-                    <p class="font-medium text-slate-600 dark:text-slate-300 text-lg leading-tight">Está na lista de desejos.<br>A pipoca já tá pronta? 🍿</p>
+                    <p class="font-medium text-slate-600 dark:text-slate-300 text-lg leading-tight mb-6">Está na lista de desejos.<br>A pipoca já tá pronta? 🍿</p>
+                    <button id="vmMarkWatchedBtn" class="w-full bg-brand text-white py-3.5 rounded-xl font-bold shadow-md hover:bg-brand-dark transition-colors flex items-center justify-center gap-2"><i class="fa-solid fa-check"></i> Marcar como Assistido</button>
                 </div>
 
                 <button id="vmDeleteBtn" class="w-full mt-2 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 py-3.5 rounded-xl transition-colors">
@@ -1113,12 +1121,9 @@
             }
             localStorage.setItem('couple_app_dark', isDark);
             
-            // Troca os blocos do mapa para a versão Dark nativa de forma suave
+            // O CSS agora cuida do Dark Mode nativamente invertendo as cores do mapa
             if(mapTileLayer) {
-                const tileUrl = isDark 
-                    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png' 
-                    : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-                mapTileLayer.setUrl(tileUrl);
+                mapTileLayer.setUrl('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
             }
         }
 
@@ -1491,11 +1496,10 @@
             map = L.map('map', { zoomControl: false }).setView(CURITIBA_COORDS, 13);
             L.control.zoom({ position: 'bottomleft' }).addTo(map);
             
-            // Verifica o tema atual ao carregar o aplicativo para puxar o mapa certo
+            
+            // Novo provedor gratuito do OpenStreetMap (o CSS fará a inversão no modo escuro)
             const isDark = document.documentElement.classList.contains('dark');
-            const tileUrl = isDark 
-                ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png' 
-                : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+            const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
                 
             mapTileLayer = L.tileLayer(tileUrl, { maxZoom: 19 }).addTo(map);
             markersGroup = L.featureGroup().addTo(map);
@@ -2724,8 +2728,16 @@
                 if (item.status === 'want') {
                     badge.innerText = 'QUEREMOS';
                     wantInfo.classList.remove('hidden');
+                    wantInfo.classList.add('flex');
                     watchedInfo.classList.add('hidden');
                     watchedInfo.classList.remove('flex');
+                    
+                    // Configura o novo botão para transição rápida de "Queremos" para "Assistido"
+                    document.getElementById('vmMarkWatchedBtn').onclick = () => {
+                        closeViewItemModal();
+                        openSaveItemModal(item.tmdbId, item.title, item.year, item.poster, item.genres, currentExploreType);
+                        setTimeout(() => setItemStatus('watched'), 300);
+                    };
                 } else {
                     badge.innerText = 'ASSISTIDO';
                     wantInfo.classList.add('hidden');
@@ -3443,10 +3455,40 @@
                     document.getElementById('card-namoro').classList.remove('hidden');
                     document.getElementById('card-namoro').classList.add('flex');
                 }
+
+                // Cálculo para Faltam para 1 Ano (Contagem Regressiva)
+                const targetDate = new Date(coupleDates.namoro.replace(/-/g, '/').replace('T', ' '));
+                targetDate.setFullYear(targetDate.getFullYear() + 1); // Soma 1 ano exato
+                const diffAniversario = targetDate - new Date();
+                
+                if(diffAniversario > 0) {
+                    const resAniv = calcTimeRemaining(diffAniversario);
+                    document.getElementById('counter-aniversario').innerHTML = buildCounterHTML(resAniv, true);
+                    document.getElementById('card-aniversario').classList.remove('hidden');
+                    document.getElementById('card-aniversario').classList.add('flex');
+                } else {
+                    document.getElementById('card-aniversario').classList.remove('flex');
+                    document.getElementById('card-aniversario').classList.add('hidden');
+                }
             } else {
                 document.getElementById('card-namoro').classList.remove('flex');
                 document.getElementById('card-namoro').classList.add('hidden');
+                document.getElementById('card-aniversario').classList.remove('flex');
+                document.getElementById('card-aniversario').classList.add('hidden');
             }
+        }
+
+        function calcTimeRemaining(diffMs) {
+            const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
+            const mins = Math.floor((diffMs / 1000 / 60) % 60);
+            const secs = Math.floor((diffMs / 1000) % 60);
+            return [
+                { val: days, label: 'Dias' },
+                { val: hours, label: 'Horas' },
+                { val: mins, label: 'Min' },
+                { val: secs, label: 'Seg' }
+            ];
         }
 
         function calcTimeDiff(dateString) {
