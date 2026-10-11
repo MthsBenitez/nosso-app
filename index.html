@@ -1677,8 +1677,10 @@
             db.ref('spotify').on('value', (snap) => {
                 const data = snap.val();
                 if(data) spotifyData = data;
-                renderSpotifyUI();
             });
+            
+            // Loop Front-end mágico: Renderiza a tela a cada segundo por conta própria para fluidez total!
+            setInterval(renderSpotifyUI, 1000);
 
             // Sincronização em Tempo Real: Spotify Estatísticas (Histórico/Tops)
             db.ref('spotify_stats').on('value', (snap) => {
@@ -4076,21 +4078,28 @@
             try {
                 let url = '';
                 let method = 'POST';
+                let optimisticPlayState = true;
+                
                 if(action === 'next') url = 'https://api.spotify.com/v1/me/player/next';
                 else if(action === 'previous') url = 'https://api.spotify.com/v1/me/player/previous';
                 else if(action === 'playpause') {
                     const currentState = spotifyData[currentUser.toLowerCase()]?.isPlaying;
+                    optimisticPlayState = !currentState;
                     url = currentState ? 'https://api.spotify.com/v1/me/player/pause' : 'https://api.spotify.com/v1/me/player/play';
                     method = 'PUT';
+                    
+                    // Atualiza o botão instantaneamente para sensação de rapidez
+                    const playIcon = document.getElementById(`spo-playpause-icon-${currentUser.toLowerCase()}`);
+                    if(playIcon) playIcon.className = optimisticPlayState ? "fa-solid fa-pause text-xl" : "fa-solid fa-play text-xl ml-1";
                 }
 
                 const res = await fetch(url, { method: method, headers: { 'Authorization': 'Bearer ' + spotifyAccessToken } });
-                if(res.status === 403) showCustomMessage("O Spotify exige conta Premium para controlar a música por aqui. 😢");
-                else if (res.status === 404) showCustomMessage("Abra o Spotify em algum aparelho primeiro!");
-                else setTimeout(fetchCurrentSong, 500); 
+                
+                if(res.status === 403) showCustomMessage("O Spotify bloqueou. É preciso ter Premium para dar Play/Pause por aqui! 😢", 4000);
+                else if (res.status === 404) showCustomMessage("Nenhum aparelho ativo! Abra o app do Spotify no celular ou PC primeiro.", 4000);
+                else setTimeout(fetchCurrentSong, 800); 
             } catch(e) { console.error(e); }
         }
-
         async function fetchCurrentSong() {
             try {
                 const res = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
@@ -4098,7 +4107,7 @@
                 });
 
                 if (res.status === 204) {
-                    updateSpotifyDatabase(null, null, null, false, 0, 0, 0); 
+                    updateSpotifyDatabase(null, null, null, false, 0, 0, 0, null, 120, 0.5, 0.5); 
                     return;
                 }
                 if (res.status === 401) { 
@@ -4122,14 +4131,29 @@
                     const progress = data.progress_ms || 0;
                     const duration = data.item.duration_ms || 0;
                     const popularity = data.item.popularity || 0;
+                    const trackId = data.item.id;
 
-                    updateSpotifyDatabase(song, artist, albumArt, isPlaying, progress, duration, popularity);
+                    // Busca o "Sentimento" (Audio Features) se a música for nova
+                    let tempo = 120, energy = 0.5, valence = 0.5;
+                    const currentData = spotifyData[currentUser.toLowerCase()];
+                    
+                    if (currentData && currentData.trackId === trackId && currentData.tempo) {
+                        tempo = currentData.tempo; energy = currentData.energy; valence = currentData.valence;
+                    } else {
+                        try {
+                            const fRes = await fetch(`https://api.spotify.com/v1/audio-features/${trackId}`, { headers: { 'Authorization': 'Bearer ' + spotifyAccessToken } });
+                            if(fRes.ok) {
+                                const fData = await fRes.json();
+                                tempo = fData.tempo || 120; energy = fData.energy || 0.5; valence = fData.valence || 0.5;
+                            }
+                        } catch(e) {}
+                    }
+
+                    updateSpotifyDatabase(song, artist, albumArt, isPlaying, progress, duration, popularity, trackId, tempo, energy, valence);
                 } else {
-                    updateSpotifyDatabase(null, null, null, false, 0, 0, 0);
+                    updateSpotifyDatabase(null, null, null, false, 0, 0, 0, null, 120, 0.5, 0.5);
                 }
-            } catch(e) {
-                console.log("Erro na API do Spotify:", e);
-            }
+            } catch(e) { console.log("Erro na API do Spotify:", e); }
         }
 
         async function fetchSpotifyStats() {
@@ -4153,22 +4177,31 @@
             } catch(e) { console.log("Erro Stats:", e); }
         }
 
-        function updateSpotifyDatabase(song, artist, albumArt, isPlaying = false, progress = 0, duration = 0, popularity = 0) {
-            const currentData = spotifyData[currentUser.toLowerCase()];
-            // Previne writes desnecessários caso a música exata com mesmo status já esteja lá, mas atualiza o progresso a cada loop.
+        function updateSpotifyDatabase(song, artist, albumArt, isPlaying = false, progress = 0, duration = 0, popularity = 0, trackId = null, tempo = 120, energy = 0.5, valence = 0.5) {
             db.ref('spotify/' + currentUser.toLowerCase()).set({
-                song: song,
-                artist: artist,
-                albumArt: albumArt,
-                isPlaying: isPlaying,
-                progress: progress,
-                duration: duration,
-                popularity: popularity,
+                song: song, artist: artist, albumArt: albumArt,
+                isPlaying: isPlaying, progress: progress, duration: duration, 
+                popularity: popularity, trackId: trackId, tempo: tempo, energy: energy, valence: valence,
                 timestamp: Date.now()
             });
         }
 
         function renderSpotifyUI() {
+            // Injeção de CSS Dinâmico para as pulsações da batida da música
+            if (!document.getElementById('spotify-dynamic-styles')) {
+                const style = document.createElement('style');
+                style.id = 'spotify-dynamic-styles';
+                style.innerHTML = `
+                    @keyframes musicPulse {
+                        0% { transform: scale(1); box-shadow: 0 10px 30px var(--vibe-color); }
+                        50% { transform: scale(1.03); box-shadow: 0 20px 50px var(--vibe-color); }
+                        100% { transform: scale(1); box-shadow: 0 10px 30px var(--vibe-color); }
+                    }
+                    .playing-beat { animation: musicPulse var(--beat-duration, 1s) infinite ease-in-out; }
+                `;
+                document.head.appendChild(style);
+            }
+
             ['luiz', 'matheus'].forEach(user => {
                 const songEl = document.getElementById('spo-song-' + user);
                 if(!songEl) return;
@@ -4176,6 +4209,7 @@
                 const artEl = document.getElementById('spo-artist-' + user);
                 const bgBox = document.getElementById('spo-bg-' + user);
                 const coverImg = document.getElementById('spo-art-' + user);
+                const coverContainer = coverImg.parentElement;
                 
                 const progressFill = document.getElementById('spo-progress-' + user);
                 const timeStr = document.getElementById('spo-time-' + user);
@@ -4186,14 +4220,11 @@
 
                 const data = spotifyData[user];
 
-                // UX: Só exibe controles se for o dono daquele card
                 if(controlsArea) {
                     if(currentUser && user === currentUser.toLowerCase()) {
-                        controlsArea.classList.remove('hidden');
-                        controlsArea.classList.add('flex');
+                        controlsArea.classList.remove('hidden'); controlsArea.classList.add('flex');
                     } else {
-                        controlsArea.classList.add('hidden');
-                        controlsArea.classList.remove('flex');
+                        controlsArea.classList.add('hidden'); controlsArea.classList.remove('flex');
                     }
                 }
 
@@ -4203,17 +4234,38 @@
                     bgBox.style.backgroundImage = `url(${data.albumArt || ''})`;
                     coverImg.src = data.albumArt || 'https://placehold.co/400x400/1DB954/191414?text=Spotify';
                     
+                    // Cálculo de Interpolação de Progresso - Fim do Lag Visual!
+                    let currentProgress = data.progress;
+                    if (data.isPlaying && data.timestamp) {
+                        currentProgress += (Date.now() - data.timestamp);
+                    }
+                    if (currentProgress > data.duration) currentProgress = data.duration;
+
                     if(progressFill && timeStr && durationStr) {
-                        const pct = data.duration > 0 ? (data.progress / data.duration) * 100 : 0;
+                        const pct = data.duration > 0 ? (currentProgress / data.duration) * 100 : 0;
                         progressFill.style.width = `${pct}%`;
-                        timeStr.innerText = formatMsToTime(data.progress);
+                        timeStr.innerText = formatMsToTime(currentProgress);
                         durationStr.innerText = formatMsToTime(data.duration);
                     }
                     if(viewsBadge) viewsBadge.innerText = `${data.popularity || 0}%`;
-                    
-                    if(playIcon) {
-                        playIcon.className = data.isPlaying ? "fa-solid fa-pause text-xl" : "fa-solid fa-play text-xl ml-1";
+                    if(playIcon) playIcon.className = data.isPlaying ? "fa-solid fa-pause text-xl" : "fa-solid fa-play text-xl ml-1";
+
+                    // Interpretação de Vibe e Batida (Animação Mágica)
+                    let shadowColor = "rgba(29, 185, 84, 0.4)"; 
+                    if (data.valence > 0.7) shadowColor = "rgba(251, 191, 36, 0.6)"; // Feliz -> Amarelo
+                    else if (data.valence < 0.3) shadowColor = "rgba(59, 130, 246, 0.6)"; // Triste -> Azul
+                    else if (data.energy > 0.8) shadowColor = "rgba(239, 68, 68, 0.6)"; // Intenso -> Vermelho
+
+                    if (data.isPlaying && data.tempo) {
+                        const beatSeconds = 60 / data.tempo;
+                        coverContainer.style.setProperty('--beat-duration', `${beatSeconds}s`);
+                        coverContainer.style.setProperty('--vibe-color', shadowColor);
+                        coverContainer.classList.add('playing-beat');
+                    } else {
+                        coverContainer.classList.remove('playing-beat');
+                        coverContainer.style.boxShadow = `0 20px 50px ${shadowColor}`;
                     }
+
                 } else {
                     songEl.innerText = "Silêncio absoluto...";
                     artEl.innerText = "Nenhuma música tocando";
@@ -4222,6 +4274,8 @@
                         ? 'https://placehold.co/400x400/0f172a/3b82f6?text=Luiz+Offline' 
                         : 'https://placehold.co/400x400/0f172a/10b981?text=Matheus+Offline';
                     coverImg.src = fallbackIcon;
+                    coverContainer.classList.remove('playing-beat');
+                    coverContainer.style.boxShadow = "0 20px 50px rgba(0,0,0,0.7)";
                     
                     if(progressFill) progressFill.style.width = `0%`;
                     if(timeStr) timeStr.innerText = "0:00";
@@ -4237,13 +4291,64 @@
             if(!container) return;
             container.innerHTML = '';
 
+            // --- LÓGICA DE MATCH MUSICAL 💖 ---
+            const sLuiz = spotifyStatsData.luiz;
+            const sMatheus = spotifyStatsData.matheus;
+            let matchSection = '';
+
+            if (sLuiz && sMatheus) {
+                const sharedTracks = (sLuiz.topTracks || []).filter(t1 => (sMatheus.topTracks || []).some(t2 => t2.name === t1.name));
+                const sharedArtists = (sLuiz.topArtists || []).filter(a1 => (sMatheus.topArtists || []).some(a2 => a2.name === a1.name));
+
+                if (sharedTracks.length > 0 || sharedArtists.length > 0) {
+                    const matchTracksHtml = sharedTracks.map(t => `
+                        <div class="flex items-center gap-2 bg-[#1DB954]/20 p-2 rounded-xl border border-[#1DB954]/30 shrink-0 w-48">
+                            <img src="${t.img}" class="w-10 h-10 rounded-lg object-cover shadow-md">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-[10px] font-bold text-white truncate">${t.name}</p>
+                                <p class="text-[8px] text-[#1DB954] truncate">Ouvido por ambos</p>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    const matchArtistsHtml = sharedArtists.map(a => `
+                        <div class="flex flex-col items-center gap-1 shrink-0 w-16">
+                            <img src="${a.img}" class="w-12 h-12 rounded-full object-cover border-2 border-[#1DB954] shadow-[0_0_10px_rgba(29,185,84,0.5)]">
+                            <p class="text-[9px] font-bold text-white truncate w-full text-center">${a.name}</p>
+                        </div>
+                    `).join('');
+
+                    matchSection = `
+                        <div class="bg-gradient-to-r from-[#1DB954]/20 to-black/40 backdrop-blur-xl rounded-3xl p-5 border border-[#1DB954]/30 shadow-2xl flex flex-col gap-4 relative overflow-hidden mb-2">
+                            <div class="absolute -right-4 -top-4 text-[#1DB954]/10 text-7xl rotate-12 pointer-events-none"><i class="fa-solid fa-heart-pulse"></i></div>
+                            <h3 class="text-lg font-black text-white flex items-center gap-2 relative z-10"><i class="fa-solid fa-heart text-[#1DB954] animate-pulse"></i> Matches Musicais</h3>
+                            
+                            ${sharedTracks.length > 0 ? `
+                                <div class="relative z-10">
+                                    <h4 class="text-[9px] font-bold text-white/50 uppercase tracking-widest mb-2">Músicas em Comum</h4>
+                                    <div class="flex gap-3 overflow-x-auto no-scrollbar pb-1">${matchTracksHtml}</div>
+                                </div>
+                            ` : ''}
+
+                            ${sharedArtists.length > 0 ? `
+                                <div class="relative z-10 mt-2">
+                                    <h4 class="text-[9px] font-bold text-white/50 uppercase tracking-widest mb-2">Artistas em Comum</h4>
+                                    <div class="flex gap-4 overflow-x-auto no-scrollbar pb-1">${matchArtistsHtml}</div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+            }
+
+            container.innerHTML += matchSection;
+
             ['luiz', 'matheus'].forEach(user => {
                 const stats = spotifyStatsData[user];
                 if(!stats) return;
 
                 const name = user.charAt(0).toUpperCase() + user.slice(1);
                 
-                // Monta os blocos de HTML se existirem dados
                 const tracksHtml = (stats.topTracks && stats.topTracks.length > 0) ? stats.topTracks.map(t => `
                     <div class="w-28 shrink-0 flex flex-col gap-2 group cursor-pointer">
                         <img src="${t.img || 'https://placehold.co/100'}" class="w-28 h-28 rounded-2xl object-cover shadow-lg border border-white/5 group-hover:scale-105 transition-transform duration-300">
@@ -4274,30 +4379,24 @@
                 `).join('') : '<p class="text-xs text-slate-500 italic">Nenhum histórico.</p>';
 
                 container.innerHTML += `
-                    <div class="bg-black/30 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-2xl flex flex-col gap-6 relative overflow-hidden">
+                    <div class="bg-black/30 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-2xl flex flex-col gap-6 relative overflow-hidden mt-4">
                         <div class="absolute -right-4 -top-4 text-white/5 text-7xl rotate-12 pointer-events-none"><i class="fa-solid fa-headphones"></i></div>
                         
                         <h3 class="text-xl font-black text-white flex items-center gap-2 relative z-10"><i class="fa-solid fa-circle-user text-[#1DB954]"></i> O que ${name} curte</h3>
 
                         <div class="relative z-10">
                             <h4 class="text-[10px] font-black text-white/40 uppercase tracking-widest mb-3 flex items-center gap-1.5"><i class="fa-solid fa-fire text-orange-500"></i> Top Músicas (Mês)</h4>
-                            <div class="flex gap-4 overflow-x-auto no-scrollbar pb-2">
-                                ${tracksHtml}
-                            </div>
+                            <div class="flex gap-4 overflow-x-auto no-scrollbar pb-2">${tracksHtml}</div>
                         </div>
 
                         <div class="relative z-10">
                             <h4 class="text-[10px] font-black text-white/40 uppercase tracking-widest mb-3 flex items-center gap-1.5"><i class="fa-solid fa-microphone-lines text-purple-400"></i> Top Artistas (Mês)</h4>
-                            <div class="flex gap-4 overflow-x-auto no-scrollbar pb-2">
-                                ${artistsHtml}
-                            </div>
+                            <div class="flex gap-4 overflow-x-auto no-scrollbar pb-2">${artistsHtml}</div>
                         </div>
 
                         <div class="relative z-10">
                             <h4 class="text-[10px] font-black text-white/40 uppercase tracking-widest mb-3 flex items-center gap-1.5"><i class="fa-solid fa-clock-rotate-left text-blue-400"></i> Últimas Tocadas</h4>
-                            <div class="flex flex-col gap-2">
-                                ${historyHtml}
-                            </div>
+                            <div class="flex flex-col gap-2">${historyHtml}</div>
                         </div>
                     </div>
                 `;
