@@ -3868,31 +3868,87 @@
             }
         }
 
-        function connectSpotify() {
+        // Helper functions para o novo padrão de segurança do Spotify (PKCE)
+        function generateRandomString(length) {
+            const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            const values = crypto.getRandomValues(new Uint8Array(length));
+            return Array.from(values).map(x => possible[x % possible.length]).join('');
+        }
+
+        async function sha256(plain) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(plain);
+            return window.crypto.subtle.digest('SHA-256', data);
+        }
+
+        function base64encode(hash) {
+            return btoa(String.fromCharCode.apply(null, new Uint8Array(hash)))
+                .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+
+        async function connectSpotify() {
             if(!spotifyClientId) {
                 showCustomMessage("Configure seu Client ID do Spotify na engrenagem primeiro!");
                 toggleSpotifyConfig();
                 return;
             }
-            // Limpa o final da URL para garantir que o redirecionamento bata certinho com a porta/caminho atual
-            const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
-            const scopes = encodeURIComponent('user-read-currently-playing');
-            const authUrl = `https://accounts.spotify.com/authorize?client_id=${spotifyClientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scopes}`;
+
+            // Gera as chaves PKCE
+            const verifier = generateRandomString(64);
+            localStorage.setItem('spotify_code_verifier', verifier);
+            const hashed = await sha256(verifier);
+            const codeChallenge = base64encode(hashed);
+
+            const redirectUri = window.location.origin + window.location.pathname;
+            const scopes = 'user-read-currently-playing';
+            
+            // Agora usamos response_type=code e mandamos o desafio criptográfico
+            const authUrl = `https://accounts.spotify.com/authorize?client_id=${spotifyClientId}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&code_challenge_method=S256&code_challenge=${codeChallenge}`;
             window.location.href = authUrl;
         }
 
-        function handleSpotifyCallback() {
-            const hash = window.location.hash;
-            if (hash && hash.includes('access_token')) {
-                const params = new URLSearchParams(hash.substring(1));
-                const token = params.get('access_token');
-                if (token) {
-                    spotifyAccessToken = token;
-                    localStorage.setItem('spotify_access_token', token);
-                    // Limpa a sujeira do Token da Barra de Endereços
-                    window.history.pushState("", document.title, window.location.pathname + window.location.search);
+        async function handleSpotifyCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const error = urlParams.get('error');
+
+            if (error) {
+                showCustomMessage("Erro na autenticação: " + error);
+                window.history.pushState("", document.title, window.location.pathname);
+                return;
+            }
+
+            if (code) {
+                // Remove o código da URL para ficar elegante e seguro
+                window.history.pushState("", document.title, window.location.pathname);
+                const verifier = localStorage.getItem('spotify_code_verifier');
+                const redirectUri = window.location.origin + window.location.pathname;
+
+                try {
+                    // Troca o código pela Pulseira de Acesso definitiva
+                    const response = await fetch('https://accounts.spotify.com/api/token', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams({
+                            client_id: spotifyClientId,
+                            grant_type: 'authorization_code',
+                            code: code,
+                            redirect_uri: redirectUri,
+                            code_verifier: verifier,
+                        }),
+                    });
+
+                    if (!response.ok) throw new Error("Falha na troca de código pelo token.");
+
+                    const data = await response.json();
+                    spotifyAccessToken = data.access_token;
+                    localStorage.setItem('spotify_access_token', spotifyAccessToken);
+                    
                     showCustomMessage("Seu Spotify foi conectado! 🚀");
                     startSpotifyPolling();
+                } catch (err) {
+                    console.error("Erro no PKCE do Spotify:", err);
+                    showCustomMessage("Falha ao conectar no Spotify. Verifique os consoles.");
                 }
             } else if (spotifyAccessToken) {
                 startSpotifyPolling();
