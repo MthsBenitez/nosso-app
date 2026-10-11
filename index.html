@@ -493,18 +493,35 @@
 
                     <!-- Elemento 3D flutuante -->
                     <div class="relative z-20 flex flex-col items-center w-full px-6" style="transform: translateZ(60px);">
-                        <div id="spo-disk-luiz" class="w-36 h-36 md:w-44 md:h-44 rounded-full border-4 border-slate-900 shadow-[0_20px_50px_rgba(0,0,0,0.9)] overflow-hidden mb-6 flex items-center justify-center bg-slate-900 transition-all duration-1000">
+                        <!-- Capa do Álbum Estilo Player Moderno -->
+                        <div class="relative w-36 h-36 md:w-44 md:h-44 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.7)] overflow-hidden mb-4 border border-white/10 transition-all duration-500 bg-slate-900">
                             <img id="spo-art-luiz" src="" class="w-full h-full object-cover">
+                            <!-- Pop Badge (Substitui Visualizações) -->
+                            <div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded-full border border-white/10 flex items-center gap-1 shadow-md">
+                                <i class="fa-solid fa-fire text-orange-500"></i> <span id="spo-views-luiz">0%</span>
+                            </div>
                         </div>
 
-                        <p class="text-[9px] font-black text-[#1DB954] uppercase tracking-widest mb-2 bg-[#1DB954]/10 px-4 py-1 rounded-full border border-[#1DB954]/20 shadow-sm backdrop-blur-sm">Vibes do Luiz</p>
+                        <p class="text-[9px] font-black text-[#1DB954] uppercase tracking-widest mb-1.5 bg-[#1DB954]/10 px-4 py-1 rounded-full border border-[#1DB954]/20 shadow-sm backdrop-blur-sm">Vibes do Luiz</p>
                         <h4 class="font-black text-white text-xl md:text-2xl truncate w-full text-center drop-shadow-lg" id="spo-song-luiz">Silêncio...</h4>
-                        <p class="text-xs md:text-sm text-slate-300 truncate w-full text-center drop-shadow-sm mt-1" id="spo-artist-luiz">Nenhuma música</p>
+                        <p class="text-xs md:text-sm text-slate-300 truncate w-full text-center drop-shadow-sm mt-0.5" id="spo-artist-luiz">Nenhuma música</p>
 
-                        <div id="spo-eq-luiz" class="hidden items-end gap-1.5 h-4 mt-6">
-                            <div class="w-1.5 bg-[#1DB954] rounded-t-full animate-bounce h-full shadow-[0_0_15px_rgba(29,185,84,0.8)]" style="animation-delay: 0s;"></div>
-                            <div class="w-1.5 bg-[#1DB954] rounded-t-full animate-bounce h-3/4 shadow-[0_0_15px_rgba(29,185,84,0.8)]" style="animation-delay: 0.2s;"></div>
-                            <div class="w-1.5 bg-[#1DB954] rounded-t-full animate-bounce h-full shadow-[0_0_15px_rgba(29,185,84,0.8)]" style="animation-delay: 0.4s;"></div>
+                        <!-- Barra de Progresso -->
+                        <div class="w-full flex flex-col gap-1 mt-3">
+                            <div class="w-full h-1.5 bg-white/20 rounded-full overflow-hidden">
+                                <div id="spo-progress-luiz" class="h-full bg-[#1DB954] rounded-full transition-all duration-1000 ease-linear" style="width: 0%;"></div>
+                            </div>
+                            <div class="flex justify-between text-[9px] text-white/50 font-medium">
+                                <span id="spo-time-luiz">0:00</span>
+                                <span id="spo-duration-luiz">0:00</span>
+                            </div>
+                        </div>
+
+                        <!-- Controles de Reprodução (Visíveis apenas para o próprio dono do card) -->
+                        <div id="spo-controls-luiz" class="hidden items-center justify-center gap-5 mt-1">
+                            <button onclick="controlSpotify('previous')" class="text-white/60 hover:text-white transition-colors active:scale-95"><i class="fa-solid fa-backward-step text-xl"></i></button>
+                            <button onclick="controlSpotify('playpause')" class="w-12 h-12 bg-[#1DB954] hover:bg-[#1ed760] text-black rounded-full flex items-center justify-center transition-transform hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(29,185,84,0.4)]"><i id="spo-playpause-icon-luiz" class="fa-solid fa-play text-xl ml-1"></i></button>
+                            <button onclick="controlSpotify('next')" class="text-white/60 hover:text-white transition-colors active:scale-95"><i class="fa-solid fa-forward-step text-xl"></i></button>
                         </div>
                     </div>
                 </div>
@@ -517,18 +534,35 @@
 
                     <!-- Elemento 3D flutuante -->
                     <div class="relative z-20 flex flex-col items-center w-full px-6" style="transform: translateZ(60px);">
-                        <div id="spo-disk-matheus" class="w-36 h-36 md:w-44 md:h-44 rounded-full border-4 border-slate-900 shadow-[0_20px_50px_rgba(0,0,0,0.9)] overflow-hidden mb-6 flex items-center justify-center bg-slate-900 transition-all duration-1000">
+                        <!-- Capa do Álbum Estilo Player Moderno -->
+                        <div class="relative w-36 h-36 md:w-44 md:h-44 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.7)] overflow-hidden mb-4 border border-white/10 transition-all duration-500 bg-slate-900">
                             <img id="spo-art-matheus" src="" class="w-full h-full object-cover">
+                            <!-- Pop Badge (Substitui Visualizações) -->
+                            <div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded-full border border-white/10 flex items-center gap-1 shadow-md">
+                                <i class="fa-solid fa-fire text-orange-500"></i> <span id="spo-views-matheus">0%</span>
+                            </div>
                         </div>
 
-                        <p class="text-[9px] font-black text-[#1DB954] uppercase tracking-widest mb-2 bg-[#1DB954]/10 px-4 py-1 rounded-full border border-[#1DB954]/20 shadow-sm backdrop-blur-sm">Vibes do Matheus</p>
+                        <p class="text-[9px] font-black text-[#1DB954] uppercase tracking-widest mb-1.5 bg-[#1DB954]/10 px-4 py-1 rounded-full border border-[#1DB954]/20 shadow-sm backdrop-blur-sm">Vibes do Matheus</p>
                         <h4 class="font-black text-white text-xl md:text-2xl truncate w-full text-center drop-shadow-lg" id="spo-song-matheus">Silêncio...</h4>
-                        <p class="text-xs md:text-sm text-slate-300 truncate w-full text-center drop-shadow-sm mt-1" id="spo-artist-matheus">Nenhuma música</p>
+                        <p class="text-xs md:text-sm text-slate-300 truncate w-full text-center drop-shadow-sm mt-0.5" id="spo-artist-matheus">Nenhuma música</p>
 
-                        <div id="spo-eq-matheus" class="hidden items-end gap-1.5 h-4 mt-6">
-                            <div class="w-1.5 bg-[#1DB954] rounded-t-full animate-bounce h-full shadow-[0_0_15px_rgba(29,185,84,0.8)]" style="animation-delay: 0s;"></div>
-                            <div class="w-1.5 bg-[#1DB954] rounded-t-full animate-bounce h-3/4 shadow-[0_0_15px_rgba(29,185,84,0.8)]" style="animation-delay: 0.2s;"></div>
-                            <div class="w-1.5 bg-[#1DB954] rounded-t-full animate-bounce h-full shadow-[0_0_15px_rgba(29,185,84,0.8)]" style="animation-delay: 0.4s;"></div>
+                        <!-- Barra de Progresso -->
+                        <div class="w-full flex flex-col gap-1 mt-3">
+                            <div class="w-full h-1.5 bg-white/20 rounded-full overflow-hidden">
+                                <div id="spo-progress-matheus" class="h-full bg-[#1DB954] rounded-full transition-all duration-1000 ease-linear" style="width: 0%;"></div>
+                            </div>
+                            <div class="flex justify-between text-[9px] text-white/50 font-medium">
+                                <span id="spo-time-matheus">0:00</span>
+                                <span id="spo-duration-matheus">0:00</span>
+                            </div>
+                        </div>
+
+                        <!-- Controles de Reprodução (Visíveis apenas para o próprio dono do card) -->
+                        <div id="spo-controls-matheus" class="hidden items-center justify-center gap-5 mt-1">
+                            <button onclick="controlSpotify('previous')" class="text-white/60 hover:text-white transition-colors active:scale-95"><i class="fa-solid fa-backward-step text-xl"></i></button>
+                            <button onclick="controlSpotify('playpause')" class="w-12 h-12 bg-[#1DB954] hover:bg-[#1ed760] text-black rounded-full flex items-center justify-center transition-transform hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(29,185,84,0.4)]"><i id="spo-playpause-icon-matheus" class="fa-solid fa-play text-xl ml-1"></i></button>
+                            <button onclick="controlSpotify('next')" class="text-white/60 hover:text-white transition-colors active:scale-95"><i class="fa-solid fa-forward-step text-xl"></i></button>
                         </div>
                     </div>
                 </div>
@@ -3947,8 +3981,8 @@
             const codeChallenge = base64encode(hashed);
 
             const redirectUri = window.location.origin + window.location.pathname;
-            // SCOPES ATUALIZADOS: LER MUSICA ATUAL + HISTÓRICO + TOPS
-            const scopes = 'user-read-currently-playing user-read-recently-played user-top-read';
+            // SCOPES ATUALIZADOS: ADICIONADA PERMISSÃO DE CONTROLE (MODIFY PLAYBACK STATE)
+            const scopes = 'user-read-currently-playing user-read-recently-played user-top-read user-modify-playback-state';
             
             const authUrl = `https://accounts.spotify.com/authorize?client_id=${spotifyClientId}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&code_challenge_method=S256&code_challenge=${codeChallenge}`;
             window.location.href = authUrl;
@@ -4026,6 +4060,37 @@
             }, 10000);
         }
 
+        function formatMsToTime(ms) {
+            if(!ms) return "0:00";
+            const totalSeconds = Math.floor(ms / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        async function controlSpotify(action) {
+            if(!spotifyAccessToken) {
+                showCustomMessage("Conecte seu Spotify primeiro!");
+                return;
+            }
+            try {
+                let url = '';
+                let method = 'POST';
+                if(action === 'next') url = 'https://api.spotify.com/v1/me/player/next';
+                else if(action === 'previous') url = 'https://api.spotify.com/v1/me/player/previous';
+                else if(action === 'playpause') {
+                    const currentState = spotifyData[currentUser.toLowerCase()]?.isPlaying;
+                    url = currentState ? 'https://api.spotify.com/v1/me/player/pause' : 'https://api.spotify.com/v1/me/player/play';
+                    method = 'PUT';
+                }
+
+                const res = await fetch(url, { method: method, headers: { 'Authorization': 'Bearer ' + spotifyAccessToken } });
+                if(res.status === 403) showCustomMessage("O Spotify exige conta Premium para controlar a música por aqui. 😢");
+                else if (res.status === 404) showCustomMessage("Abra o Spotify em algum aparelho primeiro!");
+                else setTimeout(fetchCurrentSong, 500); 
+            } catch(e) { console.error(e); }
+        }
+
         async function fetchCurrentSong() {
             try {
                 const res = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
@@ -4033,7 +4098,7 @@
                 });
 
                 if (res.status === 204) {
-                    updateSpotifyDatabase(null, null, null); 
+                    updateSpotifyDatabase(null, null, null, false, 0, 0, 0); 
                     return;
                 }
                 if (res.status === 401) { 
@@ -4054,9 +4119,13 @@
                     const artist = data.item.artists.map(a => a.name).join(', ');
                     const albumArt = data.item.album.images.length > 0 ? data.item.album.images[0].url : null;
                     const isPlaying = data.is_playing;
+                    const progress = data.progress_ms || 0;
+                    const duration = data.item.duration_ms || 0;
+                    const popularity = data.item.popularity || 0;
 
-                    if (isPlaying) updateSpotifyDatabase(song, artist, albumArt);
-                    else updateSpotifyDatabase(null, null, null);
+                    updateSpotifyDatabase(song, artist, albumArt, isPlaying, progress, duration, popularity);
+                } else {
+                    updateSpotifyDatabase(null, null, null, false, 0, 0, 0);
                 }
             } catch(e) {
                 console.log("Erro na API do Spotify:", e);
@@ -4066,19 +4135,15 @@
         async function fetchSpotifyStats() {
             if(!spotifyAccessToken || !currentUser) return;
             try {
-                // 1. Histórico Recente
                 const resHist = await fetch('https://api.spotify.com/v1/me/player/recently-played?limit=5', { headers: { 'Authorization': 'Bearer ' + spotifyAccessToken }});
                 const dataHist = resHist.ok ? await resHist.json() : {items:[]};
 
-                // 2. Top Músicas (Curto Prazo - Últimas 4 semanas)
                 const resTracks = await fetch('https://api.spotify.com/v1/me/top/tracks?limit=5&time_range=short_term', { headers: { 'Authorization': 'Bearer ' + spotifyAccessToken }});
                 const dataTracks = resTracks.ok ? await resTracks.json() : {items:[]};
 
-                // 3. Top Artistas (Curto Prazo)
                 const resArtists = await fetch('https://api.spotify.com/v1/me/top/artists?limit=5&time_range=short_term', { headers: { 'Authorization': 'Bearer ' + spotifyAccessToken }});
                 const dataArtists = resArtists.ok ? await resArtists.json() : {items:[]};
 
-                // Formatar e Salvar no Firebase
                 db.ref('spotify_stats/' + currentUser.toLowerCase()).set({
                     history: dataHist.items ? dataHist.items.map(i => ({ name: i.track.name, artist: i.track.artists[0].name, img: i.track.album.images[0]?.url })) : [],
                     topTracks: dataTracks.items ? dataTracks.items.map(t => ({ name: t.name, artist: t.artists[0].name, img: t.album.images[0]?.url })) : [],
@@ -4088,14 +4153,17 @@
             } catch(e) { console.log("Erro Stats:", e); }
         }
 
-        function updateSpotifyDatabase(song, artist, albumArt) {
+        function updateSpotifyDatabase(song, artist, albumArt, isPlaying = false, progress = 0, duration = 0, popularity = 0) {
             const currentData = spotifyData[currentUser.toLowerCase()];
-            if (currentData && currentData.song === song && currentData.artist === artist) return; 
-
+            // Previne writes desnecessários caso a música exata com mesmo status já esteja lá, mas atualiza o progresso a cada loop.
             db.ref('spotify/' + currentUser.toLowerCase()).set({
                 song: song,
                 artist: artist,
                 albumArt: albumArt,
+                isPlaying: isPlaying,
+                progress: progress,
+                duration: duration,
+                popularity: popularity,
                 timestamp: Date.now()
             });
         }
@@ -4108,41 +4176,58 @@
                 const artEl = document.getElementById('spo-artist-' + user);
                 const bgBox = document.getElementById('spo-bg-' + user);
                 const coverImg = document.getElementById('spo-art-' + user);
-                const diskBox = document.getElementById('spo-disk-' + user);
-                const eqBox = document.getElementById('spo-eq-' + user);
+                
+                const progressFill = document.getElementById('spo-progress-' + user);
+                const timeStr = document.getElementById('spo-time-' + user);
+                const durationStr = document.getElementById('spo-duration-' + user);
+                const viewsBadge = document.getElementById('spo-views-' + user);
+                const playIcon = document.getElementById('spo-playpause-icon-' + user);
+                const controlsArea = document.getElementById('spo-controls-' + user);
 
                 const data = spotifyData[user];
 
+                // UX: Só exibe controles se for o dono daquele card
+                if(controlsArea) {
+                    if(currentUser && user === currentUser.toLowerCase()) {
+                        controlsArea.classList.remove('hidden');
+                        controlsArea.classList.add('flex');
+                    } else {
+                        controlsArea.classList.add('hidden');
+                        controlsArea.classList.remove('flex');
+                    }
+                }
+
                 if(data && data.song) {
-                    // Tocando Música!
                     songEl.innerText = data.song;
                     artEl.innerText = data.artist || "Desconhecido";
-                    
                     bgBox.style.backgroundImage = `url(${data.albumArt || ''})`;
                     coverImg.src = data.albumArt || 'https://placehold.co/400x400/1DB954/191414?text=Spotify';
                     
-                    // Liga a animação de giro do CD e remove filtros cinza
-                    diskBox.classList.add('animate-[spin_8s_linear_infinite]');
-                    diskBox.classList.remove('grayscale', 'opacity-30', 'scale-90');
+                    if(progressFill && timeStr && durationStr) {
+                        const pct = data.duration > 0 ? (data.progress / data.duration) * 100 : 0;
+                        progressFill.style.width = `${pct}%`;
+                        timeStr.innerText = formatMsToTime(data.progress);
+                        durationStr.innerText = formatMsToTime(data.duration);
+                    }
+                    if(viewsBadge) viewsBadge.innerText = `${data.popularity || 0}%`;
                     
-                    if(eqBox) { eqBox.classList.remove('hidden'); eqBox.classList.add('flex'); }
+                    if(playIcon) {
+                        playIcon.className = data.isPlaying ? "fa-solid fa-pause text-xl" : "fa-solid fa-play text-xl ml-1";
+                    }
                 } else {
-                    // Silêncio / Offline
                     songEl.innerText = "Silêncio absoluto...";
                     artEl.innerText = "Nenhuma música tocando";
-                    
                     bgBox.style.backgroundImage = 'none';
-                    
                     const fallbackIcon = user === 'luiz' 
                         ? 'https://placehold.co/400x400/0f172a/3b82f6?text=Luiz+Offline' 
                         : 'https://placehold.co/400x400/0f172a/10b981?text=Matheus+Offline';
                     coverImg.src = fallbackIcon;
-
-                    // Desliga o giro do CD e aplica um ar de repouso
-                    diskBox.classList.remove('animate-[spin_8s_linear_infinite]');
-                    diskBox.classList.add('grayscale', 'opacity-30', 'scale-90');
-
-                    if(eqBox) { eqBox.classList.add('hidden'); eqBox.classList.remove('flex'); }
+                    
+                    if(progressFill) progressFill.style.width = `0%`;
+                    if(timeStr) timeStr.innerText = "0:00";
+                    if(durationStr) durationStr.innerText = "0:00";
+                    if(viewsBadge) viewsBadge.innerText = "0%";
+                    if(playIcon) playIcon.className = "fa-solid fa-play text-xl ml-1";
                 }
             });
         }
