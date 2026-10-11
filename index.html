@@ -159,7 +159,10 @@
                             <i class="fa-solid fa-map-location-dot text-xl"></i>
                         </div>
                         <div class="flex flex-col min-w-0 pr-2">
-                            <h1 class="text-sm font-black text-slate-800 dark:text-white leading-none tracking-tight">Nosso Mapa</h1>
+                            <div class="flex items-center gap-2">
+                                <h1 class="text-sm font-black text-slate-800 dark:text-white leading-none tracking-tight">Nosso Mapa</h1>
+                                <span class="bg-brand/10 text-brand text-[10px] font-bold px-2 py-0.5 rounded-full border border-brand/20 shadow-sm flex items-center gap-1"><i class="fa-solid fa-heart"></i> <span id="mapHeartCounter">0</span></span>
+                            </div>
                             <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium truncate mt-1"><span class="logged-user-name font-bold text-brand"></span>, para onde vamos?</p>
                         </div>
                     </div>
@@ -190,11 +193,25 @@
 
         <!-- ABA 2: FILMES 🍿 -->
         <div id="tab-movies" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
-            <div class="flex justify-between items-center mb-6 mt-16">
+            <div class="flex justify-between items-center mb-4 mt-16">
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Filmes <i class="fa-solid fa-popcorn text-brand"></i></h1>
                 <div class="flex gap-2">
                     <button onclick="pickRandomItem('movie')" class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 w-10 h-10 rounded-full shadow-sm flex items-center justify-center hover:bg-indigo-100 hover:scale-105 transition-all"><i class="fa-solid fa-dice text-lg"></i></button>
                     <button onclick="openExploreModal('movie')" class="bg-brand text-white w-10 h-10 rounded-full shadow-md flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all"><i class="fa-solid fa-plus text-lg"></i></button>
+                </div>
+            </div>
+
+            <!-- Mini Dashboard Filmes -->
+            <div class="flex gap-3 mb-4">
+                <div class="flex-1 bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Já Vimos</span>
+                    <div class="text-2xl font-black text-slate-700 dark:text-white" id="dash-movies-count">0</div>
+                </div>
+                <div class="flex-1 bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nossa Média</span>
+                    <div class="flex items-center gap-1 text-xl font-black text-brand">
+                        <span id="dash-movies-avg">0.0</span> <i class="fa-solid fa-star text-sm text-yellow-400"></i>
+                    </div>
                 </div>
             </div>
 
@@ -228,11 +245,25 @@
 
         <!-- ABA 2.5: SÉRIES 📺 -->
         <div id="tab-shows" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
-            <div class="flex justify-between items-center mb-6 mt-16">
+            <div class="flex justify-between items-center mb-4 mt-16">
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Séries <i class="fa-solid fa-tv text-brand"></i></h1>
                 <div class="flex gap-2">
                     <button onclick="pickRandomItem('tv')" class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 w-10 h-10 rounded-full shadow-sm flex items-center justify-center hover:bg-indigo-100 hover:scale-105 transition-all"><i class="fa-solid fa-dice text-lg"></i></button>
                     <button onclick="openExploreModal('tv')" class="bg-brand text-white w-10 h-10 rounded-full shadow-md flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all"><i class="fa-solid fa-plus text-lg"></i></button>
+                </div>
+            </div>
+
+            <!-- Mini Dashboard Séries -->
+            <div class="flex gap-3 mb-4">
+                <div class="flex-1 bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Já Vimos</span>
+                    <div class="text-2xl font-black text-slate-700 dark:text-white" id="dash-shows-count">0</div>
+                </div>
+                <div class="flex-1 bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nossa Média</span>
+                    <div class="flex items-center gap-1 text-xl font-black text-brand">
+                        <span id="dash-shows-avg">0.0</span> <i class="fa-solid fa-star text-sm text-yellow-400"></i>
+                    </div>
                 </div>
             </div>
 
@@ -1293,6 +1324,11 @@
             initMap();
             setupFirebaseSync();
             setupPresence();
+            
+            // Força a renderização inicial para as abas não ficarem em branco
+            renderShoppingList();
+            renderSpotifyUI();
+
             setTimeout(() => {
                 const toast = document.getElementById('helpToast');
                 if(toast) toast.style.opacity = '0';
@@ -1472,6 +1508,11 @@
                 const newMemories = data ? Object.values(data) : [];
                 if (!initialLoad.memories && newMemories.length > memories.length) sendPushNotification("Novo Momento 📸", "Uma nova foto foi adicionada no álbum!");
                 memories = newMemories;
+                
+                // Atualiza o contador de corações no mapa
+                const heartCounter = document.getElementById('mapHeartCounter');
+                if(heartCounter) heartCounter.innerText = memories.filter(m => !m.isHidden).length;
+
                 renderAllMarkers();
                 updateAlbumYearFilter();
                 if (!document.getElementById('mainMenu').classList.contains('-translate-x-full')) renderMemoryList();
@@ -1929,7 +1970,7 @@
             resContainer.classList.remove('hidden'); resContainer.classList.add('flex');
             
             try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5`);
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&countrycodes=br&limit=5`);
                 const data = await res.json();
                 resContainer.innerHTML = '';
                 
@@ -2565,6 +2606,29 @@
             });
 
             updateFiltersUI(type);
+
+            // Calcula estatísticas para o Mini Dashboard
+            const watchedItems = arr.filter(m => m.status === 'watched');
+            let totalScore = 0;
+            let ratedCount = 0;
+            watchedItems.forEach(item => {
+                let avg = 0;
+                if(item.ratings) {
+                    const vals = Object.values(item.ratings);
+                    if(vals.length > 0) avg = vals.reduce((a,b) => a + Number(b), 0) / vals.length;
+                } else if(item.rating) {
+                    avg = Number(item.rating);
+                }
+                if(avg > 0) { totalScore += avg; ratedCount++; }
+            });
+            
+            const dashCountId = type === 'movie' ? 'dash-movies-count' : 'dash-shows-count';
+            const dashAvgId = type === 'movie' ? 'dash-movies-avg' : 'dash-shows-avg';
+            const countEl = document.getElementById(dashCountId);
+            const avgEl = document.getElementById(dashAvgId);
+            
+            if(countEl) countEl.innerText = watchedItems.length;
+            if(avgEl) avgEl.innerText = ratedCount > 0 ? (totalScore / ratedCount).toFixed(1) : '0.0';
 
             if(filtered.length === 0) {
                 empty.classList.remove('hidden'); empty.classList.add('flex');
