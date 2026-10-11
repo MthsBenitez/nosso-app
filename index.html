@@ -456,10 +456,20 @@
         <div id="tab-spotify" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
             <div class="flex justify-between items-center mb-6 mt-16">
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Música <i class="fa-brands fa-spotify text-green-500"></i></h1>
+                <button onclick="toggleSpotifyConfig()" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200 transition-colors shadow-sm"><i class="fa-solid fa-gear"></i></button>
             </div>
 
-            <button onclick="mockSpotifyConnection()" class="w-full bg-[#1DB954] hover:bg-[#1ed760] text-white font-bold py-4 rounded-2xl shadow-lg transition-transform active:scale-[0.98] flex items-center justify-center gap-2 mb-8 border border-green-400">
-                <i class="fa-solid fa-link"></i> Conectar Spotify (Simulador)
+            <div id="spotifyConfigArea" class="hidden mb-6 p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-3">
+                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"><i class="fa-solid fa-key text-green-500 mr-1"></i> Spotify Client ID</p>
+                <p class="text-[10px] text-slate-400 leading-tight">Crie um app no <a href="https://developer.spotify.com/dashboard" target="_blank" class="text-brand underline">Spotify Developer</a> e cole o Client ID aqui. O Redirect URI lá deve ser exatamente a URL deste site.</p>
+                <div class="flex gap-2 mt-1">
+                    <input type="text" id="spotifyClientIdInput" placeholder="Cole seu Client ID..." class="flex-1 px-3 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 dark:text-white focus:outline-none focus:border-green-500 text-xs">
+                    <button onclick="saveSpotifyClientId()" class="bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white px-4 py-3 rounded-xl font-bold text-xs transition-colors shadow-sm">Salvar</button>
+                </div>
+            </div>
+
+            <button onclick="connectSpotify()" id="btn-connect-spotify" class="w-full bg-[#1DB954] hover:bg-[#1ed760] text-white font-bold py-4 rounded-2xl shadow-lg transition-transform active:scale-[0.98] flex items-center justify-center gap-2 mb-8 border border-green-400">
+                <i class="fa-brands fa-spotify text-xl"></i> Conectar meu Spotify
             </button>
 
             <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Ouvindo Agora 🎧</h3>
@@ -1329,6 +1339,9 @@
             // Força a renderização inicial para as abas não ficarem em branco
             renderShoppingList();
             renderSpotifyUI();
+            
+            // Captura o retorno do login do Spotify
+            handleSpotifyCallback();
 
             setTimeout(() => {
                 const toast = document.getElementById('helpToast');
@@ -3829,23 +3842,126 @@
         }
 
         // ==========================================
-        // 9. LÓGICA DO SPOTIFY MOCK (UI)
+        // 9. LÓGICA DE API REAL DO SPOTIFY 🎵
         // ==========================================
-        function mockSpotifyConnection() {
-            if(!currentUser) return;
-            const song = prompt("Qual música você está ouvindo agora?");
-            if(!song) return;
-            const artist = prompt("De qual artista?");
-            if(!artist) return;
+        let spotifyClientId = localStorage.getItem('spotify_client_id') || "";
+        let spotifyAccessToken = localStorage.getItem('spotify_access_token') || "";
+        let spotifyPollingInterval = null;
 
-            // Simula o salvamento no banco de dados para os dois verem!
+        function toggleSpotifyConfig() {
+            const area = document.getElementById('spotifyConfigArea');
+            if(area.classList.contains('hidden')) {
+                area.classList.remove('hidden');
+                document.getElementById('spotifyClientIdInput').value = spotifyClientId;
+            } else {
+                area.classList.add('hidden');
+            }
+        }
+
+        function saveSpotifyClientId() {
+            const val = document.getElementById('spotifyClientIdInput').value.trim();
+            if(val) {
+                localStorage.setItem('spotify_client_id', val);
+                spotifyClientId = val;
+                showCustomMessage("Client ID do Spotify salvo! 🎧");
+                toggleSpotifyConfig();
+            }
+        }
+
+        function connectSpotify() {
+            if(!spotifyClientId) {
+                showCustomMessage("Configure seu Client ID do Spotify na engrenagem primeiro!");
+                toggleSpotifyConfig();
+                return;
+            }
+            // Limpa o final da URL para garantir que o redirecionamento bata certinho com a porta/caminho atual
+            const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
+            const scopes = encodeURIComponent('user-read-currently-playing');
+            const authUrl = `https://accounts.spotify.com/authorize?client_id=${spotifyClientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scopes}`;
+            window.location.href = authUrl;
+        }
+
+        function handleSpotifyCallback() {
+            const hash = window.location.hash;
+            if (hash && hash.includes('access_token')) {
+                const params = new URLSearchParams(hash.substring(1));
+                const token = params.get('access_token');
+                if (token) {
+                    spotifyAccessToken = token;
+                    localStorage.setItem('spotify_access_token', token);
+                    // Limpa a sujeira do Token da Barra de Endereços
+                    window.history.pushState("", document.title, window.location.pathname + window.location.search);
+                    showCustomMessage("Seu Spotify foi conectado! 🚀");
+                    startSpotifyPolling();
+                }
+            } else if (spotifyAccessToken) {
+                startSpotifyPolling();
+            }
+        }
+
+        function startSpotifyPolling() {
+            if(!currentUser || !spotifyAccessToken) return;
+            
+            const btn = document.getElementById('btn-connect-spotify');
+            if(btn) {
+                btn.innerHTML = `<i class="fa-solid fa-check text-xl"></i> Meu Spotify Ativo`;
+                btn.className = "w-full bg-slate-800 text-white font-bold py-4 rounded-2xl shadow-md flex items-center justify-center gap-2 mb-8 border border-slate-700 pointer-events-none";
+            }
+
+            fetchCurrentSong(); // Busca logo de cara
+            if(spotifyPollingInterval) clearInterval(spotifyPollingInterval);
+            // Bate na porta do Spotify a cada 10 segundos
+            spotifyPollingInterval = setInterval(fetchCurrentSong, 10000);
+        }
+
+        async function fetchCurrentSong() {
+            try {
+                const res = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
+                    headers: { 'Authorization': 'Bearer ' + spotifyAccessToken }
+                });
+
+                if (res.status === 204) {
+                    updateSpotifyDatabase(null, null, null); // 204 = Nada tocando no momento
+                    return;
+                }
+                if (res.status === 401) { // 401 = Token Expirou (Acesso Revogado)
+                    clearInterval(spotifyPollingInterval);
+                    spotifyAccessToken = "";
+                    localStorage.removeItem('spotify_access_token');
+                    const btn = document.getElementById('btn-connect-spotify');
+                    if(btn) {
+                        btn.innerHTML = `<i class="fa-brands fa-spotify text-xl"></i> Reconectar Spotify`;
+                        btn.className = "w-full bg-[#1DB954] hover:bg-[#1ed760] text-white font-bold py-4 rounded-2xl shadow-lg transition-transform active:scale-[0.98] flex items-center justify-center gap-2 mb-8 border border-green-400";
+                    }
+                    return;
+                }
+
+                const data = await res.json();
+                if (data && data.item) {
+                    const song = data.item.name;
+                    const artist = data.item.artists.map(a => a.name).join(', ');
+                    const albumArt = data.item.album.images.length > 0 ? data.item.album.images[0].url : null;
+                    const isPlaying = data.is_playing;
+
+                    if (isPlaying) updateSpotifyDatabase(song, artist, albumArt);
+                    else updateSpotifyDatabase(null, null, null); // Pausado
+                }
+            } catch(e) {
+                console.log("Erro na API do Spotify:", e);
+            }
+        }
+
+        function updateSpotifyDatabase(song, artist, albumArt) {
+            // Previne gastar Firebase se a música não mudou nos últimos 10 segundos
+            const currentData = spotifyData[currentUser.toLowerCase()];
+            if (currentData && currentData.song === song && currentData.artist === artist) return; 
+
             db.ref('spotify/' + currentUser.toLowerCase()).set({
                 song: song,
                 artist: artist,
+                albumArt: albumArt,
                 timestamp: Date.now()
             });
-
-            showCustomMessage("Status musical atualizado! 🎵");
         }
 
         function renderSpotifyUI() {
@@ -3860,12 +3976,22 @@
                 if(data && data.song) {
                     songEl.innerText = data.song;
                     artEl.innerText = data.artist || "Artista Desconhecido";
-                    songEl.classList.add('text-green-500'); // Destaca em verde
-                    imgBox.innerHTML = `<i class="fa-solid fa-music fa-bounce"></i>`;
+                    songEl.classList.add('text-green-500'); 
+
+                    if(data.albumArt) {
+                        // Coloca a capa do álbum
+                        imgBox.innerHTML = `<img src="${data.albumArt}" class="w-full h-full object-cover rounded-xl shadow-sm">`;
+                        imgBox.className = "w-16 h-16 rounded-xl shrink-0 z-10 shadow-inner";
+                    } else {
+                        imgBox.innerHTML = `<i class="fa-solid fa-music fa-bounce"></i>`;
+                    }
                 } else {
                     songEl.innerText = "Silêncio...";
                     artEl.innerText = "Nenhuma música tocando";
                     songEl.classList.remove('text-green-500');
+                    
+                    const colorClass = user === 'luiz' ? 'bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 text-blue-500' : 'bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-800 text-emerald-500';
+                    imgBox.className = `w-16 h-16 rounded-xl ${colorClass} flex items-center justify-center text-2xl shrink-0 z-10 shadow-inner`;
                     imgBox.innerHTML = user === 'luiz' ? '<i class="fa-solid fa-user-astronaut"></i>' : '<i class="fa-solid fa-user-ninja"></i>';
                 }
             });
