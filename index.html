@@ -474,16 +474,53 @@
 
             <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Ouvindo Agora 🎧</h3>
             
-            <!-- Card Luiz -->
-            <div class="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 mb-4 flex items-center gap-4 relative overflow-hidden">
-                <div class="absolute -right-4 -bottom-4 text-slate-100 dark:text-slate-700/30 text-6xl pointer-events-none"><i class="fa-brands fa-spotify"></i></div>
-                <div class="w-16 h-16 rounded-xl bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 flex items-center justify-center text-blue-500 text-2xl shrink-0 z-10 shadow-inner" id="spo-img-luiz">
-                    <i class="fa-solid fa-user-astronaut"></i>
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Card Luiz -->
+                <div id="spo-card-luiz" class="relative bg-slate-100 dark:bg-slate-800 rounded-3xl shadow-md border border-slate-200 dark:border-slate-700 overflow-hidden aspect-square flex flex-col justify-end group transition-all duration-500 hover:-translate-y-1">
+                    <!-- Background Cover -->
+                    <div id="spo-bg-luiz" class="absolute inset-0 z-0 bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center transition-all duration-700">
+                        <i id="spo-icon-luiz" class="fa-solid fa-user-astronaut text-5xl text-blue-500/50 transition-all duration-500"></i>
+                    </div>
+                    <!-- Overlay Gradient Glassmorphism -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent z-10 opacity-90"></div>
+                    
+                    <!-- Equalizer Animado (Escondido por padrão) -->
+                    <div id="spo-eq-luiz" class="absolute top-4 right-4 z-20 hidden items-end gap-1 h-3">
+                        <div class="w-1 bg-green-500 rounded-t-sm animate-bounce h-full" style="animation-delay: 0s;"></div>
+                        <div class="w-1 bg-green-500 rounded-t-sm animate-bounce h-3/4" style="animation-delay: 0.2s;"></div>
+                        <div class="w-1 bg-green-500 rounded-t-sm animate-bounce h-full" style="animation-delay: 0.4s;"></div>
+                    </div>
+
+                    <!-- Conteúdo Escrito -->
+                    <div class="relative z-20 p-3 md:p-4 w-full backdrop-blur-sm bg-white/5 border-t border-white/10">
+                        <p class="text-[9px] font-bold text-slate-300 uppercase tracking-widest mb-1 flex items-center gap-1"><i class="fa-brands fa-spotify text-green-500"></i> Luiz</p>
+                        <h4 class="font-bold text-white text-sm truncate leading-tight drop-shadow-md" id="spo-song-luiz">Silêncio...</h4>
+                        <p class="text-[10px] text-slate-300 truncate mt-0.5 drop-shadow-sm" id="spo-artist-luiz">Nenhuma música</p>
+                    </div>
                 </div>
-                <div class="flex-1 min-w-0 z-10">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Luiz está ouvindo</p>
-                    <h4 class="font-bold text-slate-800 dark:text-white text-base truncate" id="spo-song-luiz">Silêncio...</h4>
-                    <p class="text-xs text-slate-500 truncate" id="spo-artist-luiz">Nenhuma música tocando</p>
+
+                <!-- Card Matheus -->
+                <div id="spo-card-matheus" class="relative bg-slate-100 dark:bg-slate-800 rounded-3xl shadow-md border border-slate-200 dark:border-slate-700 overflow-hidden aspect-square flex flex-col justify-end group transition-all duration-500 hover:-translate-y-1">
+                    <!-- Background Cover -->
+                    <div id="spo-bg-matheus" class="absolute inset-0 z-0 bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center transition-all duration-700">
+                        <i id="spo-icon-matheus" class="fa-solid fa-user-ninja text-5xl text-emerald-500/50 transition-all duration-500"></i>
+                    </div>
+                    <!-- Overlay Gradient Glassmorphism -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent z-10 opacity-90"></div>
+                    
+                    <!-- Equalizer Animado (Escondido por padrão) -->
+                    <div id="spo-eq-matheus" class="absolute top-4 right-4 z-20 hidden items-end gap-1 h-3">
+                        <div class="w-1 bg-green-500 rounded-t-sm animate-bounce h-full" style="animation-delay: 0s;"></div>
+                        <div class="w-1 bg-green-500 rounded-t-sm animate-bounce h-3/4" style="animation-delay: 0.2s;"></div>
+                        <div class="w-1 bg-green-500 rounded-t-sm animate-bounce h-full" style="animation-delay: 0.4s;"></div>
+                    </div>
+
+                    <!-- Conteúdo Escrito -->
+                    <div class="relative z-20 p-3 md:p-4 w-full backdrop-blur-sm bg-white/5 border-t border-white/10">
+                        <p class="text-[9px] font-bold text-slate-300 uppercase tracking-widest mb-1 flex items-center gap-1"><i class="fa-brands fa-spotify text-green-500"></i> Matheus</p>
+                        <h4 class="font-bold text-white text-sm truncate leading-tight drop-shadow-md" id="spo-song-matheus">Silêncio...</h4>
+                        <p class="text-[10px] text-slate-300 truncate mt-0.5 drop-shadow-sm" id="spo-artist-matheus">Nenhuma música</p>
+                    </div>
                 </div>
             </div>
 
@@ -4024,35 +4061,47 @@
             ['luiz', 'matheus'].forEach(user => {
                 const songEl = document.getElementById('spo-song-' + user);
                 const artEl = document.getElementById('spo-artist-' + user);
-                const imgBox = document.getElementById('spo-img-' + user);
+                const bgBox = document.getElementById('spo-bg-' + user);
+                const eqBox = document.getElementById('spo-eq-' + user);
+                const cardBox = document.getElementById('spo-card-' + user);
                 
-                if(!songEl || !artEl || !imgBox) return;
+                if(!songEl || !artEl || !bgBox) return;
 
                 const data = spotifyData[user];
                 if(data && data.song) {
                     songEl.innerText = data.song;
                     artEl.innerText = data.artist || "Artista Desconhecido";
-                    songEl.classList.add('text-green-500'); 
+                    songEl.classList.add('text-green-400');
+                    songEl.classList.remove('text-white');
+                    
+                    // Liga as animações e luzes de Play
+                    if(eqBox) { eqBox.classList.remove('hidden'); eqBox.classList.add('flex'); }
+                    if(cardBox) { cardBox.classList.add('shadow-[0_0_25px_rgba(34,197,94,0.25)]', 'border-green-500/30'); cardBox.classList.remove('border-slate-200', 'dark:border-slate-700'); }
 
                     if(data.albumArt) {
-                        // Coloca a capa do álbum
-                        imgBox.innerHTML = `<img src="${data.albumArt}" class="w-full h-full object-cover rounded-xl shadow-sm">`;
-                        imgBox.className = "w-16 h-16 rounded-xl shrink-0 z-10 shadow-inner";
+                        // Insere a capa com um zoom interno super orgânico e lento
+                        bgBox.innerHTML = `<img src="${data.albumArt}" class="w-full h-full object-cover transform transition-transform duration-[10000ms] hover:scale-110">`;
                     } else {
-                        imgBox.innerHTML = `<i class="fa-solid fa-music fa-bounce"></i>`;
+                        bgBox.innerHTML = `<i class="fa-solid fa-music fa-bounce text-5xl text-green-500"></i>`;
                     }
                 } else {
                     songEl.innerText = "Silêncio...";
-                    artEl.innerText = "Nenhuma música tocando";
-                    songEl.classList.remove('text-green-500');
+                    artEl.innerText = "Nenhuma música";
+                    songEl.classList.remove('text-green-400');
+                    songEl.classList.add('text-white');
                     
-                    const colorClass = user === 'luiz' ? 'bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 text-blue-500' : 'bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-800 text-emerald-500';
-                    imgBox.className = `w-16 h-16 rounded-xl ${colorClass} flex items-center justify-center text-2xl shrink-0 z-10 shadow-inner`;
-                    imgBox.innerHTML = user === 'luiz' ? '<i class="fa-solid fa-user-astronaut"></i>' : '<i class="fa-solid fa-user-ninja"></i>';
+                    // Desliga as luzes (Pausa/Stop)
+                    if(eqBox) { eqBox.classList.add('hidden'); eqBox.classList.remove('flex'); }
+                    if(cardBox) { cardBox.classList.remove('shadow-[0_0_25px_rgba(34,197,94,0.25)]', 'border-green-500/30'); cardBox.classList.add('border-slate-200', 'dark:border-slate-700'); }
+
+                    const defaultIcon = user === 'luiz' 
+                        ? '<i class="fa-solid fa-user-astronaut text-5xl text-blue-500/40"></i>' 
+                        : '<i class="fa-solid fa-user-ninja text-5xl text-emerald-500/40"></i>';
+                    
+                    bgBox.innerHTML = defaultIcon;
                 }
             });
         }
-        
     </script>
 
     <!-- Google Identity & API (Para o Google Agenda) -->
