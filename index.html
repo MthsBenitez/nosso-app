@@ -457,42 +457,65 @@
                     <p class="text-xs text-slate-500 truncate" id="spo-artist-matheus">Nenhuma música tocando</p>
                 </div>
             </div>
-
         </div>
 
-    </main>
+    </main> <!-- ESTA LINHA FOI A SALVADORA DA PÁTRIA (FECHANDO O MAIN) -->
 
-    <!-- Barra de Navegação Inferior -->
+    <!-- NOVO MENU DE NAVEGAÇÃO OTIMIZADO (5 BOTÕES) -->
     <nav class="fixed bottom-0 w-full h-16 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] flex justify-around items-center z-[500] px-1 pb-safe transition-colors">
         <button id="nav-btn-map" onclick="switchTab('map')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-brand transition-colors relative group">
-            <i class="fa-solid fa-map text-[15px] group-hover:scale-110 transition-transform"></i>
-            <span class="text-[7px] font-bold uppercase tracking-wide">Diário</span>
+            <i class="fa-solid fa-map text-lg group-hover:scale-110 transition-transform"></i>
+            <span class="text-[8px] font-bold uppercase tracking-wide">Diário</span>
         </button>
         <button id="nav-btn-movies" onclick="switchTab('movies')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
-            <i class="fa-solid fa-clapperboard text-[15px] group-hover:scale-110 transition-transform"></i>
-            <span class="text-[7px] font-bold uppercase tracking-wide">Filmes</span>
+            <i class="fa-solid fa-clapperboard text-lg group-hover:scale-110 transition-transform"></i>
+            <span class="text-[8px] font-bold uppercase tracking-wide">Filmes</span>
         </button>
         <button id="nav-btn-shows" onclick="switchTab('shows')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
-            <i class="fa-solid fa-tv text-[15px] group-hover:scale-110 transition-transform"></i>
-            <span class="text-[7px] font-bold uppercase tracking-wide">Séries</span>
+            <i class="fa-solid fa-tv text-lg group-hover:scale-110 transition-transform"></i>
+            <span class="text-[8px] font-bold uppercase tracking-wide">Séries</span>
         </button>
         <button id="nav-btn-finances" onclick="switchTab('finances')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
-            <i class="fa-solid fa-file-invoice-dollar text-[15px] group-hover:scale-110 transition-transform"></i>
-            <span class="text-[7px] font-bold uppercase tracking-wide">Contas</span>
+            <i class="fa-solid fa-file-invoice-dollar text-lg group-hover:scale-110 transition-transform"></i>
+            <span class="text-[8px] font-bold uppercase tracking-wide">Contas</span>
         </button>
-        <button id="nav-btn-calendar" onclick="switchTab('calendar')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
-            <i class="fa-solid fa-calendar-days text-[15px] group-hover:scale-110 transition-transform"></i>
-            <span class="text-[7px] font-bold uppercase tracking-wide">Agenda</span>
-        </button>
-        <button id="nav-btn-shopping" onclick="switchTab('shopping')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
-            <i class="fa-solid fa-cart-shopping text-[15px] group-hover:scale-110 transition-transform"></i>
-            <span class="text-[7px] font-bold uppercase tracking-wide">Compras</span>
-        </button>
-        <button id="nav-btn-spotify" onclick="switchTab('spotify')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-green-500 dark:text-slate-500 dark:hover:text-green-500 transition-colors relative group">
-            <i class="fa-brands fa-spotify text-[15px] group-hover:scale-110 transition-transform"></i>
-            <span class="text-[7px] font-bold uppercase tracking-wide">Música</span>
+        <button id="nav-btn-more" onclick="toggleMoreMenu()" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
+            <i class="fa-solid fa-bars text-lg group-hover:scale-110 transition-transform"></i>
+            <span class="text-[8px] font-bold uppercase tracking-wide">Mais</span>
         </button>
     </nav>
+
+    <!-- MENU GAVETA (BOTTOM SHEET) PARA AS OUTRAS ABAS -->
+    <div id="moreMenuModal" class="hidden fixed inset-0 z-[450] flex flex-col justify-end">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeMoreMenu()"></div>
+        <div class="relative bg-slate-50 dark:bg-slate-900 w-full rounded-t-3xl flex flex-col slide-up shadow-[0_-10px_40px_rgba(0,0,0,0.2)] border-t border-slate-200 dark:border-slate-800 p-6 pb-24">
+            
+            <div class="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-6"></div>
+            <h3 class="font-bold text-lg text-slate-800 dark:text-white mb-4">Descobrir Mais</h3>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="switchTab('calendar')" class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center gap-2 hover:border-brand transition-colors">
+                    <div class="w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-500 flex items-center justify-center text-xl"><i class="fa-solid fa-calendar-days"></i></div>
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Agenda</span>
+                </button>
+                
+                <button onclick="switchTab('time')" class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center gap-2 hover:border-brand transition-colors">
+                    <div class="w-12 h-12 rounded-full bg-purple-50 dark:bg-purple-900/30 text-purple-500 flex items-center justify-center text-xl"><i class="fa-solid fa-clock"></i></div>
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Nosso Tempo</span>
+                </button>
+
+                <button onclick="switchTab('shopping')" class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center gap-2 hover:border-brand transition-colors">
+                    <div class="w-12 h-12 rounded-full bg-orange-50 dark:bg-orange-900/30 text-orange-500 flex items-center justify-center text-xl"><i class="fa-solid fa-cart-shopping"></i></div>
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Lista de Compras</span>
+                </button>
+
+                <button onclick="switchTab('spotify')" class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center gap-2 hover:border-brand transition-colors">
+                    <div class="w-12 h-12 rounded-full bg-green-50 dark:bg-green-900/30 text-green-500 flex items-center justify-center text-xl"><i class="fa-brands fa-spotify"></i></div>
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Música (Spotify)</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <div id="modalOverlay" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[999]" onclick="closeAllPanels()"></div>
 
@@ -1276,12 +1299,27 @@
             }, 6000);
         }
 
+        // Controle da Gaveta (Bottom Sheet)
+        function toggleMoreMenu() {
+            const modal = document.getElementById('moreMenuModal');
+            if(modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+            } else {
+                closeMoreMenu();
+            }
+        }
+
+        function closeMoreMenu() {
+            document.getElementById('moreMenuModal').classList.add('hidden');
+        }
+
         function switchTab(tabId) {
             const tabs = ['map', 'movies', 'shows', 'finances', 'calendar', 'time', 'shopping', 'spotify'];
+            const mainTabs = ['map', 'movies', 'shows', 'finances'];
             
             tabs.forEach(t => {
                 const el = document.getElementById('tab-' + t);
-                const btn = document.getElementById('nav-btn-' + t);
+                const btn = document.getElementById('nav-btn-' + t); // Pode ser null para os que estão na gaveta
                 
                 if (el) {
                     if (t === tabId) {
@@ -1303,6 +1341,19 @@
                     }
                 }
             });
+
+            // Ajusta a cor do botão "Mais" dependendo de onde estamos
+            const moreBtn = document.getElementById('nav-btn-more');
+            if (mainTabs.includes(tabId)) {
+                moreBtn.classList.remove('text-brand');
+                moreBtn.classList.add('text-slate-400', 'dark:text-slate-500');
+            } else {
+                moreBtn.classList.add('text-brand');
+                moreBtn.classList.remove('text-slate-400', 'dark:text-slate-500');
+            }
+
+            // Fecha a gaveta automaticamente se escolheu algo
+            closeMoreMenu();
 
             if (tabId === 'map' && typeof map !== 'undefined' && map) {
                 setTimeout(() => { map.invalidateSize(); }, 300);
