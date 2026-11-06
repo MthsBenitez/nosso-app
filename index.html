@@ -4180,6 +4180,22 @@
                 // Filtro da lista visual
                 if (currentFinFilter === 'paid' && !f.paid) return;
                 if (currentFinFilter === 'pending' && f.paid) return;
+
+                // Filtro de busca textual
+                if (finSearchQuery) {
+                    const q = finSearchQuery.toLowerCase().trim();
+                    const titleMatch = (f.title || '').toLowerCase().includes(q);
+                    const payerMatch = (f.payer || '').toLowerCase().includes(q);
+                    const amountStr = amt.toFixed(2).replace('.', ',');
+                    const amountMatch = amountStr.includes(q) || amt.toString().includes(q);
+                    const methodMatch = (f.method || '').toLowerCase().includes(q);
+                    const dateFormatted = f.date ? formatDateBR(f.date) : '';
+                    const dateMatch = (f.date || '').includes(q) || dateFormatted.includes(q);
+                    if (!titleMatch && !payerMatch && !amountMatch && !methodMatch && !dateMatch) {
+                        return;
+                    }
+                }
+
                 invoiceFinances.push(f);
             });
 
@@ -4346,9 +4362,37 @@
                 }
             }
 
+            // Atualiza Badge de Resultados da Busca
+            const searchResultsBadge = document.getElementById('fin-search-results-badge');
+            if (searchResultsBadge) {
+                if (finSearchQuery) {
+                    searchResultsBadge.classList.remove('hidden');
+                    searchResultsBadge.innerHTML = `
+                        <span class="flex items-center gap-1.5 truncate">
+                            <i class="fa-solid fa-magnifying-glass text-brand text-[11px]"></i>
+                            <span>${invoiceFinances.length} conta(s) encontrada(s) para "<b>${finSearchQuery}</b>"</span>
+                        </span>
+                        <button onclick="clearFinanceSearch()" class="text-xs text-brand hover:underline font-bold ml-2 shrink-0 touch-manipulation">
+                            Limpar
+                        </button>
+                    `;
+                } else {
+                    searchResultsBadge.classList.add('hidden');
+                }
+            }
+
             // Renderiza Lista de Contas
             if (invoiceFinances.length === 0) {
-                if (empty) { empty.classList.remove('hidden'); empty.classList.add('flex'); }
+                if (empty) {
+                    empty.classList.remove('hidden');
+                    empty.classList.add('flex');
+                    const emptyText = empty.querySelector('p');
+                    if (emptyText) {
+                        emptyText.innerText = finSearchQuery 
+                            ? `Nenhuma conta encontrada para "${finSearchQuery}".`
+                            : "Nenhuma conta encontrada nesta fatura.";
+                    }
+                }
             } else {
                 if (empty) { empty.classList.add('hidden'); empty.classList.remove('flex'); }
                 invoiceFinances.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0)).forEach(f => {
