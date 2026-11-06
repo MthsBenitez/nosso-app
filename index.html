@@ -471,6 +471,9 @@
                     <button onclick="openFinanceModal()" class="flex-1 bg-brand hover:bg-brand-dark text-white font-bold py-3 px-4 rounded-2xl shadow-md flex items-center justify-center gap-2 text-sm active:scale-[0.98] transition-all touch-manipulation">
                         <i class="fa-solid fa-plus text-base"></i> Nova Conta
                     </button>
+                    <button onclick="toggleFinanceSearch()" id="btn-toggle-fin-search" class="bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 py-3 px-3.5 rounded-2xl shadow-sm flex items-center justify-center hover:text-brand active:scale-95 transition-all text-xs font-bold gap-1.5 touch-manipulation" title="Pesquisar Contas">
+                        <i class="fa-solid fa-magnifying-glass text-sm"></i> <span class="hidden sm:inline">Buscar</span>
+                    </button>
                     <button onclick="clearFinancesHistory()" class="bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 py-3 px-3.5 rounded-2xl shadow-sm flex items-center justify-center hover:text-red-500 active:scale-95 transition-all text-xs font-bold gap-1.5 touch-manipulation" title="Limpar Pagas">
                         <i class="fa-solid fa-broom text-sm"></i> <span class="hidden sm:inline">Limpar Pagas</span>
                     </button>
@@ -498,13 +501,30 @@
                 <!-- Total da Fatura e Datas -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5">
                     <div>
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Desta Fatura</span>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider" id="fin-invoice-total-label">Total Pendente da Fatura</span>
                         <div class="text-3xl font-black text-slate-800 dark:text-white tracking-tight" id="fin-invoice-total">R$ 0,00</div>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5" id="fin-invoice-total-sub">Fatura Total: R$ 0,00 • R$ 0,00 já quitados</p>
                     </div>
                     <div class="flex items-center gap-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/60 px-3 py-1.5 rounded-xl border border-slate-100 dark:border-slate-700/60 w-full sm:w-auto justify-between sm:justify-start">
                         <div class="flex items-center gap-1.5"><i class="fa-solid fa-arrows-rotate text-blue-500 text-[11px]"></i> <span>Vira: <b>03/<span id="fin-txt-close-month">--</span></b></span></div>
                         <div class="w-px h-3 bg-slate-200 dark:bg-slate-700"></div>
                         <div class="flex items-center gap-1.5"><i class="fa-solid fa-money-bill-wave text-emerald-500 text-[11px]"></i> <span>Vence: <b>10/<span id="fin-txt-due-month">--</span></b></span></div>
+                    </div>
+                </div>
+
+                <!-- Banner Personalizado: Minha Situação / Cota do Usuário Conectado -->
+                <div id="fin-user-quota-banner" class="bg-gradient-to-r from-brand/10 via-brand/5 to-transparent border border-brand/20 rounded-2xl p-3 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-8 h-8 rounded-xl bg-brand text-white flex items-center justify-center shrink-0 text-sm shadow-sm">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-brand block" id="fin-user-quota-label">Sua Cota Pendente</span>
+                            <span class="text-xs text-slate-600 dark:text-slate-300 font-medium truncate block" id="fin-user-quota-sub">Calculado apenas sobre o que falta pagar</span>
+                        </div>
+                    </div>
+                    <div class="text-right shrink-0">
+                        <span class="text-base font-black text-slate-800 dark:text-white" id="fin-user-quota-amount">R$ 0,00</span>
                     </div>
                 </div>
 
@@ -515,8 +535,8 @@
                             <i class="fa-solid fa-user-astronaut"></i> Luiz
                         </div>
                         <div class="flex flex-col text-[11px]">
-                            <span class="text-slate-400 font-medium truncate">Pagou: <b id="fin-luiz-paid" class="text-slate-700 dark:text-slate-300">R$ 0,00</b></span>
-                            <span class="text-slate-400 font-medium truncate">Parte: <b id="fin-luiz-part" class="text-slate-700 dark:text-slate-300">R$ 0,00</b></span>
+                            <span class="text-slate-400 font-medium truncate">Adiantou: <b id="fin-luiz-paid" class="text-slate-700 dark:text-slate-300">R$ 0,00</b></span>
+                            <span class="text-slate-400 font-medium truncate">Cota: <b id="fin-luiz-part" class="text-slate-700 dark:text-slate-300">R$ 0,00</b></span>
                         </div>
                     </div>
                     <div class="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-700/50 flex flex-col gap-1 min-w-0">
@@ -524,8 +544,8 @@
                             <i class="fa-solid fa-user-ninja"></i> Matheus
                         </div>
                         <div class="flex flex-col text-[11px]">
-                            <span class="text-slate-400 font-medium truncate">Pagou: <b id="fin-matheus-paid" class="text-slate-700 dark:text-slate-300">R$ 0,00</b></span>
-                            <span class="text-slate-400 font-medium truncate">Parte: <b id="fin-matheus-part" class="text-slate-700 dark:text-slate-300">R$ 0,00</b></span>
+                            <span class="text-slate-400 font-medium truncate">Adiantou: <b id="fin-matheus-paid" class="text-slate-700 dark:text-slate-300">R$ 0,00</b></span>
+                            <span class="text-slate-400 font-medium truncate">Cota: <b id="fin-matheus-part" class="text-slate-700 dark:text-slate-300">R$ 0,00</b></span>
                         </div>
                     </div>
                 </div>
@@ -564,16 +584,35 @@
             </div>
 
             <!-- Filtros de Status (Todas / Pendentes / Pagas) -->
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-4 shrink-0">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3 shrink-0">
                 <div class="flex items-center gap-1.5">
                     <button onclick="setFinFilter('all')" id="fin-filter-all" class="px-3.5 py-1.5 rounded-full bg-brand text-white text-xs font-bold shadow-sm whitespace-nowrap transition-colors touch-manipulation">Todas</button>
                     <button onclick="setFinFilter('pending')" id="fin-filter-pending" class="px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-bold whitespace-nowrap transition-colors touch-manipulation">Pendentes</button>
                     <button onclick="setFinFilter('paid')" id="fin-filter-paid" class="px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-bold whitespace-nowrap transition-colors touch-manipulation">Pagas</button>
                 </div>
-                <button onclick="markCurrentInvoiceAllPaid()" class="text-xs font-bold text-slate-500 hover:text-emerald-500 dark:text-slate-400 transition-colors flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 active:scale-95 touch-manipulation">
-                    <i class="fa-solid fa-check-double text-emerald-500"></i> Quitar Fatura
-                </button>
+                <div class="flex items-center gap-1.5">
+                    <button onclick="toggleFinanceSearch()" class="px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-all touch-manipulation" title="Pesquisar">
+                        <i class="fa-solid fa-magnifying-glass text-brand text-[11px]"></i> Buscar
+                    </button>
+                    <button onclick="markCurrentInvoiceAllPaid()" class="text-xs font-bold text-slate-500 hover:text-emerald-500 dark:text-slate-400 transition-colors flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 active:scale-95 touch-manipulation">
+                        <i class="fa-solid fa-check-double text-emerald-500"></i> Quitar Fatura
+                    </button>
+                </div>
             </div>
+
+            <!-- Campo de Busca Expansível -->
+            <div id="fin-search-container" class="hidden mb-3 shrink-0">
+                <div class="relative flex items-center">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 text-slate-400 text-xs"></i>
+                    <input type="text" id="finSearchInput" placeholder="Buscar conta por nome, valor (ex: 50), pagador..." oninput="onFinanceSearchInput()" class="w-full pl-9 pr-9 py-2.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white placeholder-slate-400 text-xs font-medium focus:outline-none focus:border-brand shadow-sm transition-all">
+                    <button id="btn-clear-fin-search" onclick="clearFinanceSearch()" class="hidden absolute right-3 w-5 h-5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-400 hover:text-red-500 flex items-center justify-center text-[10px] transition-colors">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Badge de Resultados da Busca -->
+            <div id="fin-search-results-badge" class="hidden mb-2 text-xs text-slate-500 dark:text-slate-400 font-medium flex items-center justify-between bg-slate-100/70 dark:bg-slate-800/70 px-3 py-1.5 rounded-xl border border-slate-200/50 dark:border-slate-700/50"></div>
 
             <!-- Lista de Contas (Sem scroll aninhado, rola com a página!) -->
             <div id="financesList" class="flex flex-col gap-2.5 pb-20"></div>
@@ -716,17 +755,59 @@
                 <button onclick="toggleSpotifyConfig()" class="w-12 h-12 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center hover:bg-white/10 transition-all backdrop-blur-xl shadow-lg hover:scale-105"><i class="fa-solid fa-gear"></i></button>
             </div>
 
-            <div id="spotifyConfigArea" class="hidden relative z-10 mb-6 p-5 bg-black/40 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl flex flex-col gap-3">
-                <p class="text-xs font-bold text-white uppercase tracking-wider"><i class="fa-solid fa-key text-[#1DB954] mr-1"></i> Spotify Client ID</p>
-                <p class="text-[10px] text-slate-300 leading-tight">Crie um app no <a href="https://developer.spotify.com/dashboard" target="_blank" class="text-[#1DB954] underline font-bold">Spotify Developer</a> e cole aqui.</p>
-                <div class="flex gap-2 mt-1">
-                    <input type="text" id="spotifyClientIdInput" placeholder="Cole seu Client ID..." class="flex-1 px-4 py-3 rounded-xl border border-white/10 bg-black/60 text-white placeholder-white/40 focus:outline-none focus:border-[#1DB954] text-xs transition-colors shadow-inner">
-                    <button onclick="saveSpotifyClientId()" class="bg-[#1DB954] hover:bg-[#1ed760] text-black px-5 py-3 rounded-xl font-black text-xs transition-all shadow-lg active:scale-95">Salvar</button>
+            <div id="spotifyConfigArea" class="hidden relative z-10 mb-6 p-5 bg-black/40 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl flex flex-col gap-3.5">
+                <!-- Alerta Protocolo file:// -->
+                <div id="spotify-file-protocol-warning" class="hidden p-3.5 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-200 text-xs flex flex-col gap-1">
+                    <div class="flex items-center gap-2 font-bold text-amber-300 text-xs">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Protocolo Local (file://) Detectado
+                    </div>
+                    <p class="text-[11px] leading-relaxed text-amber-200/90">
+                        O Spotify não autoriza login a partir de <b>file://</b> por segurança. Para autenticar, execute a página por um servidor local (ex: extensão <b>Live Server</b> no VSCode ou porta local como <code class="bg-black/40 px-1 py-0.5 rounded text-[10px]">http://localhost:5500</code>).
+                    </p>
+                </div>
+
+                <!-- Redirect URI com Botão Copiar -->
+                <div class="flex flex-col gap-1.5">
+                    <div class="flex items-center justify-between">
+                        <label class="text-[10px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-link text-[#1DB954]"></i> Redirect URI Obrigatório
+                        </label>
+                        <button type="button" onclick="copySpotifyRedirectUri()" class="text-[10px] font-bold text-black bg-[#1DB954] hover:bg-[#1ed760] px-2.5 py-1 rounded-lg transition-transform active:scale-95 flex items-center gap-1">
+                            <i class="fa-solid fa-copy"></i> Copiar
+                        </button>
+                    </div>
+                    <div class="bg-black/60 px-3 py-2 rounded-xl text-slate-200 text-xs select-all break-all border border-white/10" id="spotifyRedirectUriDisplay">
+                        Carregando URI...
+                    </div>
+                    <p class="text-[10px] text-slate-400 leading-tight">
+                        Cole este link exato no <a href="https://developer.spotify.com/dashboard" target="_blank" class="text-[#1DB954] underline font-bold">Spotify Developer Dashboard</a> em <b>Settings > Redirect URIs</b>.
+                    </p>
+                </div>
+
+                <!-- Client ID Input -->
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-[10px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-key text-[#1DB954]"></i> Spotify Client ID
+                    </label>
+                    <div class="flex gap-2">
+                        <input type="text" id="spotifyClientIdInput" placeholder="Cole seu Client ID..." class="flex-1 px-4 py-3 rounded-xl border border-white/10 bg-black/60 text-white placeholder-white/40 focus:outline-none focus:border-[#1DB954] text-xs transition-colors shadow-inner">
+                        <button onclick="saveSpotifyClientId()" class="bg-[#1DB954] hover:bg-[#1ed760] text-black px-5 py-3 rounded-xl font-black text-xs transition-all shadow-lg active:scale-95">Salvar</button>
+                    </div>
+                </div>
+
+                <!-- Dica User Management -->
+                <div class="p-3 rounded-2xl bg-white/5 border border-white/5 text-[11px] text-slate-300 flex flex-col gap-1.5">
+                    <p class="font-bold text-white text-xs flex items-center gap-1.5"><i class="fa-solid fa-circle-info text-[#1DB954]"></i> Se der erro no login:</p>
+                    <p class="leading-relaxed">• No <a href="https://developer.spotify.com/dashboard" target="_blank" class="text-[#1DB954] underline font-bold">Dashboard</a> > seu app > <b>User Management</b>: adicione o email do Spotify de <b>Luiz</b> e de <b>Matheus</b> (obrigatório pelo Spotify em modo desenvolvimento).</p>
+                    <p class="leading-relaxed">• Verifique se o <b>Redirect URI</b> acima está adicionado nas configurações do app.</p>
                 </div>
             </div>
 
-            <button onclick="connectSpotify()" id="btn-connect-spotify" class="relative z-10 w-full bg-[#1DB954] hover:bg-[#1ed760] text-black font-black py-4 rounded-2xl shadow-[0_0_30px_rgba(29,185,84,0.3)] transition-all active:scale-[0.98] flex items-center justify-center gap-3 mb-10 text-lg">
+            <button onclick="connectSpotify()" id="btn-connect-spotify" class="relative z-10 w-full bg-[#1DB954] hover:bg-[#1ed760] text-black font-black py-4 rounded-2xl shadow-[0_0_30px_rgba(29,185,84,0.3)] transition-all active:scale-[0.98] flex items-center justify-center gap-3 mb-2 text-lg">
                 <i class="fa-brands fa-spotify text-2xl"></i> Conectar Spotify
+            </button>
+            <button onclick="disconnectSpotify()" id="btn-disconnect-spotify" class="hidden relative z-10 text-xs text-red-400 hover:text-red-300 font-bold py-1.5 px-3.5 rounded-xl bg-red-500/10 border border-red-500/20 active:scale-95 transition-all mx-auto mb-6 flex items-center gap-1.5 touch-manipulation">
+                <i class="fa-solid fa-right-from-bracket"></i> Desconectar Conta do Spotify
             </button>
 
             <h3 class="text-[10px] font-black text-white/50 uppercase tracking-widest mb-5 relative z-10 ml-2 flex items-center gap-1.5"><i class="fa-solid fa-headphones text-[#1DB954]"></i> Tocando Agora</h3>
@@ -2020,6 +2101,16 @@
             db.ref('settings/tmdbKey').on('value', (snap) => {
                 tmdbApiKey = snap.val() || "";
                 document.getElementById('apiKeyInput').value = tmdbApiKey;
+            });
+
+            db.ref('settings/spotifyClientId').on('value', (snap) => {
+                const val = snap.val();
+                if (val) {
+                    spotifyClientId = val;
+                    localStorage.setItem('spotify_client_id', val);
+                    const inp = document.getElementById('spotifyClientIdInput');
+                    if (inp && !inp.value) inp.value = val;
+                }
             });
 
             // Sincronização em Tempo Real: Lista de Compras
@@ -3929,6 +4020,47 @@
             }
         }
 
+        let finSearchQuery = '';
+
+        function toggleFinanceSearch() {
+            const container = document.getElementById('fin-search-container');
+            const input = document.getElementById('finSearchInput');
+            if (!container || !input) return;
+
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                input.focus();
+            } else {
+                if (finSearchQuery) {
+                    clearFinanceSearch();
+                } else {
+                    container.classList.add('hidden');
+                }
+            }
+        }
+
+        function onFinanceSearchInput() {
+            const input = document.getElementById('finSearchInput');
+            const clearBtn = document.getElementById('btn-clear-fin-search');
+            finSearchQuery = (input ? input.value : '').trim();
+
+            if (clearBtn) {
+                if (finSearchQuery) clearBtn.classList.remove('hidden');
+                else clearBtn.classList.add('hidden');
+            }
+
+            renderFinances();
+        }
+
+        function clearFinanceSearch() {
+            const input = document.getElementById('finSearchInput');
+            const clearBtn = document.getElementById('btn-clear-fin-search');
+            if (input) input.value = '';
+            if (clearBtn) clearBtn.classList.add('hidden');
+            finSearchQuery = '';
+            renderFinances();
+        }
+
         function renderFinances() {
             const list = document.getElementById('financesList');
             const empty = document.getElementById('financesEmpty');
@@ -3984,42 +4116,71 @@
                 dropdown.innerHTML = dropHtml;
             }
 
-            // Filtra contas pela fatura selecionada
-            let totalInvoiceAmount = 0;
-            let luizPaid = 0;
-            let matheusPaid = 0;
-            let luizPart = 0;
-            let matheusPart = 0;
+            // Filtra e totaliza contas pela fatura selecionada
+            let totalAll = 0;
+            let totalPaid = 0;
+            let totalPending = 0;
+            let paidCount = 0;
             let pendingCount = 0;
 
-            const invoiceFinances = finances.filter(f => {
-                if (!f) return false;
+            // Valores de quem adiantou e cotas a pagar nas despesas PENDENTES
+            let luizPaidPending = 0;
+            let matheusPaidPending = 0;
+            let luizPartPending = 0;
+            let matheusPartPending = 0;
+
+            // Valores históricos de despesas já QUITADAS
+            let luizPaidDone = 0;
+            let matheusPaidDone = 0;
+            let luizPartDone = 0;
+            let matheusPartDone = 0;
+
+            const invoiceFinances = [];
+
+            finances.forEach(f => {
+                if (!f) return;
                 if (activeKey !== 'all') {
                     const c = getInvoiceCycle(f.date);
-                    if (!c || c.key !== activeKey) return false;
+                    if (!c || c.key !== activeKey) return;
                 }
 
                 const amt = parseFloat(f.amount) || 0;
-                totalInvoiceAmount += amt;
+                totalAll += amt;
                 const payer = f.payer || 'Luiz';
                 const isSplit = f.type === 'split';
 
-                if (payer === 'Luiz') luizPaid += amt;
-                else if (payer === 'Matheus') matheusPaid += amt;
+                if (f.paid) {
+                    totalPaid += amt;
+                    paidCount++;
+                    if (payer === 'Luiz') luizPaidDone += amt;
+                    else matheusPaidDone += amt;
 
-                if (isSplit) {
-                    luizPart += (amt / 2);
-                    matheusPart += (amt / 2);
+                    if (isSplit) {
+                        luizPartDone += (amt / 2);
+                        matheusPartDone += (amt / 2);
+                    } else {
+                        if (payer === 'Luiz') matheusPartDone += amt;
+                        else luizPartDone += amt;
+                    }
                 } else {
-                    if (payer === 'Luiz') matheusPart += amt;
-                    else luizPart += amt;
+                    totalPending += amt;
+                    pendingCount++;
+                    if (payer === 'Luiz') luizPaidPending += amt;
+                    else matheusPaidPending += amt;
+
+                    if (isSplit) {
+                        luizPartPending += (amt / 2);
+                        matheusPartPending += (amt / 2);
+                    } else {
+                        if (payer === 'Luiz') matheusPartPending += amt;
+                        else luizPartPending += amt;
+                    }
                 }
 
-                if (!f.paid) pendingCount++;
-
-                if (currentFinFilter === 'paid' && !f.paid) return false;
-                if (currentFinFilter === 'pending' && f.paid) return false;
-                return true;
+                // Filtro da lista visual
+                if (currentFinFilter === 'paid' && !f.paid) return;
+                if (currentFinFilter === 'pending' && f.paid) return;
+                invoiceFinances.push(f);
             });
 
             // Atualiza Card do Ciclo do Cartão
@@ -4030,8 +4191,30 @@
             const cycleTitleEl = document.getElementById('fin-cycle-status-title');
             if (cycleTitleEl) cycleTitleEl.innerText = selectedCycle.title;
 
+            // Valores de acordo com o filtro ativo (Pendentes/Todas mostra estritamente o PENDENTE)
+            const isFilterPaid = currentFinFilter === 'paid';
+            const displayTotal = isFilterPaid ? totalPaid : totalPending;
+            const displayLuizPaid = isFilterPaid ? luizPaidDone : luizPaidPending;
+            const displayLuizPart = isFilterPaid ? luizPartDone : luizPartPending;
+            const displayMatheusPaid = isFilterPaid ? matheusPaidDone : matheusPaidPending;
+            const displayMatheusPart = isFilterPaid ? matheusPartDone : matheusPartPending;
+
             const totalEl = document.getElementById('fin-invoice-total');
-            if (totalEl) totalEl.innerText = `R$ ${totalInvoiceAmount.toFixed(2).replace('.', ',')}`;
+            if (totalEl) totalEl.innerText = `R$ ${displayTotal.toFixed(2).replace('.', ',')}`;
+
+            const totalLabelEl = document.getElementById('fin-invoice-total-label');
+            if (totalLabelEl) {
+                totalLabelEl.innerText = isFilterPaid ? "Total Já Quitado da Fatura" : "Total Pendente a Pagar";
+            }
+
+            const totalSubEl = document.getElementById('fin-invoice-total-sub');
+            if (totalSubEl) {
+                if (isFilterPaid) {
+                    totalSubEl.innerText = `${paidCount} conta(s) quitada(s) • Restam R$ ${totalPending.toFixed(2).replace('.', ',')} pendentes`;
+                } else {
+                    totalSubEl.innerText = `Fatura Total: R$ ${totalAll.toFixed(2).replace('.', ',')} • R$ ${totalPaid.toFixed(2).replace('.', ',')} já quitados`;
+                }
+            }
 
             const closeMonthEl = document.getElementById('fin-txt-close-month');
             if (closeMonthEl) closeMonthEl.innerText = selectedCycle.month ? String(selectedCycle.month).padStart(2, '0') : '--';
@@ -4039,22 +4222,52 @@
             const dueMonthEl = document.getElementById('fin-txt-due-month');
             if (dueMonthEl) dueMonthEl.innerText = selectedCycle.month ? String(selectedCycle.month).padStart(2, '0') : '--';
 
+            // Atualiza Banner de Cota Pessoal do Usuário Conectado (Luiz ou Matheus)
+            const userQuotaBanner = document.getElementById('fin-user-quota-banner');
+            const userQuotaLabel = document.getElementById('fin-user-quota-label');
+            const userQuotaSub = document.getElementById('fin-user-quota-sub');
+            const userQuotaAmount = document.getElementById('fin-user-quota-amount');
+
+            if (userQuotaBanner && userQuotaAmount) {
+                const loggedUser = currentUser || 'Matheus';
+                const isLuiz = loggedUser === 'Luiz';
+                const myQuotaPending = isLuiz ? luizPartPending : matheusPartPending;
+                const myFrontedPending = isLuiz ? luizPaidPending : matheusPaidPending;
+                
+                if (isFilterPaid) {
+                    const myQuotaDone = isLuiz ? luizPartDone : matheusPartDone;
+                    if (userQuotaLabel) userQuotaLabel.innerText = `Sua Cota Paga (${loggedUser})`;
+                    userQuotaAmount.innerText = `R$ ${myQuotaDone.toFixed(2).replace('.', ',')}`;
+                    if (userQuotaSub) userQuotaSub.innerText = `Total que você já quitou neste ciclo`;
+                } else {
+                    if (userQuotaLabel) userQuotaLabel.innerText = `Sua Cota Pendente (${loggedUser})`;
+                    userQuotaAmount.innerText = `R$ ${myQuotaPending.toFixed(2).replace('.', ',')}`;
+                    if (userQuotaSub) {
+                        if (myFrontedPending > 0) {
+                            userQuotaSub.innerText = `Você adiantou R$ ${myFrontedPending.toFixed(2).replace('.', ',')} em contas pendentes`;
+                        } else {
+                            userQuotaSub.innerText = `O que você precisa pagar para zerar as pendências`;
+                        }
+                    }
+                }
+            }
+
             const luizPaidEl = document.getElementById('fin-luiz-paid');
-            if (luizPaidEl) luizPaidEl.innerText = `R$ ${luizPaid.toFixed(2).replace('.', ',')}`;
+            if (luizPaidEl) luizPaidEl.innerText = `R$ ${displayLuizPaid.toFixed(2).replace('.', ',')}`;
 
             const luizPartEl = document.getElementById('fin-luiz-part');
-            if (luizPartEl) luizPartEl.innerText = `R$ ${luizPart.toFixed(2).replace('.', ',')}`;
+            if (luizPartEl) luizPartEl.innerText = `R$ ${displayLuizPart.toFixed(2).replace('.', ',')}`;
 
             const matheusPaidEl = document.getElementById('fin-matheus-paid');
-            if (matheusPaidEl) matheusPaidEl.innerText = `R$ ${matheusPaid.toFixed(2).replace('.', ',')}`;
+            if (matheusPaidEl) matheusPaidEl.innerText = `R$ ${displayMatheusPaid.toFixed(2).replace('.', ',')}`;
 
             const matheusPartEl = document.getElementById('fin-matheus-part');
-            if (matheusPartEl) matheusPartEl.innerText = `R$ ${matheusPart.toFixed(2).replace('.', ',')}`;
+            if (matheusPartEl) matheusPartEl.innerText = `R$ ${displayMatheusPart.toFixed(2).replace('.', ',')}`;
 
             // Status Badge
             const cycleBadge = document.getElementById('fin-cycle-badge');
             if (cycleBadge) {
-                if (pendingCount === 0 && totalInvoiceAmount > 0) {
+                if (pendingCount === 0 && totalAll > 0) {
                     cycleBadge.className = "px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800";
                     cycleBadge.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> Fatura Paga`;
                 } else if (activeKey === cycles.currentKey) {
@@ -4072,28 +4285,64 @@
                 }
             }
 
-            // Cálculo do Acerto Líquido (Compensação entre Luiz e Matheus)
+            // Cálculo do Acerto Líquido (Compensação Pix baseada ESTRITAMENTE nas pendências)
             const settlementBox = document.getElementById('fin-settlement-box');
             const settlementDesc = document.getElementById('fin-settlement-desc');
             const settlementAmount = document.getElementById('fin-settlement-amount');
 
-            // Saldo líquido: o que Luiz pagou menos a parte de Luiz
-            const luizNet = luizPaid - luizPart;
+            // Saldo líquido das despesas pendentes: o que Luiz adiantou menos a cota de Luiz
+            const luizNet = Math.round((luizPaidPending - luizPartPending) * 100) / 100;
 
             if (settlementDesc && settlementAmount) {
-                if (Math.abs(luizNet) < 0.01) {
-                    settlementDesc.innerText = "Tudo em dia! Ninguém deve nada nesta fatura.";
+                if (isFilterPaid) {
+                    settlementDesc.innerText = "Contas filtradas como pagas já foram 100% resolvidas.";
                     settlementAmount.innerText = "R$ 0,00";
                     if (settlementBox) settlementBox.className = "p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 flex items-center justify-between gap-3 transition-all";
-                } else if (luizNet < 0) {
-                    const diff = Math.abs(luizNet);
-                    settlementDesc.innerHTML = `Luiz deve fazer um Pix para <b>Matheus</b>`;
-                    settlementAmount.innerText = `R$ ${diff.toFixed(2).replace('.', ',')}`;
-                    if (settlementBox) settlementBox.className = "p-3.5 rounded-2xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/50 flex items-center justify-between gap-3 transition-all";
-                } else {
-                    settlementDesc.innerHTML = `Matheus deve fazer um Pix para <b>Luiz</b>`;
-                    settlementAmount.innerText = `R$ ${luizNet.toFixed(2).replace('.', ',')}`;
+                } else if (pendingCount === 0) {
+                    settlementDesc.innerText = totalAll > 0 ? "Fatura quitada! Todas as contas estão pagas." : "Nenhuma conta cadastrada nesta fatura.";
+                    settlementAmount.innerText = "R$ 0,00";
                     if (settlementBox) settlementBox.className = "p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 flex items-center justify-between gap-3 transition-all";
+                } else if (Math.abs(luizNet) < 0.01) {
+                    settlementDesc.innerText = "Tudo equilibrado! Ninguém deve nada nas contas pendentes.";
+                    settlementAmount.innerText = "R$ 0,00";
+                    if (settlementBox) settlementBox.className = "p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 flex items-center justify-between gap-3 transition-all";
+                } else {
+                    const diff = Math.abs(luizNet);
+                    const formattedDiff = `R$ ${diff.toFixed(2).replace('.', ',')}`;
+                    const loggedUser = currentUser || 'Matheus';
+
+                    if (loggedUser === 'Matheus') {
+                        if (luizNet > 0) {
+                            settlementDesc.innerHTML = `Você deve fazer um Pix para <b>Luiz</b>`;
+                            settlementAmount.innerText = formattedDiff;
+                            if (settlementBox) settlementBox.className = "p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 flex items-center justify-between gap-3 transition-all";
+                        } else {
+                            settlementDesc.innerHTML = `Luiz deve fazer um Pix para <b>você</b>`;
+                            settlementAmount.innerText = formattedDiff;
+                            if (settlementBox) settlementBox.className = "p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 flex items-center justify-between gap-3 transition-all";
+                        }
+                    } else if (loggedUser === 'Luiz') {
+                        if (luizNet < 0) {
+                            settlementDesc.innerHTML = `Você deve fazer um Pix para <b>Matheus</b>`;
+                            settlementAmount.innerText = formattedDiff;
+                            if (settlementBox) settlementBox.className = "p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 flex items-center justify-between gap-3 transition-all";
+                        } else {
+                            settlementDesc.innerHTML = `Matheus deve fazer um Pix para <b>você</b>`;
+                            settlementAmount.innerText = formattedDiff;
+                            if (settlementBox) settlementBox.className = "p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 flex items-center justify-between gap-3 transition-all";
+                        }
+                    } else {
+                        // Fallback quando não identificado
+                        if (luizNet < 0) {
+                            settlementDesc.innerHTML = `Luiz deve fazer um Pix para <b>Matheus</b>`;
+                            settlementAmount.innerText = formattedDiff;
+                            if (settlementBox) settlementBox.className = "p-3.5 rounded-2xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/50 flex items-center justify-between gap-3 transition-all";
+                        } else {
+                            settlementDesc.innerHTML = `Matheus deve fazer um Pix para <b>Luiz</b>`;
+                            settlementAmount.innerText = formattedDiff;
+                            if (settlementBox) settlementBox.className = "p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 flex items-center justify-between gap-3 transition-all";
+                        }
+                    }
                 }
             }
 
@@ -4645,11 +4894,42 @@
         let spotifyPollingInterval = null;
         let isRefreshingSpotifyToken = false;
 
+        function getSpotifyRedirectUri() {
+            if (window.location.protocol === 'file:') {
+                return 'http://localhost:5500/index.html';
+            }
+            return (window.location.origin + window.location.pathname).split('#')[0].split('?')[0];
+        }
+
+        function copySpotifyRedirectUri() {
+            const uri = getSpotifyRedirectUri();
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(uri).then(() => {
+                    showCustomMessage("Redirect URI copiado com sucesso!");
+                }).catch(() => {
+                    prompt("Copie seu Redirect URI:", uri);
+                });
+            } else {
+                prompt("Copie seu Redirect URI:", uri);
+            }
+        }
+
         function toggleSpotifyConfig() {
             const area = document.getElementById('spotifyConfigArea');
+            if(!area) return;
             if(area.classList.contains('hidden')) {
                 area.classList.remove('hidden');
-                document.getElementById('spotifyClientIdInput').value = spotifyClientId;
+                const inp = document.getElementById('spotifyClientIdInput');
+                if (inp) inp.value = spotifyClientId;
+                
+                const uriDisplay = document.getElementById('spotifyRedirectUriDisplay');
+                if (uriDisplay) uriDisplay.innerText = getSpotifyRedirectUri();
+
+                const fileWarning = document.getElementById('spotify-file-protocol-warning');
+                if (fileWarning) {
+                    if (window.location.protocol === 'file:') fileWarning.classList.remove('hidden');
+                    else fileWarning.classList.add('hidden');
+                }
             } else {
                 area.classList.add('hidden');
             }
@@ -4660,26 +4940,144 @@
             if(val) {
                 localStorage.setItem('spotify_client_id', val);
                 spotifyClientId = val;
+                if (window.db) {
+                    db.ref('settings/spotifyClientId').set(val);
+                }
                 showCustomMessage("Client ID do Spotify salvo com sucesso!");
                 toggleSpotifyConfig();
+            } else {
+                showCustomMessage("Insira um Client ID válido!");
+            }
+        }
+
+        function updateSpotifyButtonState() {
+            const btn = document.getElementById('btn-connect-spotify');
+            const disconnectBtn = document.getElementById('btn-disconnect-spotify');
+            const u = (currentUser || 'luiz').toLowerCase();
+            const hasAuth = !!spotifyAccessToken || !!spotifyRefreshToken || !!localStorage.getItem('spotify_refresh_token_' + u);
+
+            if (btn) {
+                if (hasAuth) {
+                    btn.className = "relative z-10 w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3.5 rounded-2xl shadow-[0_0_25px_rgba(16,185,129,0.3)] transition-all active:scale-[0.98] flex items-center justify-center gap-2.5 mb-2 text-base";
+                    btn.innerHTML = `<i class="fa-solid fa-circle-check text-xl"></i> Spotify Conectado (${currentUser || 'Ativo'})`;
+                } else {
+                    btn.className = "relative z-10 w-full bg-[#1DB954] hover:bg-[#1ed760] text-black font-black py-4 rounded-2xl shadow-[0_0_30px_rgba(29,185,84,0.3)] transition-all active:scale-[0.98] flex items-center justify-center gap-3 mb-2 text-lg";
+                    btn.innerHTML = `<i class="fa-brands fa-spotify text-2xl"></i> Conectar Spotify`;
+                }
+            }
+            if (disconnectBtn) {
+                if (hasAuth) disconnectBtn.classList.remove('hidden');
+                else disconnectBtn.classList.add('hidden');
+            }
+        }
+
+        function disconnectSpotify() {
+            if (confirm("Deseja realmente desconectar sua conta do Spotify deste aplicativo?")) {
+                spotifyAccessToken = "";
+                spotifyRefreshToken = "";
+                localStorage.removeItem('spotify_access_token');
+                localStorage.removeItem('spotify_refresh_token');
+                if (currentUser) {
+                    localStorage.removeItem('spotify_refresh_token_' + currentUser.toLowerCase());
+                    if (window.db) {
+                        db.ref('spotify_auth/' + currentUser.toLowerCase()).remove();
+                    }
+                }
+                if (spotifyPollingInterval) clearInterval(spotifyPollingInterval);
+                updateSpotifyButtonState();
+                showCustomMessage("Spotify desconectado com sucesso.");
             }
         }
 
         // Helper functions para o padrao de seguranca do Spotify (PKCE)
         function generateRandomString(length) {
             const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            const values = crypto.getRandomValues(new Uint8Array(length));
-            return Array.from(values).map(x => possible[x % possible.length]).join('');
+            try {
+                if (window.crypto && window.crypto.getRandomValues) {
+                    const values = crypto.getRandomValues(new Uint8Array(length));
+                    return Array.from(values).map(x => possible[x % possible.length]).join('');
+                }
+            } catch (e) {}
+            let res = '';
+            for (let i = 0; i < length; i++) {
+                res += possible.charAt(Math.floor(Math.random() * possible.length));
+            }
+            return res;
+        }
+
+        // Implementação pura de SHA-256 para ambientes sem window.crypto.subtle (ex: mobile HTTP)
+        function jsSha256(data) {
+            var mathPow = Math.pow;
+            var maxWord = mathPow(2, 32);
+            var i, j;
+            var words = [];
+            var asciiBitLength = (typeof data === 'string' ? data.length : data.length) * 8;
+            var hash = [];
+            var k = [];
+            var primeCounter = 0;
+            var isComposite = {};
+            for (var candidate = 2; primeCounter < 64; candidate++) {
+                if (!isComposite[candidate]) {
+                    for (i = 0; i < 313; i += candidate) isComposite[i] = candidate;
+                    hash[primeCounter] = (mathPow(candidate, .5) * maxWord) | 0;
+                    k[primeCounter++] = (mathPow(candidate, 1/3) * maxWord) | 0;
+                }
+            }
+            if (typeof data === 'string') {
+                for (i = 0; i < data.length; i++) words[i >> 2] |= data.charCodeAt(i) << ((3 - i % 4) * 8);
+            } else {
+                for (i = 0; i < data.length; i++) words[i >> 2] |= data[i] << ((3 - i % 4) * 8);
+            }
+            words[asciiBitLength >> 5] |= 0x80 << (24 - asciiBitLength % 32);
+            words[(((asciiBitLength + 64) >> 9) << 4) + 15] = asciiBitLength;
+            var w = [];
+            for (i = 0; i < words.length; i += 16) {
+                var wCopy = hash.slice(0);
+                for (j = 0; j < 64; j++) {
+                    var a = hash[0], e = hash[4];
+                    var temp1 = hash[7]
+                        + ((e >>> 6 | e << 26) ^ (e >>> 11 | e << 21) ^ (e >>> 25 | e << 7))
+                        + ((e & hash[5]) ^ (~e & hash[6]))
+                        + k[j]
+                        + (w[j] = (j < 16) ? (words[j + i] | 0) : (
+                            w[j - 16]
+                            + ((w[j - 15] >>> 7 | w[j - 15] << 25) ^ (w[j - 15] >>> 18 | w[j - 15] << 14) ^ (w[j - 15] >>> 3))
+                            + w[j - 7]
+                            + ((w[j - 2] >>> 17 | w[j - 2] << 15) ^ (w[j - 2] >>> 19 | w[j - 2] << 13) ^ (w[j - 2] >>> 10))
+                        ) | 0);
+                    var temp2 = ((a >>> 2 | a << 30) ^ (a >>> 13 | a << 19) ^ (a >>> 22 | a << 10))
+                        + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
+                    hash = [(temp1 + temp2) | 0].concat(hash);
+                    hash[4] = (hash[4] + temp1) | 0;
+                    hash.pop();
+                }
+                for (j = 0; j < 8; j++) hash[j] = (hash[j] + wCopy[j]) | 0;
+            }
+            var bytes = new Uint8Array(32);
+            for (i = 0; i < 8; i++) {
+                bytes[i * 4] = (hash[i] >>> 24) & 255;
+                bytes[i * 4 + 1] = (hash[i] >>> 16) & 255;
+                bytes[i * 4 + 2] = (hash[i] >>> 8) & 255;
+                bytes[i * 4 + 3] = hash[i] & 255;
+            }
+            return bytes;
         }
 
         async function sha256(plain) {
             const encoder = new TextEncoder();
             const data = encoder.encode(plain);
-            return window.crypto.subtle.digest('SHA-256', data);
+            if (window.crypto && window.crypto.subtle && typeof window.crypto.subtle.digest === 'function') {
+                try {
+                    return await window.crypto.subtle.digest('SHA-256', data);
+                } catch (e) {
+                    console.warn("crypto.subtle digest falhou, usando fallback pure JS:", e);
+                }
+            }
+            return jsSha256(data);
         }
 
         function base64encode(hash) {
-            return btoa(String.fromCharCode.apply(null, new Uint8Array(hash)))
+            return btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(hash))))
                 .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
         }
 
@@ -4726,6 +5124,7 @@
                         });
                     }
                     isRefreshingSpotifyToken = false;
+                    updateSpotifyButtonState();
                     return true;
                 }
             } catch (err) {
@@ -4736,22 +5135,33 @@
         }
 
         async function connectSpotify() {
+            if (window.location.protocol === 'file:') {
+                showCustomMessage("O Spotify exige acesso HTTP/HTTPS. Você abriu como arquivo (file://). Execute por um servidor local (ex: http://localhost:5500)!", 6000);
+                toggleSpotifyConfig();
+                return;
+            }
+
             if(!spotifyClientId) {
                 showCustomMessage("Configure seu Client ID do Spotify na engrenagem primeiro!");
                 toggleSpotifyConfig();
                 return;
             }
 
-            const verifier = generateRandomString(64);
-            localStorage.setItem('spotify_code_verifier', verifier);
-            const hashed = await sha256(verifier);
-            const codeChallenge = base64encode(hashed);
+            try {
+                const verifier = generateRandomString(64);
+                localStorage.setItem('spotify_code_verifier', verifier);
+                const hashed = await sha256(verifier);
+                const codeChallenge = base64encode(hashed);
 
-            const redirectUri = window.location.origin + window.location.pathname;
-            const scopes = 'user-read-currently-playing user-read-recently-played user-top-read user-modify-playback-state';
-            
-            const authUrl = `https://accounts.spotify.com/authorize?client_id=${spotifyClientId}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&code_challenge_method=S256&code_challenge=${codeChallenge}`;
-            window.location.href = authUrl;
+                const redirectUri = getSpotifyRedirectUri();
+                const scopes = 'user-read-currently-playing user-read-recently-played user-top-read user-modify-playback-state';
+                
+                const authUrl = `https://accounts.spotify.com/authorize?client_id=${encodeURIComponent(spotifyClientId)}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&code_challenge_method=S256&code_challenge=${codeChallenge}`;
+                window.location.href = authUrl;
+            } catch (err) {
+                console.error("Erro ao iniciar login Spotify:", err);
+                showCustomMessage("Erro ao gerar autenticação: " + (err.message || err));
+            }
         }
 
         async function handleSpotifyCallback() {
@@ -4760,15 +5170,33 @@
             const error = urlParams.get('error');
 
             if (error) {
-                showCustomMessage("Erro na autenticação: " + error);
+                console.error("Spotify retornou erro no callback:", error);
+                let msg = "Erro na autenticação do Spotify: " + error;
+                if (error === 'access_denied') {
+                    msg = "Acesso negado pelo Spotify. Verifique se o seu email está cadastrado em 'User Management' no Spotify Developer Dashboard!";
+                }
+                showCustomMessage(msg, 6000);
                 window.history.pushState("", document.title, window.location.pathname);
+                switchTab('spotify');
                 return;
             }
 
             if (code) {
                 window.history.pushState("", document.title, window.location.pathname);
+                switchTab('spotify');
+                
                 const verifier = localStorage.getItem('spotify_code_verifier');
-                const redirectUri = window.location.origin + window.location.pathname;
+                const redirectUri = getSpotifyRedirectUri();
+
+                if (!verifier) {
+                    console.error("Code verifier ausente do localStorage!");
+                    showCustomMessage("Erro: Verificador de sessão expirou. Clique em Conectar Spotify novamente.");
+                    return;
+                }
+
+                if (!spotifyClientId) {
+                    spotifyClientId = localStorage.getItem('spotify_client_id') || "";
+                }
 
                 try {
                     const response = await fetch('https://accounts.spotify.com/api/token', {
@@ -4783,7 +5211,12 @@
                         }),
                     });
 
-                    if (!response.ok) throw new Error("Falha na troca de código pelo token.");
+                    if (!response.ok) {
+                        const errData = await response.json().catch(() => ({}));
+                        console.error("Falha ao trocar código pelo token:", response.status, errData);
+                        const detail = errData.error_description || errData.error || response.statusText || response.status;
+                        throw new Error(detail);
+                    }
 
                     const data = await response.json();
                     spotifyAccessToken = data.access_token;
@@ -4807,19 +5240,25 @@
                     }
                     
                     showCustomMessage("Seu Spotify foi conectado com sucesso!");
+                    updateSpotifyButtonState();
                     startSpotifyPolling();
+                    if (typeof fetchSpotifyStats === 'function') fetchSpotifyStats();
                 } catch (err) {
                     console.error("Erro no PKCE do Spotify:", err);
-                    showCustomMessage("Falha ao conectar no Spotify.");
+                    showCustomMessage("Falha ao conectar no Spotify: " + err.message, 6000);
                 }
             } else if (spotifyAccessToken) {
+                updateSpotifyButtonState();
                 startSpotifyPolling();
             } else {
                 const u = (currentUser || 'luiz').toLowerCase();
                 const storedRefresh = spotifyRefreshToken || localStorage.getItem('spotify_refresh_token_' + u);
                 if (storedRefresh) {
                     refreshSpotifyToken().then(ok => {
-                        if (ok) startSpotifyPolling();
+                        if (ok) {
+                            updateSpotifyButtonState();
+                            startSpotifyPolling();
+                        }
                     });
                 }
             }
