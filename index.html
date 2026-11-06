@@ -2,7 +2,7 @@
 <html lang="pt-BR" class="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Nosso App</title>
     
     <!-- Tailwind CSS -->
@@ -107,9 +107,11 @@
         .pb-safe { padding-bottom: max(env(safe-area-inset-bottom, 0px), 16px); }
         .pt-safe { padding-top: max(env(safe-area-inset-top, 0px), 12px); }
         .touch-manipulation { touch-action: manipulation; }
+        .overscroll-contain { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+        .scroll-smooth-touch { -webkit-overflow-scrolling: touch; }
     </style>
 </head>
-<body class="flex flex-col h-[100dvh] text-slate-800 dark:text-slate-100 antialiased overflow-hidden relative bg-slate-50 dark:bg-slate-900 transition-colors">
+<body class="flex flex-col h-[100dvh] text-slate-800 dark:text-slate-100 antialiased overflow-hidden relative bg-slate-50 dark:bg-slate-900 transition-colors touch-manipulation">
 
     <!-- GLOBAL HEADER (Bells & Settings) -->
     <div id="global-actions" class="fixed top-4 right-4 z-[600] flex gap-2 pointer-events-auto">
@@ -451,114 +453,130 @@
         </div>
 
         <!-- ABA 3: NOSSAS CONTAS & CICLO DO CARTÃO -->
-        <div id="tab-finances" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-28 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
-            <!-- Header sem sobreposição com global-actions no celular -->
-            <div class="flex justify-between items-center mb-5 mt-14 sm:mt-16 pr-24 sm:pr-0">
-                <div>
-                    <h1 class="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-2">Contas & Cartão <i class="fa-solid fa-credit-card text-brand"></i></h1>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">Vira dia 03 • Pagamento dia 10</p>
+        <div id="tab-finances" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-4 sm:pt-6 px-3.5 sm:px-4 pb-32 bg-slate-50 dark:bg-slate-900 overflow-y-auto overscroll-contain">
+            
+            <!-- Header Mobile Responsivo: Título e Ações com Fácil Acesso -->
+            <div class="flex flex-col gap-3 mb-4 mt-12 sm:mt-14 shrink-0">
+                <div class="flex items-center justify-between pr-24 sm:pr-0">
+                    <div>
+                        <h1 class="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-2 tracking-tight">
+                            Contas & Cartão <i class="fa-solid fa-credit-card text-brand text-xl"></i>
+                        </h1>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Ciclo mensal: Vira dia 03 • Vence dia 10</p>
+                    </div>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="clearFinancesHistory()" class="bg-white dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 w-10 h-10 rounded-full shadow-sm flex items-center justify-center hover:text-red-500 transition-all" title="Limpar Pagas"><i class="fa-solid fa-broom text-base"></i></button>
-                    <button onclick="openFinanceModal()" class="bg-brand text-white w-10 h-10 rounded-full shadow-md flex items-center justify-center hover:bg-brand-dark hover:scale-105 active:scale-95 transition-all" title="Nova Conta"><i class="fa-solid fa-plus text-base"></i></button>
+
+                <!-- Botões de Ação Imediata (Grandes e Fáceis de Clicar no Celular) -->
+                <div class="flex items-center gap-2">
+                    <button onclick="openFinanceModal()" class="flex-1 bg-brand hover:bg-brand-dark text-white font-bold py-3 px-4 rounded-2xl shadow-md flex items-center justify-center gap-2 text-sm active:scale-[0.98] transition-all touch-manipulation">
+                        <i class="fa-solid fa-plus text-base"></i> Nova Conta
+                    </button>
+                    <button onclick="clearFinancesHistory()" class="bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 py-3 px-3.5 rounded-2xl shadow-sm flex items-center justify-center hover:text-red-500 active:scale-95 transition-all text-xs font-bold gap-1.5 touch-manipulation" title="Limpar Pagas">
+                        <i class="fa-solid fa-broom text-sm"></i> <span class="hidden sm:inline">Limpar Pagas</span>
+                    </button>
                 </div>
             </div>
 
             <!-- Card Executivo do Ciclo do Cartão & Acerto -->
-            <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 mb-5 flex flex-col gap-4 relative overflow-hidden">
-                <!-- Informações do Ciclo do Cartão -->
-                <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center text-base">
+            <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700/80 p-4 sm:p-5 mb-4 flex flex-col gap-3.5 shrink-0">
+                <!-- Informações do Ciclo do Cartão com Badge Flexível -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-slate-100 dark:border-slate-700/80">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center text-base shrink-0">
                             <i class="fa-solid fa-calendar-check"></i>
                         </div>
-                        <div>
+                        <div class="min-w-0">
                             <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Ciclo do Cartão</span>
-                            <h3 class="text-sm font-black text-slate-800 dark:text-white" id="fin-cycle-status-title">Fatura Selecionada</h3>
+                            <h3 class="text-sm font-black text-slate-800 dark:text-white truncate" id="fin-cycle-status-title">Fatura Selecionada</h3>
                         </div>
                     </div>
-                    <span id="fin-cycle-badge" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800">Aberta</span>
+                    <div class="self-start sm:self-auto">
+                        <span id="fin-cycle-badge" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800 inline-block">Aberta</span>
+                    </div>
                 </div>
 
                 <!-- Total da Fatura e Datas -->
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5">
                     <div>
-                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Desta Fatura</span>
-                        <div class="text-3xl font-black text-slate-800 dark:text-white" id="fin-invoice-total">R$ 0,00</div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Desta Fatura</span>
+                        <div class="text-3xl font-black text-slate-800 dark:text-white tracking-tight" id="fin-invoice-total">R$ 0,00</div>
                     </div>
-                    <div class="flex items-center gap-4 text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/60 px-3.5 py-2 rounded-2xl border border-slate-100 dark:border-slate-700/60">
-                        <div class="flex items-center gap-1.5"><i class="fa-solid fa-arrows-rotate text-blue-500"></i> <span>Vira: <b>03/<span id="fin-txt-close-month">--</span></b></span></div>
+                    <div class="flex items-center gap-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/60 px-3 py-1.5 rounded-xl border border-slate-100 dark:border-slate-700/60 w-full sm:w-auto justify-between sm:justify-start">
+                        <div class="flex items-center gap-1.5"><i class="fa-solid fa-arrows-rotate text-blue-500 text-[11px]"></i> <span>Vira: <b>03/<span id="fin-txt-close-month">--</span></b></span></div>
                         <div class="w-px h-3 bg-slate-200 dark:bg-slate-700"></div>
-                        <div class="flex items-center gap-1.5"><i class="fa-solid fa-money-bill-wave text-emerald-500"></i> <span>Vence: <b>10/<span id="fin-txt-due-month">--</span></b></span></div>
+                        <div class="flex items-center gap-1.5"><i class="fa-solid fa-money-bill-wave text-emerald-500 text-[11px]"></i> <span>Vence: <b>10/<span id="fin-txt-due-month">--</span></b></span></div>
                     </div>
                 </div>
 
                 <!-- Comparativo Luiz vs Matheus -->
-                <div class="grid grid-cols-2 gap-3 pt-1">
-                    <div class="bg-slate-50 dark:bg-slate-900/50 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700/50 flex flex-col gap-1">
-                        <div class="flex items-center gap-2 text-xs font-bold text-blue-600 dark:text-blue-400">
+                <div class="grid grid-cols-2 gap-2.5 pt-1">
+                    <div class="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-700/50 flex flex-col gap-1 min-w-0">
+                        <div class="flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 truncate">
                             <i class="fa-solid fa-user-astronaut"></i> Luiz
                         </div>
-                        <div class="flex flex-col">
-                            <span class="text-[10px] text-slate-400 font-medium">Pagou: <b id="fin-luiz-paid" class="text-slate-700 dark:text-slate-300">R$ 0,00</b></span>
-                            <span class="text-[10px] text-slate-400 font-medium">Parte: <b id="fin-luiz-part" class="text-slate-700 dark:text-slate-300">R$ 0,00</b></span>
+                        <div class="flex flex-col text-[11px]">
+                            <span class="text-slate-400 font-medium truncate">Pagou: <b id="fin-luiz-paid" class="text-slate-700 dark:text-slate-300">R$ 0,00</b></span>
+                            <span class="text-slate-400 font-medium truncate">Parte: <b id="fin-luiz-part" class="text-slate-700 dark:text-slate-300">R$ 0,00</b></span>
                         </div>
                     </div>
-                    <div class="bg-slate-50 dark:bg-slate-900/50 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700/50 flex flex-col gap-1">
-                        <div class="flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                    <div class="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-700/50 flex flex-col gap-1 min-w-0">
+                        <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 truncate">
                             <i class="fa-solid fa-user-ninja"></i> Matheus
                         </div>
-                        <div class="flex flex-col">
-                            <span class="text-[10px] text-slate-400 font-medium">Pagou: <b id="fin-matheus-paid" class="text-slate-700 dark:text-slate-300">R$ 0,00</b></span>
-                            <span class="text-[10px] text-slate-400 font-medium">Parte: <b id="fin-matheus-part" class="text-slate-700 dark:text-slate-300">R$ 0,00</b></span>
+                        <div class="flex flex-col text-[11px]">
+                            <span class="text-slate-400 font-medium truncate">Pagou: <b id="fin-matheus-paid" class="text-slate-700 dark:text-slate-300">R$ 0,00</b></span>
+                            <span class="text-slate-400 font-medium truncate">Parte: <b id="fin-matheus-part" class="text-slate-700 dark:text-slate-300">R$ 0,00</b></span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Box de Acerto / Transferência Líquida -->
-                <div id="fin-settlement-box" class="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 flex items-center justify-between transition-all">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 text-base">
+                <div id="fin-settlement-box" class="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 flex items-center justify-between gap-3 transition-all">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 text-sm">
                             <i class="fa-solid fa-arrow-right-arrow-left"></i>
                         </div>
                         <div class="min-w-0">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">Acerto da Fatura</span>
-                            <p class="text-xs font-bold text-slate-800 dark:text-white truncate" id="fin-settlement-desc">Tudo em dia!</p>
+                            <span class="text-[9px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300 block">Acerto Pix</span>
+                            <p class="text-xs font-bold text-slate-800 dark:text-white leading-tight" id="fin-settlement-desc">Tudo em dia!</p>
                         </div>
                     </div>
                     <div class="text-right shrink-0">
-                        <span class="text-sm font-black text-slate-800 dark:text-white" id="fin-settlement-amount">R$ 0,00</span>
+                        <span class="text-sm font-black text-slate-800 dark:text-white whitespace-nowrap" id="fin-settlement-amount">R$ 0,00</span>
                     </div>
                 </div>
             </div>
 
             <!-- Carrossel de Seleção de Fatura / Período -->
-            <div class="flex flex-col gap-2.5 mb-5 shrink-0">
+            <div class="flex flex-col gap-2 mb-3.5 shrink-0">
                 <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">Filtrar por Fatura</span>
-                    <button onclick="toggleFaturasDropdown()" class="text-xs font-bold text-brand hover:underline flex items-center gap-1">
-                        <span>Mais faturas</span> <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">Escolher Fatura</span>
+                    <button onclick="toggleFaturasDropdown()" class="text-xs font-bold text-brand hover:underline flex items-center gap-1 py-1 touch-manipulation">
+                        <span>Todas faturas</span> <i class="fa-solid fa-chevron-down text-[10px]"></i>
                     </button>
                 </div>
-                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1 items-center" id="fin-faturas-pills">
+                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1 items-center touch-pan-x" id="fin-faturas-pills">
                     <!-- Gerado dinamicamente via JS: [Fatura Atual] [Próxima] [Todas] -->
                 </div>
-                <div id="fin-faturas-dropdown" class="hidden bg-white dark:bg-slate-800 p-2 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-lg flex-col gap-1 max-h-48 overflow-y-auto">
+                <div id="fin-faturas-dropdown" class="hidden bg-white dark:bg-slate-800 p-2 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl flex-col gap-1 max-h-48 overflow-y-auto">
                     <!-- Lista de outras faturas -->
                 </div>
             </div>
 
             <!-- Filtros de Status (Todas / Pendentes / Pagas) -->
-            <div class="flex items-center gap-2 mb-4 shrink-0">
-                <button onclick="setFinFilter('all')" id="fin-filter-all" class="px-4 py-1.5 rounded-full bg-brand text-white text-xs font-bold shadow-sm whitespace-nowrap transition-colors">Todas</button>
-                <button onclick="setFinFilter('pending')" id="fin-filter-pending" class="px-4 py-1.5 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-bold whitespace-nowrap transition-colors">Pendentes</button>
-                <button onclick="setFinFilter('paid')" id="fin-filter-paid" class="px-4 py-1.5 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-bold whitespace-nowrap transition-colors">Pagas</button>
-                <button onclick="markCurrentInvoiceAllPaid()" class="ml-auto text-xs font-bold text-slate-400 hover:text-emerald-500 transition-colors flex items-center gap-1">
-                    <i class="fa-solid fa-check-double"></i> Quitar Fatura
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4 shrink-0">
+                <div class="flex items-center gap-1.5">
+                    <button onclick="setFinFilter('all')" id="fin-filter-all" class="px-3.5 py-1.5 rounded-full bg-brand text-white text-xs font-bold shadow-sm whitespace-nowrap transition-colors touch-manipulation">Todas</button>
+                    <button onclick="setFinFilter('pending')" id="fin-filter-pending" class="px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-bold whitespace-nowrap transition-colors touch-manipulation">Pendentes</button>
+                    <button onclick="setFinFilter('paid')" id="fin-filter-paid" class="px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-bold whitespace-nowrap transition-colors touch-manipulation">Pagas</button>
+                </div>
+                <button onclick="markCurrentInvoiceAllPaid()" class="text-xs font-bold text-slate-500 hover:text-emerald-500 dark:text-slate-400 transition-colors flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 active:scale-95 touch-manipulation">
+                    <i class="fa-solid fa-check-double text-emerald-500"></i> Quitar Fatura
                 </button>
             </div>
 
-            <div id="financesList" class="flex-1 overflow-y-auto no-scrollbar flex flex-col gap-2.5 pb-6"></div>
+            <!-- Lista de Contas (Sem scroll aninhado, rola com a página!) -->
+            <div id="financesList" class="flex flex-col gap-2.5 pb-20"></div>
             <div id="financesEmpty" class="hidden flex-col items-center justify-center text-slate-400 dark:text-slate-500 py-12 gap-3">
                 <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-2xl text-slate-400">
                     <i class="fa-solid fa-receipt"></i>
@@ -566,6 +584,11 @@
                 <p class="text-sm font-semibold">Nenhuma conta encontrada nesta fatura.</p>
                 <button onclick="openFinanceModal()" class="text-xs font-bold text-brand hover:underline">Adicionar a primeira conta</button>
             </div>
+
+            <!-- Botão Flutuante (FAB) para Adicionar Conta no Celular com o Polegar -->
+            <button onclick="openFinanceModal()" class="fixed bottom-20 right-4 z-[400] w-14 h-14 bg-brand hover:bg-brand-dark text-white rounded-full shadow-[0_8px_25px_rgba(251,113,133,0.5)] flex items-center justify-center text-xl active:scale-90 transition-transform touch-manipulation" title="Nova Conta">
+                <i class="fa-solid fa-plus"></i>
+            </button>
         </div>
 
         <!-- ABA 4: AGENDA -->
@@ -1775,6 +1798,7 @@
                     if (t === tabId) {
                         el.classList.remove('z-0', 'opacity-0', 'pointer-events-none');
                         el.classList.add('z-10');
+                        el.scrollTop = 0;
                     } else {
                         el.classList.add('z-0', 'opacity-0', 'pointer-events-none');
                         el.classList.remove('z-10');
@@ -1968,7 +1992,7 @@
 
             db.ref('finances').on('value', (snap) => {
                 const data = snap.val();
-                const newArr = data ? Object.values(data) : [];
+                const newArr = data ? Object.entries(data).map(([key, val]) => ({...val, id: val.id || key})) : [];
                 if (!initialLoad.finances && newArr.length > finances.length) sendPushNotification("Nova Conta Adicionada", "Uma despesa foi inserida nas contas.");
                 finances = newArr;
                 renderFinances();
@@ -3921,9 +3945,9 @@
             invoiceMap.set(cycles.nextKey, cycles.nextCycle);
 
             finances.forEach(f => {
-                if (f.date) {
+                if (f && f.date) {
                     const c = getInvoiceCycle(f.date);
-                    if (!invoiceMap.has(c.key)) invoiceMap.set(c.key, c);
+                    if (c && !invoiceMap.has(c.key)) invoiceMap.set(c.key, c);
                 }
             });
 
@@ -3934,13 +3958,13 @@
             const dropdown = document.getElementById('fin-faturas-dropdown');
             if (pillsContainer) {
                 let pillsHtml = `
-                    <button onclick="setFinInvoiceKey('${cycles.currentKey}')" class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${activeKey === cycles.currentKey ? 'bg-blue-600 text-white shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'}">
+                    <button onclick="setFinInvoiceKey('${cycles.currentKey}')" class="px-3.5 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all touch-manipulation active:scale-95 ${activeKey === cycles.currentKey ? 'bg-blue-600 text-white shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'}">
                         <i class="fa-solid fa-credit-card mr-1 text-[10px]"></i> Fatura Atual (${cycles.currentCycle.shortTitle})
                     </button>
-                    <button onclick="setFinInvoiceKey('${cycles.nextKey}')" class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${activeKey === cycles.nextKey ? 'bg-blue-600 text-white shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'}">
+                    <button onclick="setFinInvoiceKey('${cycles.nextKey}')" class="px-3.5 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all touch-manipulation active:scale-95 ${activeKey === cycles.nextKey ? 'bg-blue-600 text-white shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'}">
                         Próxima (${cycles.nextCycle.shortTitle})
                     </button>
-                    <button onclick="setFinInvoiceKey('all')" class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${activeKey === 'all' ? 'bg-slate-800 dark:bg-white text-white dark:text-slate-900 shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'}">
+                    <button onclick="setFinInvoiceKey('all')" class="px-3.5 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all touch-manipulation active:scale-95 ${activeKey === 'all' ? 'bg-slate-800 dark:bg-white text-white dark:text-slate-900 shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'}">
                         Todas
                     </button>
                 `;
@@ -3951,7 +3975,7 @@
                 let dropHtml = '';
                 sortedCycles.forEach(c => {
                     dropHtml += `
-                        <button onclick="setFinInvoiceKey('${c.key}')" class="text-left px-3 py-2 rounded-xl text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-700 flex justify-between items-center ${activeKey === c.key ? 'text-brand font-black' : 'text-slate-700 dark:text-slate-300'}">
+                        <button onclick="setFinInvoiceKey('${c.key}')" class="text-left px-3.5 py-2.5 rounded-xl text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-700 flex justify-between items-center transition-colors touch-manipulation ${activeKey === c.key ? 'text-brand font-black' : 'text-slate-700 dark:text-slate-300'}">
                             <span>${c.title} (Venc. ${c.dueDateFormatted})</span>
                             <span class="text-[10px] text-slate-400">Vira dia 03</span>
                         </button>
@@ -3969,24 +3993,26 @@
             let pendingCount = 0;
 
             const invoiceFinances = finances.filter(f => {
+                if (!f) return false;
                 if (activeKey !== 'all') {
                     const c = getInvoiceCycle(f.date);
-                    if (c.key !== activeKey) return false;
+                    if (!c || c.key !== activeKey) return false;
                 }
 
-                totalInvoiceAmount += (f.amount || 0);
+                const amt = parseFloat(f.amount) || 0;
+                totalInvoiceAmount += amt;
                 const payer = f.payer || 'Luiz';
                 const isSplit = f.type === 'split';
 
-                if (payer === 'Luiz') luizPaid += f.amount;
-                else if (payer === 'Matheus') matheusPaid += f.amount;
+                if (payer === 'Luiz') luizPaid += amt;
+                else if (payer === 'Matheus') matheusPaid += amt;
 
                 if (isSplit) {
-                    luizPart += (f.amount / 2);
-                    matheusPart += (f.amount / 2);
+                    luizPart += (amt / 2);
+                    matheusPart += (amt / 2);
                 } else {
-                    if (payer === 'Luiz') matheusPart += f.amount;
-                    else luizPart += f.amount;
+                    if (payer === 'Luiz') matheusPart += amt;
+                    else luizPart += amt;
                 }
 
                 if (!f.paid) pendingCount++;
@@ -4029,19 +4055,19 @@
             const cycleBadge = document.getElementById('fin-cycle-badge');
             if (cycleBadge) {
                 if (pendingCount === 0 && totalInvoiceAmount > 0) {
-                    cycleBadge.className = "px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800";
+                    cycleBadge.className = "px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800";
                     cycleBadge.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> Fatura Paga`;
                 } else if (activeKey === cycles.currentKey) {
                     const todayDay = new Date().getDate();
                     if (todayDay > 3 && todayDay <= 10) {
-                        cycleBadge.className = "px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800 animate-pulse";
+                        cycleBadge.className = "px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800 animate-pulse";
                         cycleBadge.innerHTML = `<i class="fa-solid fa-clock mr-1"></i> Fechada • Pagar até dia 10`;
                     } else {
-                        cycleBadge.className = "px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800";
+                        cycleBadge.className = "px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800";
                         cycleBadge.innerHTML = `<i class="fa-solid fa-lock-open mr-1"></i> Aberta (Vira dia 03)`;
                     }
                 } else {
-                    cycleBadge.className = "px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600";
+                    cycleBadge.className = "px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600";
                     cycleBadge.innerHTML = `<i class="fa-solid fa-credit-card mr-1"></i> ${pendingCount} pendente(s)`;
                 }
             }
@@ -4058,16 +4084,16 @@
                 if (Math.abs(luizNet) < 0.01) {
                     settlementDesc.innerText = "Tudo em dia! Ninguém deve nada nesta fatura.";
                     settlementAmount.innerText = "R$ 0,00";
-                    if (settlementBox) settlementBox.className = "p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 flex items-center justify-between transition-all";
+                    if (settlementBox) settlementBox.className = "p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 flex items-center justify-between gap-3 transition-all";
                 } else if (luizNet < 0) {
                     const diff = Math.abs(luizNet);
                     settlementDesc.innerHTML = `Luiz deve fazer um Pix para <b>Matheus</b>`;
                     settlementAmount.innerText = `R$ ${diff.toFixed(2).replace('.', ',')}`;
-                    if (settlementBox) settlementBox.className = "p-3.5 rounded-2xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/50 flex items-center justify-between transition-all";
+                    if (settlementBox) settlementBox.className = "p-3.5 rounded-2xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/50 flex items-center justify-between gap-3 transition-all";
                 } else {
                     settlementDesc.innerHTML = `Matheus deve fazer um Pix para <b>Luiz</b>`;
                     settlementAmount.innerText = `R$ ${luizNet.toFixed(2).replace('.', ',')}`;
-                    if (settlementBox) settlementBox.className = "p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 flex items-center justify-between transition-all";
+                    if (settlementBox) settlementBox.className = "p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 flex items-center justify-between gap-3 transition-all";
                 }
             }
 
@@ -4076,19 +4102,20 @@
                 if (empty) { empty.classList.remove('hidden'); empty.classList.add('flex'); }
             } else {
                 if (empty) { empty.classList.add('hidden'); empty.classList.remove('flex'); }
-                invoiceFinances.sort((a,b) => b.timestamp - a.timestamp).forEach(f => {
+                invoiceFinances.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0)).forEach(f => {
                     const c = getInvoiceCycle(f.date);
                     const isCard = f.method !== 'pix';
                     const icon = isCard ? 'fa-credit-card' : 'fa-receipt';
                     const iconColor = isCard ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300';
                     const payerIcon = f.payer === 'Luiz' ? 'fa-user-astronaut text-blue-500' : 'fa-user-ninja text-emerald-500';
+                    const amt = parseFloat(f.amount) || 0;
 
                     const statusBadge = f.paid
-                        ? `<button onclick="event.stopPropagation(); toggleDirectPaid('${f.id}')" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 hover:scale-105 active:scale-95 transition-all"><i class="fa-solid fa-check mr-1"></i> Pago</button>`
-                        : `<button onclick="event.stopPropagation(); toggleDirectPaid('${f.id}')" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-300 border border-red-200 dark:border-red-800 hover:scale-105 active:scale-95 transition-all"><i class="fa-solid fa-clock mr-1"></i> Pendente</button>`;
+                        ? `<button onclick="event.stopPropagation(); toggleDirectPaid('${f.id}')" class="px-3 py-1.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 active:scale-95 transition-all flex items-center gap-1 touch-manipulation"><i class="fa-solid fa-check"></i> Pago</button>`
+                        : `<button onclick="event.stopPropagation(); toggleDirectPaid('${f.id}')" class="px-3 py-1.5 rounded-full text-[10px] font-bold bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-300 border border-red-200 dark:border-red-800 active:scale-95 transition-all flex items-center gap-1 touch-manipulation"><i class="fa-solid fa-clock"></i> Pendente</button>`;
 
                     const div = document.createElement('div');
-                    div.className = 'bg-white dark:bg-slate-800 p-3.5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/80 flex items-center gap-3.5 hover:border-brand transition-all cursor-pointer group active:scale-[0.99]';
+                    div.className = 'bg-white dark:bg-slate-800 p-3.5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/80 flex items-center gap-3.5 hover:border-brand transition-all cursor-pointer group active:scale-[0.99] touch-manipulation';
                     div.onclick = () => openViewFinance(f.id);
                     div.innerHTML = `
                         <div class="w-11 h-11 rounded-2xl ${iconColor} flex items-center justify-center shrink-0 text-base shadow-sm group-hover:scale-105 transition-transform">
@@ -4096,7 +4123,7 @@
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2">
-                                <h4 class="font-bold text-slate-800 dark:text-white text-sm truncate">${f.title}</h4>
+                                <h4 class="font-bold text-slate-800 dark:text-white text-sm truncate">${f.title || 'Conta'}</h4>
                                 <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 shrink-0">Fatura ${c.shortTitle}</span>
                             </div>
                             <div class="flex items-center gap-2 mt-1 text-[11px] text-slate-400 dark:text-slate-500">
@@ -4106,7 +4133,7 @@
                             </div>
                         </div>
                         <div class="text-right shrink-0 flex flex-col items-end gap-1.5">
-                            <span class="font-black text-slate-800 dark:text-white text-sm">R$ ${f.amount.toFixed(2).replace('.', ',')}</span>
+                            <span class="font-black text-slate-800 dark:text-white text-sm">R$ ${amt.toFixed(2).replace('.', ',')}</span>
                             ${statusBadge}
                         </div>
                     `;
