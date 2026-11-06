@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nosso App 💖</title>
+    <title>Nosso App</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -103,6 +103,10 @@
 
         .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
         html.dark .glass-panel { background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.1); }
+
+        .pb-safe { padding-bottom: max(env(safe-area-inset-bottom, 0px), 16px); }
+        .pt-safe { padding-top: max(env(safe-area-inset-top, 0px), 12px); }
+        .touch-manipulation { touch-action: manipulation; }
     </style>
 </head>
 <body class="flex flex-col h-[100dvh] text-slate-800 dark:text-slate-100 antialiased overflow-hidden relative bg-slate-50 dark:bg-slate-900 transition-colors">
@@ -146,14 +150,162 @@
 
     <main class="flex-1 relative overflow-hidden bg-slate-50 dark:bg-slate-900 transition-colors">
         
+        <!-- ABA 0: MENU INICIAL / HOME HUB -->
+        <div id="tab-home" class="absolute inset-0 z-10 transition-opacity duration-300 flex flex-col pt-6 px-4 pb-28 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
+            <!-- Header do Início com espaço para global-actions -->
+            <div class="flex items-center justify-between mt-12 sm:mt-14 mb-6 pr-24 sm:pr-0">
+                <div class="flex items-center gap-3">
+                    <div class="flex -space-x-2">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold text-sm border-2 border-white dark:border-slate-800 shadow-sm" title="Luiz">
+                            <i class="fa-solid fa-user-astronaut"></i>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-300 flex items-center justify-center font-bold text-sm border-2 border-white dark:border-slate-800 shadow-sm" title="Matheus">
+                            <i class="fa-solid fa-user-ninja"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-black text-slate-800 dark:text-white leading-tight">Olá, <span class="logged-user-name text-brand"></span>!</h1>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium" id="home-current-date">Nosso cantinho digital</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Destaque Sintonia & Cartão -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                <!-- Tempo Juntos -->
+                <div onclick="switchTab('time')" class="cursor-pointer bg-gradient-to-br from-brand/10 via-brand/5 to-transparent dark:from-brand/20 dark:via-brand/5 p-4 rounded-3xl border border-brand/20 shadow-sm hover:border-brand/40 transition-all flex items-center justify-between group active:scale-[0.99]">
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-2xl bg-brand text-white flex items-center justify-center text-lg shadow-md group-hover:scale-105 transition-transform">
+                            <i class="fa-solid fa-heart"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-brand">Nosso Tempo</span>
+                            <h3 class="text-sm font-black text-slate-800 dark:text-white" id="home-time-summary">Calculando dias...</h3>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-xs text-brand/60 group-hover:translate-x-1 transition-transform"></i>
+                </div>
+
+                <!-- Ciclo do Cartão Resumo -->
+                <div onclick="switchTab('finances')" class="cursor-pointer bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent dark:from-blue-500/20 dark:via-blue-500/5 p-4 rounded-3xl border border-blue-500/20 shadow-sm hover:border-blue-500/40 transition-all flex items-center justify-between group active:scale-[0.99]">
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-lg shadow-md group-hover:scale-105 transition-transform">
+                            <i class="fa-solid fa-credit-card"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Cartão do Mês</span>
+                            <h3 class="text-sm font-black text-slate-800 dark:text-white" id="home-card-summary">Vira dia 3 • Vence dia 10</h3>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-xs text-blue-500/60 group-hover:translate-x-1 transition-transform"></i>
+                </div>
+            </div>
+
+            <!-- Grade com todas as abas para fácil acesso -->
+            <div class="mb-3 flex items-center justify-between">
+                <h2 class="text-xs font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">Menu Principal</h2>
+                <span class="text-[11px] text-slate-400 font-medium">8 recursos</span>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <!-- 1. Diário & Mapa -->
+                <button onclick="switchTab('map')" class="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700/80 hover:border-brand dark:hover:border-brand flex flex-col items-start gap-3 transition-all text-left group active:scale-95">
+                    <div class="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm text-slate-800 dark:text-white">Diário / Mapa</h4>
+                        <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5" id="home-stat-map">Lugares & memórias</p>
+                    </div>
+                </button>
+
+                <!-- 2. Contas & Cartão -->
+                <button onclick="switchTab('finances')" class="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700/80 hover:border-brand dark:hover:border-brand flex flex-col items-start gap-3 transition-all text-left group active:scale-95">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-500 flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-credit-card"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm text-slate-800 dark:text-white">Contas</h4>
+                        <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5" id="home-stat-finances">Vira dia 3 • Vence dia 10</p>
+                    </div>
+                </button>
+
+                <!-- 3. Filmes -->
+                <button onclick="switchTab('movies')" class="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700/80 hover:border-brand dark:hover:border-brand flex flex-col items-start gap-3 transition-all text-left group active:scale-95">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-clapperboard"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm text-slate-800 dark:text-white">Filmes</h4>
+                        <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5" id="home-stat-movies">Lista e roleta</p>
+                    </div>
+                </button>
+
+                <!-- 4. Séries -->
+                <button onclick="switchTab('shows')" class="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700/80 hover:border-brand dark:hover:border-brand flex flex-col items-start gap-3 transition-all text-left group active:scale-95">
+                    <div class="w-12 h-12 rounded-2xl bg-violet-50 dark:bg-violet-900/30 text-violet-500 flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-tv"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm text-slate-800 dark:text-white">Séries</h4>
+                        <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5" id="home-stat-shows">Temporadas juntos</p>
+                    </div>
+                </button>
+
+                <!-- 5. Agenda -->
+                <button onclick="switchTab('calendar')" class="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700/80 hover:border-brand dark:hover:border-brand flex flex-col items-start gap-3 transition-all text-left group active:scale-95">
+                    <div class="w-12 h-12 rounded-2xl bg-cyan-50 dark:bg-cyan-900/30 text-cyan-500 flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-calendar-days"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm text-slate-800 dark:text-white">Agenda</h4>
+                        <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5" id="home-stat-calendar">Compromissos</p>
+                    </div>
+                </button>
+
+                <!-- 6. Nosso Tempo -->
+                <button onclick="switchTab('time')" class="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700/80 hover:border-brand dark:hover:border-brand flex flex-col items-start gap-3 transition-all text-left group active:scale-95">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-900/30 text-purple-500 flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm text-slate-800 dark:text-white">Nosso Tempo</h4>
+                        <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5" id="home-stat-time">Marcos de amor</p>
+                    </div>
+                </button>
+
+                <!-- 7. Lista de Compras -->
+                <button onclick="switchTab('shopping')" class="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700/80 hover:border-brand dark:hover:border-brand flex flex-col items-start gap-3 transition-all text-left group active:scale-95">
+                    <div class="w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-900/30 text-orange-500 flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm text-slate-800 dark:text-white">Compras</h4>
+                        <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5" id="home-stat-shopping">Lista de mercado</p>
+                    </div>
+                </button>
+
+                <!-- 8. Spotify Match -->
+                <button onclick="switchTab('spotify')" class="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700/80 hover:border-[#1DB954] dark:hover:border-[#1DB954] flex flex-col items-start gap-3 transition-all text-left group active:scale-95">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-[#1DB954] flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
+                        <i class="fa-brands fa-spotify"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm text-slate-800 dark:text-white">Spotify Match</h4>
+                        <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5" id="home-stat-spotify">Sintonia musical</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+        
         <!-- ABA 1: MAPA -->
-        <div id="tab-map" class="absolute inset-0 z-10 transition-opacity duration-300">
+        <div id="tab-map" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300">
             <div id="map"></div>
             
             <button onclick="locateUser()" class="absolute bottom-24 right-4 z-[400] w-12 h-12 bg-white dark:bg-slate-800 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-brand transition-all"><i class="fa-solid fa-location-crosshairs text-xl"></i></button>
 
-            <!-- NOVO CONTAINER UI/UX (Estilo Dynamic Island) -->
-            <div class="absolute top-6 left-1/2 -translate-x-1/2 w-[92%] md:w-[420px] z-[400] flex flex-col gap-2 pointer-events-none">
+            <!-- NOVO CONTAINER UI/UX (Estilo Dynamic Island) - Sem sobreposição com global-actions no celular -->
+            <div class="absolute top-4 sm:top-6 left-3 sm:left-1/2 sm:-translate-x-1/2 w-[calc(100%-108px)] sm:w-[420px] z-[400] flex flex-col gap-2 pointer-events-none">
                 
                 <!-- Ilha Principal -->
                 <div class="flex items-center justify-between p-2 pl-3 rounded-[28px] shadow-xl border border-white/50 dark:border-slate-700/50 pointer-events-auto bg-white/85 dark:bg-slate-800/85 backdrop-blur-xl">
@@ -194,9 +346,9 @@
             <div id="helpToast" class="absolute top-48 left-1/2 -translate-x-1/2 z-[400] bg-slate-800 dark:bg-slate-700 text-white px-5 py-2.5 rounded-full shadow-2xl text-xs font-bold opacity-90 transition-opacity duration-500 pointer-events-none whitespace-nowrap"><i class="fa-solid fa-hand-pointer text-brand mr-2"></i>Toque no mapa para salvar uma memória</div>
         </div>
 
-        <!-- ABA 2: FILMES 🍿 -->
-        <div id="tab-movies" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
-            <div class="flex justify-between items-center mb-4 mt-16">
+        <!-- ABA 2: FILMES -->
+        <div id="tab-movies" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-28 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 mt-14 sm:mt-16 pr-24 sm:pr-0">
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Filmes <i class="fa-solid fa-popcorn text-brand"></i></h1>
                 <div class="flex gap-2">
                     <button onclick="pickRandomItem('movie')" class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 w-10 h-10 rounded-full shadow-sm flex items-center justify-center hover:bg-indigo-100 hover:scale-105 transition-all"><i class="fa-solid fa-dice text-lg"></i></button>
@@ -246,9 +398,9 @@
             <div id="empty-movie" class="hidden flex-col items-center justify-center text-slate-400 dark:text-slate-500 mt-10 gap-4"><i class="fa-solid fa-film text-6xl opacity-30"></i><p class="text-center font-medium">Nenhum filme por aqui.</p></div>
         </div>
 
-        <!-- ABA 2.5: SÉRIES 📺 -->
-        <div id="tab-shows" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
-            <div class="flex justify-between items-center mb-4 mt-16">
+        <!-- ABA 2.5: SÉRIES -->
+        <div id="tab-shows" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-28 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 mt-14 sm:mt-16 pr-24 sm:pr-0">
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Séries <i class="fa-solid fa-tv text-brand"></i></h1>
                 <div class="flex gap-2">
                     <button onclick="pickRandomItem('tv')" class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 w-10 h-10 rounded-full shadow-sm flex items-center justify-center hover:bg-indigo-100 hover:scale-105 transition-all"><i class="fa-solid fa-dice text-lg"></i></button>
@@ -273,7 +425,7 @@
             <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 mb-6 flex flex-col gap-3">
                 <div class="relative w-full">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" id="search-tv" placeholder="Buscar nas séries..." onkeyup="renderGrid('tv')" class="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border-none focus:ring-2 focus:ring-brand/20 text-sm font-medium dark:text-white">
+                    <input type="text" id="search-tv" placeholder="Buscar no nosso acervo..." onkeyup="renderGrid('tv')" class="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border-none focus:ring-2 focus:ring-brand/20 text-sm font-medium dark:text-white">
                 </div>
                 <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1 items-center">
                     <button onclick="setFilter('tv', 'all')" id="btn-tv-all" class="px-4 py-1.5 rounded-full bg-slate-800 dark:bg-white text-white dark:text-slate-800 text-xs font-bold shadow-sm whitespace-nowrap transition-colors">Todas</button>
@@ -298,54 +450,127 @@
             <div id="empty-tv" class="hidden flex-col items-center justify-center text-slate-400 dark:text-slate-500 mt-10 gap-4"><i class="fa-solid fa-tv text-6xl opacity-30"></i><p class="text-center font-medium">Nenhuma série por aqui.</p></div>
         </div>
 
-        <!-- Padronizamos o padding bottom de 32 (128px) para 20 (80px), tirando a "barra invisível" -->
-        <div id="tab-finances" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
-            <div class="flex justify-between items-center mb-6 mt-16">
-                <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Contas <i class="fa-solid fa-file-invoice-dollar text-brand"></i></h1>
+        <!-- ABA 3: NOSSAS CONTAS & CICLO DO CARTÃO -->
+        <div id="tab-finances" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-28 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
+            <!-- Header sem sobreposição com global-actions no celular -->
+            <div class="flex justify-between items-center mb-5 mt-14 sm:mt-16 pr-24 sm:pr-0">
+                <div>
+                    <h1 class="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-2">Contas & Cartão <i class="fa-solid fa-credit-card text-brand"></i></h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">Vira dia 03 • Pagamento dia 10</p>
+                </div>
                 <div class="flex gap-2">
-                    <button onclick="clearFinancesHistory()" class="bg-white dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 w-10 h-10 rounded-full shadow-sm flex items-center justify-center hover:text-red-500 transition-all"><i class="fa-solid fa-broom text-lg"></i></button>
-                    <button onclick="openFinanceModal()" class="bg-brand text-white w-10 h-10 rounded-full shadow-md flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all"><i class="fa-solid fa-plus text-lg"></i></button>
+                    <button onclick="clearFinancesHistory()" class="bg-white dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 w-10 h-10 rounded-full shadow-sm flex items-center justify-center hover:text-red-500 transition-all" title="Limpar Pagas"><i class="fa-solid fa-broom text-base"></i></button>
+                    <button onclick="openFinanceModal()" class="bg-brand text-white w-10 h-10 rounded-full shadow-md flex items-center justify-center hover:bg-brand-dark hover:scale-105 active:scale-95 transition-all" title="Nova Conta"><i class="fa-solid fa-plus text-base"></i></button>
                 </div>
             </div>
-            
-            <div class="bg-white dark:bg-slate-800 p-2 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 mb-6 flex flex-col md:flex-row gap-2 relative overflow-hidden">
-                <div class="flex-1 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-[20px] flex items-center gap-4 border border-slate-100 dark:border-slate-700/50 hover:border-blue-200 dark:hover:border-blue-900/50 transition-colors">
-                    <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-500 flex items-center justify-center text-xl shrink-0 shadow-inner">
-                        <i class="fa-solid fa-user-astronaut"></i>
+
+            <!-- Card Executivo do Ciclo do Cartão & Acerto -->
+            <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 mb-5 flex flex-col gap-4 relative overflow-hidden">
+                <!-- Informações do Ciclo do Cartão -->
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center text-base">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Ciclo do Cartão</span>
+                            <h3 class="text-sm font-black text-slate-800 dark:text-white" id="fin-cycle-status-title">Fatura Selecionada</h3>
+                        </div>
                     </div>
-                    <div class="flex flex-col min-w-0">
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Luiz deve:</span>
-                        <span id="fin-luiz-owes" class="text-xl md:text-2xl font-black text-slate-700 dark:text-white truncate">R$ 0,00</span>
+                    <span id="fin-cycle-badge" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800">Aberta</span>
+                </div>
+
+                <!-- Total da Fatura e Datas -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Desta Fatura</span>
+                        <div class="text-3xl font-black text-slate-800 dark:text-white" id="fin-invoice-total">R$ 0,00</div>
+                    </div>
+                    <div class="flex items-center gap-4 text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/60 px-3.5 py-2 rounded-2xl border border-slate-100 dark:border-slate-700/60">
+                        <div class="flex items-center gap-1.5"><i class="fa-solid fa-arrows-rotate text-blue-500"></i> <span>Vira: <b>03/<span id="fin-txt-close-month">--</span></b></span></div>
+                        <div class="w-px h-3 bg-slate-200 dark:bg-slate-700"></div>
+                        <div class="flex items-center gap-1.5"><i class="fa-solid fa-money-bill-wave text-emerald-500"></i> <span>Vence: <b>10/<span id="fin-txt-due-month">--</span></b></span></div>
                     </div>
                 </div>
-                <div class="flex-1 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-[20px] flex items-center gap-4 border border-slate-100 dark:border-slate-700/50 hover:border-emerald-200 dark:hover:border-emerald-900/50 transition-colors">
-                    <div class="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-500 flex items-center justify-center text-xl shrink-0 shadow-inner">
-                        <i class="fa-solid fa-user-ninja"></i>
+
+                <!-- Comparativo Luiz vs Matheus -->
+                <div class="grid grid-cols-2 gap-3 pt-1">
+                    <div class="bg-slate-50 dark:bg-slate-900/50 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700/50 flex flex-col gap-1">
+                        <div class="flex items-center gap-2 text-xs font-bold text-blue-600 dark:text-blue-400">
+                            <i class="fa-solid fa-user-astronaut"></i> Luiz
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-[10px] text-slate-400 font-medium">Pagou: <b id="fin-luiz-paid" class="text-slate-700 dark:text-slate-300">R$ 0,00</b></span>
+                            <span class="text-[10px] text-slate-400 font-medium">Parte: <b id="fin-luiz-part" class="text-slate-700 dark:text-slate-300">R$ 0,00</b></span>
+                        </div>
                     </div>
-                    <div class="flex flex-col min-w-0">
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Matheus deve:</span>
-                        <span id="fin-matheus-owes" class="text-xl md:text-2xl font-black text-slate-700 dark:text-white truncate">R$ 0,00</span>
+                    <div class="bg-slate-50 dark:bg-slate-900/50 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700/50 flex flex-col gap-1">
+                        <div class="flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                            <i class="fa-solid fa-user-ninja"></i> Matheus
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-[10px] text-slate-400 font-medium">Pagou: <b id="fin-matheus-paid" class="text-slate-700 dark:text-slate-300">R$ 0,00</b></span>
+                            <span class="text-[10px] text-slate-400 font-medium">Parte: <b id="fin-matheus-part" class="text-slate-700 dark:text-slate-300">R$ 0,00</b></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Box de Acerto / Transferência Líquida -->
+                <div id="fin-settlement-box" class="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 flex items-center justify-between transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 text-base">
+                            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">Acerto da Fatura</span>
+                            <p class="text-xs font-bold text-slate-800 dark:text-white truncate" id="fin-settlement-desc">Tudo em dia!</p>
+                        </div>
+                    </div>
+                    <div class="text-right shrink-0">
+                        <span class="text-sm font-black text-slate-800 dark:text-white" id="fin-settlement-amount">R$ 0,00</span>
                     </div>
                 </div>
             </div>
 
-            <div class="flex flex-col gap-3 mb-4 shrink-0">
-                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                    <button onclick="setFinFilter('all')" id="fin-filter-all" class="px-4 py-2 rounded-full bg-brand text-white text-sm font-bold shadow-md whitespace-nowrap transition-colors">Todas</button>
-                    <button onclick="setFinFilter('pending')" id="fin-filter-pending" class="px-4 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-sm font-bold whitespace-nowrap transition-colors">Pendentes</button>
-                    <button onclick="setFinFilter('paid')" id="fin-filter-paid" class="px-4 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-sm font-bold whitespace-nowrap transition-colors">Pagas</button>
+            <!-- Carrossel de Seleção de Fatura / Período -->
+            <div class="flex flex-col gap-2.5 mb-5 shrink-0">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">Filtrar por Fatura</span>
+                    <button onclick="toggleFaturasDropdown()" class="text-xs font-bold text-brand hover:underline flex items-center gap-1">
+                        <span>Mais faturas</span> <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                    </button>
+                </div>
+                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1 items-center" id="fin-faturas-pills">
+                    <!-- Gerado dinamicamente via JS: [Fatura Atual] [Próxima] [Todas] -->
+                </div>
+                <div id="fin-faturas-dropdown" class="hidden bg-white dark:bg-slate-800 p-2 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-lg flex-col gap-1 max-h-48 overflow-y-auto">
+                    <!-- Lista de outras faturas -->
                 </div>
             </div>
 
-            <div id="financesList" class="flex-1 overflow-y-auto no-scrollbar flex flex-col gap-3 pb-4"></div>
-            <div id="financesEmpty" class="hidden flex-col items-center justify-center text-slate-400 dark:text-slate-500 mt-6 gap-2">
-                <i class="fa-solid fa-check-circle text-4xl opacity-30"></i><p class="text-sm font-medium">Nenhuma conta encontrada.</p>
+            <!-- Filtros de Status (Todas / Pendentes / Pagas) -->
+            <div class="flex items-center gap-2 mb-4 shrink-0">
+                <button onclick="setFinFilter('all')" id="fin-filter-all" class="px-4 py-1.5 rounded-full bg-brand text-white text-xs font-bold shadow-sm whitespace-nowrap transition-colors">Todas</button>
+                <button onclick="setFinFilter('pending')" id="fin-filter-pending" class="px-4 py-1.5 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-bold whitespace-nowrap transition-colors">Pendentes</button>
+                <button onclick="setFinFilter('paid')" id="fin-filter-paid" class="px-4 py-1.5 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-bold whitespace-nowrap transition-colors">Pagas</button>
+                <button onclick="markCurrentInvoiceAllPaid()" class="ml-auto text-xs font-bold text-slate-400 hover:text-emerald-500 transition-colors flex items-center gap-1">
+                    <i class="fa-solid fa-check-double"></i> Quitar Fatura
+                </button>
+            </div>
+
+            <div id="financesList" class="flex-1 overflow-y-auto no-scrollbar flex flex-col gap-2.5 pb-6"></div>
+            <div id="financesEmpty" class="hidden flex-col items-center justify-center text-slate-400 dark:text-slate-500 py-12 gap-3">
+                <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-2xl text-slate-400">
+                    <i class="fa-solid fa-receipt"></i>
+                </div>
+                <p class="text-sm font-semibold">Nenhuma conta encontrada nesta fatura.</p>
+                <button onclick="openFinanceModal()" class="text-xs font-bold text-brand hover:underline">Adicionar a primeira conta</button>
             </div>
         </div>
 
-        <!-- ABA 4: AGENDA 📅 -->
-        <div id="tab-calendar" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
-            <div class="flex justify-between items-center mb-6 mt-16">
+        <!-- ABA 4: AGENDA -->
+        <div id="tab-calendar" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-28 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
+            <div class="flex justify-between items-center mb-6 mt-14 sm:mt-16 pr-24 sm:pr-0">
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Agenda <i class="fa-solid fa-calendar-days text-brand"></i></h1>
                 <button onclick="openAddEventModal()" class="bg-brand text-white w-10 h-10 rounded-full shadow-md flex items-center justify-center hover:bg-brand-dark hover:scale-105 transition-all"><i class="fa-solid fa-plus text-lg"></i></button>
             </div>
@@ -384,8 +609,8 @@
         </div>
 
         <!-- ABA 5: NOSSO TEMPO -->
-        <div id="tab-time" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
-            <div class="flex justify-between items-center mb-6 mt-16">
+        <div id="tab-time" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-28 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
+            <div class="flex justify-between items-center mb-6 mt-14 sm:mt-16 pr-24 sm:pr-0">
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Tempo <i class="fa-solid fa-clock text-brand"></i></h1>
                 <button onclick="openTimeSettings()" class="bg-white dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 w-10 h-10 rounded-full shadow-sm flex items-center justify-center hover:text-brand transition-all"><i class="fa-solid fa-pen"></i></button>
             </div>
@@ -414,9 +639,9 @@
             </div>
         </div>
 
-    <!-- ABA 6: COMPRAS 🛒 -->
-        <div id="tab-shopping" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-20 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
-            <div class="flex justify-between items-center mb-6 mt-16">
+        <!-- ABA 6: COMPRAS -->
+        <div id="tab-shopping" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col pt-6 px-4 pb-28 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
+            <div class="flex justify-between items-center mb-6 mt-14 sm:mt-16 pr-24 sm:pr-0">
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Compras <i class="fa-solid fa-cart-shopping text-brand"></i></h1>
             </div>
             
@@ -425,9 +650,9 @@
                 <div class="flex gap-2">
                     <input type="text" id="new-shop-item" placeholder="O que precisamos?" class="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-900 dark:text-white text-sm font-medium" onkeyup="if(event.key === 'Enter') addShoppingItem()">
                     <select id="new-shop-category" class="w-28 px-2 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand bg-slate-50 dark:bg-slate-900 dark:text-white text-xs font-bold text-slate-600">
-                        <option value="mercado">Mercado 🍎</option>
-                        <option value="casa">Casa 🏠</option>
-                        <option value="outros">Outros 📦</option>
+                        <option value="mercado">Mercado</option>
+                        <option value="casa">Casa</option>
+                        <option value="outros">Outros</option>
                     </select>
                 </div>
                 <button onclick="addShoppingItem()" class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3.5 rounded-xl shadow-md transition-transform active:scale-[0.98] flex items-center justify-center gap-2">
@@ -455,15 +680,15 @@
             </div>
         </div>
 
-        <!-- ABA 7: SPOTIFY 🎵 -->
-        <div id="tab-spotify" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-all duration-500 flex flex-col pt-6 px-4 pb-24 bg-slate-900 overflow-y-auto overflow-x-hidden">
+        <!-- ABA 7: SPOTIFY -->
+        <div id="tab-spotify" class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-all duration-500 flex flex-col pt-6 px-4 pb-28 bg-slate-900 overflow-y-auto overflow-x-hidden">
             <!-- Fundo Animado Bonito -->
             <div class="fixed top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
                 <div class="absolute -top-[10%] -left-[10%] w-[60%] h-[60%] bg-[#1DB954]/20 rounded-full blur-[120px] animate-pulse"></div>
                 <div class="absolute top-[40%] -right-[20%] w-[70%] h-[70%] bg-blue-600/10 rounded-full blur-[140px] animate-pulse" style="animation-delay: 2s;"></div>
             </div>
 
-            <div class="flex justify-between items-center mb-8 mt-16 relative z-10 px-2">
+            <div class="flex justify-between items-center mb-8 mt-14 sm:mt-16 relative z-10 px-2 pr-24 sm:pr-2">
                 <h1 class="text-3xl font-black text-white flex items-center gap-3 drop-shadow-md">Música <i class="fa-brands fa-spotify text-[#1DB954] animate-bounce"></i></h1>
                 <button onclick="toggleSpotifyConfig()" class="w-12 h-12 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center hover:bg-white/10 transition-all backdrop-blur-xl shadow-lg hover:scale-105"><i class="fa-solid fa-gear"></i></button>
             </div>
@@ -481,7 +706,7 @@
                 <i class="fa-brands fa-spotify text-2xl"></i> Conectar Spotify
             </button>
 
-            <h3 class="text-[10px] font-black text-white/50 uppercase tracking-widest mb-5 relative z-10 ml-2">Tocando Agora 🎧</h3>
+            <h3 class="text-[10px] font-black text-white/50 uppercase tracking-widest mb-5 relative z-10 ml-2 flex items-center gap-1.5"><i class="fa-solid fa-headphones text-[#1DB954]"></i> Tocando Agora</h3>
 
             <!-- Container dos Cards 3D -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10 mb-10">
@@ -578,21 +803,21 @@
 
     <!-- NOVO MENU DE NAVEGAÇÃO OTIMIZADO (5 BOTÕES) -->
     <nav class="fixed bottom-0 w-full h-16 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] flex justify-around items-center z-[500] px-1 pb-safe transition-colors">
-        <button id="nav-btn-map" onclick="switchTab('map')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-brand transition-colors relative group">
-            <i class="fa-solid fa-map text-lg group-hover:scale-110 transition-transform"></i>
+        <button id="nav-btn-home" onclick="switchTab('home')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-brand transition-colors relative group">
+            <i class="fa-solid fa-house text-lg group-hover:scale-110 transition-transform"></i>
+            <span class="text-[8px] font-bold uppercase tracking-wide">Início</span>
+        </button>
+        <button id="nav-btn-map" onclick="switchTab('map')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
+            <i class="fa-solid fa-map-location-dot text-lg group-hover:scale-110 transition-transform"></i>
             <span class="text-[8px] font-bold uppercase tracking-wide">Diário</span>
+        </button>
+        <button id="nav-btn-finances" onclick="switchTab('finances')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
+            <i class="fa-solid fa-credit-card text-lg group-hover:scale-110 transition-transform"></i>
+            <span class="text-[8px] font-bold uppercase tracking-wide">Contas</span>
         </button>
         <button id="nav-btn-movies" onclick="switchTab('movies')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
             <i class="fa-solid fa-clapperboard text-lg group-hover:scale-110 transition-transform"></i>
             <span class="text-[8px] font-bold uppercase tracking-wide">Filmes</span>
-        </button>
-        <button id="nav-btn-shows" onclick="switchTab('shows')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
-            <i class="fa-solid fa-tv text-lg group-hover:scale-110 transition-transform"></i>
-            <span class="text-[8px] font-bold uppercase tracking-wide">Séries</span>
-        </button>
-        <button id="nav-btn-finances" onclick="switchTab('finances')" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
-            <i class="fa-solid fa-file-invoice-dollar text-lg group-hover:scale-110 transition-transform"></i>
-            <span class="text-[8px] font-bold uppercase tracking-wide">Contas</span>
         </button>
         <button id="nav-btn-more" onclick="toggleMoreMenu()" class="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand transition-colors relative group">
             <i class="fa-solid fa-bars text-lg group-hover:scale-110 transition-transform"></i>
@@ -603,12 +828,20 @@
     <!-- MENU GAVETA (BOTTOM SHEET) PARA AS OUTRAS ABAS -->
     <div id="moreMenuModal" class="hidden fixed inset-0 z-[450] flex flex-col justify-end">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeMoreMenu()"></div>
-        <div class="relative bg-slate-50 dark:bg-slate-900 w-full rounded-t-3xl flex flex-col slide-up shadow-[0_-10px_40px_rgba(0,0,0,0.2)] border-t border-slate-200 dark:border-slate-800 p-6 pb-24">
+        <div class="relative bg-slate-50 dark:bg-slate-900 w-full rounded-t-3xl flex flex-col slide-up shadow-[0_-10px_40px_rgba(0,0,0,0.2)] border-t border-slate-200 dark:border-slate-800 p-6 pb-safe pb-24">
             
             <div class="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-6"></div>
-            <h3 class="font-bold text-lg text-slate-800 dark:text-white mb-4">Descobrir Mais</h3>
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-lg text-slate-800 dark:text-white">Mais Módulos</h3>
+                <button onclick="switchTab('home')" class="text-xs font-bold text-brand hover:underline flex items-center gap-1"><i class="fa-solid fa-house"></i> Ir para o Início</button>
+            </div>
             
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <button onclick="switchTab('shows')" class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center gap-2 hover:border-brand transition-colors">
+                    <div class="w-12 h-12 rounded-full bg-violet-50 dark:bg-violet-900/30 text-violet-500 flex items-center justify-center text-xl"><i class="fa-solid fa-tv"></i></div>
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Séries</span>
+                </button>
+
                 <button onclick="switchTab('calendar')" class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center gap-2 hover:border-brand transition-colors">
                     <div class="w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-500 flex items-center justify-center text-xl"><i class="fa-solid fa-calendar-days"></i></div>
                     <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Agenda</span>
@@ -626,7 +859,12 @@
 
                 <button onclick="switchTab('spotify')" class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center gap-2 hover:border-brand transition-colors">
                     <div class="w-12 h-12 rounded-full bg-green-50 dark:bg-green-900/30 text-green-500 flex items-center justify-center text-xl"><i class="fa-brands fa-spotify"></i></div>
-                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Música (Spotify)</span>
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Spotify Match</span>
+                </button>
+
+                <button onclick="switchTab('home')" class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center gap-2 hover:border-brand transition-colors">
+                    <div class="w-12 h-12 rounded-full bg-brand/10 text-brand flex items-center justify-center text-xl"><i class="fa-solid fa-house"></i></div>
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Menu Inicial</span>
                 </button>
             </div>
         </div>
@@ -671,7 +909,7 @@
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeSettings()"></div>
         <div class="relative bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl flex flex-col slide-up shadow-2xl p-6 border border-slate-800">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Configurações ⚙️</h2>
+                <h2 class="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Configurações <i class="fa-solid fa-gear text-brand"></i></h2>
                 <button onclick="closeSettings()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
@@ -855,7 +1093,7 @@
         
         <div class="relative bg-slate-50 dark:bg-slate-900 w-full max-w-lg h-[85vh] md:h-[650px] rounded-3xl flex flex-col slide-up overflow-hidden shadow-2xl border border-slate-800">
             <div class="p-5 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex justify-between items-center shrink-0">
-                <h3 id="exploreTitle" class="font-bold text-lg text-slate-800 dark:text-white">Descobrir 🧭</h3>
+                <h3 id="exploreTitle" class="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2">Descobrir <i class="fa-solid fa-compass text-brand"></i></h3>
                 <button onclick="closeExploreModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
@@ -1085,7 +1323,7 @@
 
                 <div id="vmWantInfo" class="hidden flex-col items-center text-center py-8 text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 mb-4">
                     <i class="fa-solid fa-ticket text-6xl mb-4 text-slate-200 dark:text-slate-700"></i>
-                    <p class="font-medium text-slate-600 dark:text-slate-300 text-lg leading-tight mb-6">Está na lista de desejos.<br>A pipoca já tá pronta? 🍿</p>
+                    <p class="font-medium text-slate-600 dark:text-slate-300 text-lg leading-tight mb-6">Está na lista de desejos.<br>A pipoca já está pronta?</p>
                     <button id="vmMarkWatchedBtn" class="w-full bg-brand text-white py-3.5 rounded-xl font-bold shadow-md hover:bg-brand-dark transition-colors flex items-center justify-center gap-2"><i class="fa-solid fa-check"></i> Marcar como Assistido</button>
                 </div>
 
@@ -1109,7 +1347,7 @@
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeEventModal()"></div>
         <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 border border-slate-800">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Novo Compromisso 🗓️</h2>
+                <h2 class="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Novo Compromisso <i class="fa-regular fa-calendar-plus text-brand"></i></h2>
                 <button onclick="closeEventModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
@@ -1158,38 +1396,65 @@
     <!-- Modal Nova Conta -->
     <div id="financeModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeFinanceModal()"></div>
-        <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 border border-slate-800 max-h-[90vh] overflow-y-auto no-scrollbar">
+        <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 border border-slate-800 max-h-[90vh] overflow-y-auto no-scrollbar pb-safe">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-slate-800 dark:text-white">Nova Conta 💸</h2>
+                <h2 class="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">Nova Conta <i class="fa-solid fa-file-invoice-dollar text-brand"></i></h2>
                 <button onclick="closeFinanceModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="flex flex-col gap-4">
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Título da Conta</label>
-                    <input type="text" id="fin-title" placeholder="Ex: Luz, Mercado..." class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-brand">
+                    <input type="text" id="fin-title" placeholder="Ex: Mercado, Jantar, Farmácia..." class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-brand text-sm font-medium">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Valor (R$)</label>
-                    <input type="number" id="fin-amount" step="0.01" placeholder="Ex: 150.00" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-brand">
+                    <input type="number" id="fin-amount" step="0.01" placeholder="Ex: 150.00" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-brand text-sm font-medium">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Forma de Pagamento</label>
+                    <select id="fin-method" onchange="updateFinanceModalPreview()" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-brand text-sm font-bold">
+                        <option value="credit">Cartão de Crédito (Vira dia 3, Vence dia 10)</option>
+                        <option value="pix">Pix / Débito / Dinheiro</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Quem Pagou?</label>
-                    <select id="fin-payer" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-brand">
+                    <select id="fin-payer" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-brand text-sm font-bold">
                         <option value="Luiz">Luiz</option>
                         <option value="Matheus">Matheus</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Tipo de Divisão</label>
-                    <select id="fin-type" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-brand">
+                    <select id="fin-type" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-brand text-sm font-bold">
                         <option value="split">Dividir valor (50/50)</option>
                         <option value="full">O outro deve o valor total</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Data</label>
-                    <input type="date" id="fin-date" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-brand">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Data da Compra</label>
+                    <input type="date" id="fin-date" onchange="updateFinanceModalPreview()" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-brand text-sm font-medium">
                 </div>
+                
+                <div id="fin-fatura-preview" class="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 text-xs font-bold text-blue-700 dark:text-blue-300 flex items-center gap-2">
+                    <i class="fa-solid fa-credit-card text-brand"></i>
+                    <span id="fin-fatura-preview-txt">Previsão: Vence dia 10/...</span>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Parcelas</label>
+                    <select id="fin-installments" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-brand text-sm font-medium">
+                        <option value="1">1x (À vista na fatura)</option>
+                        <option value="2">2x</option>
+                        <option value="3">3x</option>
+                        <option value="4">4x</option>
+                        <option value="5">5x</option>
+                        <option value="6">6x</option>
+                        <option value="10">10x</option>
+                        <option value="12">12x</option>
+                    </select>
+                </div>
+
                 <label class="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
                     <input type="checkbox" id="fin-paid" class="w-5 h-5 accent-brand rounded"> Já está pago / resolvido
                 </label>
@@ -1289,7 +1554,8 @@
         // Variáveis das Novas Abas
         let shoppingItems = [];
         let spotifyData = { luiz: null, matheus: null };
-        let spotifyStatsData = { luiz: null, matheus: null }; // NOVA VARIÁVEL
+        let spotifyStatsData = { luiz: null, matheus: null };
+        let spotifyAuthData = { luiz: null, matheus: null };
 
         const CURITIBA_COORDS = [-25.4284, -49.2733];
         const TMDB_GENRES = { 28: "Ação", 12: "Aventura", 16: "Animação", 35: "Comédia", 80: "Crime", 99: "Documentário", 18: "Drama", 10751: "Família", 14: "Fantasia", 36: "História", 27: "Terror", 10402: "Música", 9648: "Mistério", 10749: "Romance", 878: "Ficção científica", 10770: "Cinema TV", 53: "Thriller", 10752: "Guerra", 37: "Faroeste", 10759: "Ação e Aventura", 10762: "Kids", 10765: "Sci-Fi & Fantasy", 10768: "War & Politics" };
@@ -1405,6 +1671,62 @@
             location.reload();
         }
 
+        function renderHomeDashboard() {
+            // Data atual formatada em português
+            const dateEl = document.getElementById('home-current-date');
+            if (dateEl) {
+                const now = new Date();
+                const options = { weekday: 'long', day: 'numeric', month: 'long' };
+                const formatted = now.toLocaleDateString('pt-BR', options);
+                dateEl.innerText = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+            }
+
+            // Resumo do tempo juntos
+            const timeSummary = document.getElementById('home-time-summary');
+            if (timeSummary && typeof coupleDates !== 'undefined' && coupleDates) {
+                const target = coupleDates.namoro || coupleDates.conhecemos;
+                if (target) {
+                    const diff = Math.floor((new Date() - new Date(target + 'T00:00:00')) / (1000 * 60 * 60 * 24));
+                    if (!isNaN(diff) && diff >= 0) timeSummary.innerText = `${diff} dias juntos`;
+                }
+            }
+
+            // Resumo do Cartão no Home
+            const cardSummary = document.getElementById('home-card-summary');
+            if (cardSummary) {
+                const now = new Date();
+                const cycle = typeof getInvoiceCycle === 'function' ? getInvoiceCycle(now.toISOString().split('T')[0]) : null;
+                if (cycle) cardSummary.innerText = `Fatura ${cycle.shortTitle} (Venc. 10/${String(cycle.month).padStart(2,'0')})`;
+            }
+
+            // Contadores dos Cards
+            const statMap = document.getElementById('home-stat-map');
+            if (statMap && typeof memories !== 'undefined') statMap.innerText = `${memories.filter(m => !m.isHidden).length} memórias salvas`;
+
+            const statFin = document.getElementById('home-stat-finances');
+            if (statFin) statFin.innerText = `Vira dia 03 • Vence dia 10`;
+
+            const statMov = document.getElementById('home-stat-movies');
+            if (statMov && typeof movies !== 'undefined') statMov.innerText = `${movies.length} filmes na lista`;
+
+            const statSho = document.getElementById('home-stat-shows');
+            if (statSho && typeof shows !== 'undefined') statSho.innerText = `${shows.length} séries salvas`;
+
+            const statCal = document.getElementById('home-stat-calendar');
+            if (statCal && typeof agendaEvents !== 'undefined') statCal.innerText = `${agendaEvents.length} eventos`;
+
+            const statShop = document.getElementById('home-stat-shopping');
+            if (statShop && typeof shoppingItems !== 'undefined') {
+                const pending = shoppingItems.filter(i => !i.checked).length;
+                statShop.innerText = `${pending} item(ns) pendente(s)`;
+            }
+
+            const statSpo = document.getElementById('home-stat-spotify');
+            if (statSpo) {
+                statSpo.innerText = `Sintonia Musical do Casal`;
+            }
+        }
+
         function initApp() {
             initMap();
             setupFirebaseSync();
@@ -1413,6 +1735,10 @@
             // Força a renderização inicial para as abas não ficarem em branco
             renderShoppingList();
             renderSpotifyUI();
+            renderHomeDashboard();
+            
+            // Inicia no Início para acesso fácil a tudo
+            switchTab('home');
             
             // Captura o retorno do login do Spotify
             handleSpotifyCallback();
@@ -1438,8 +1764,8 @@
         }
 
         function switchTab(tabId) {
-            const tabs = ['map', 'movies', 'shows', 'finances', 'calendar', 'time', 'shopping', 'spotify'];
-            const mainTabs = ['map', 'movies', 'shows', 'finances'];
+            const tabs = ['home', 'map', 'movies', 'shows', 'finances', 'calendar', 'time', 'shopping', 'spotify'];
+            const mainTabs = ['home', 'map', 'finances', 'movies'];
             
             tabs.forEach(t => {
                 const el = document.getElementById('tab-' + t);
@@ -1468,19 +1794,25 @@
 
             // Ajusta a cor do botão "Mais" dependendo de onde estamos
             const moreBtn = document.getElementById('nav-btn-more');
-            if (mainTabs.includes(tabId)) {
-                moreBtn.classList.remove('text-brand');
-                moreBtn.classList.add('text-slate-400', 'dark:text-slate-500');
-            } else {
-                moreBtn.classList.add('text-brand');
-                moreBtn.classList.remove('text-slate-400', 'dark:text-slate-500');
+            if (moreBtn) {
+                if (mainTabs.includes(tabId)) {
+                    moreBtn.classList.remove('text-brand');
+                    moreBtn.classList.add('text-slate-400', 'dark:text-slate-500');
+                } else {
+                    moreBtn.classList.add('text-brand');
+                    moreBtn.classList.remove('text-slate-400', 'dark:text-slate-500');
+                }
             }
 
             // Fecha a gaveta automaticamente se escolheu algo
             closeMoreMenu();
 
-            if (tabId === 'map' && typeof map !== 'undefined' && map) {
+            if (tabId === 'home') {
+                renderHomeDashboard();
+            } else if (tabId === 'map' && typeof map !== 'undefined' && map) {
                 setTimeout(() => { map.invalidateSize(); }, 300);
+            } else if (tabId === 'finances') {
+                renderFinances();
             }
         }
         function openSettings() { document.getElementById('settingsModal').classList.remove('hidden'); }
@@ -1594,7 +1926,7 @@
             db.ref('memories').on('value', (snap) => {
                 const data = snap.val();
                 const newMemories = data ? Object.values(data) : [];
-                if (!initialLoad.memories && newMemories.length > memories.length) sendPushNotification("Novo Momento 📸", "Uma nova foto foi adicionada no álbum!");
+                if (!initialLoad.memories && newMemories.length > memories.length) sendPushNotification("Novo Momento", "Uma nova foto foi adicionada no álbum!");
                 memories = newMemories;
                 
                 // Atualiza o contador de corações no mapa
@@ -1617,7 +1949,7 @@
             db.ref('movies').on('value', (snap) => {
                 const data = snap.val();
                 const newArr = data ? Object.entries(data).map(([key, val]) => ({...val, id: val.id || key})) : [];
-                if (!initialLoad.movies && newArr.length > movies.length) sendPushNotification("Novo Filme Adicionado 🍿", "Tem filme novo na lista de vocês!");
+                if (!initialLoad.movies && newArr.length > movies.length) sendPushNotification("Novo Filme Adicionado", "Tem filme novo na lista de vocês!");
                 movies = newArr;
                 checkNotifications('movie');
                 renderGrid('movie');
@@ -1627,7 +1959,7 @@
             db.ref('shows').on('value', (snap) => {
                 const data = snap.val();
                 const newArr = data ? Object.entries(data).map(([key, val]) => ({...val, id: val.id || key})) : [];
-                if (!initialLoad.shows && newArr.length > shows.length) sendPushNotification("Nova Série Adicionada 📺", "Tem série nova na lista de vocês!");
+                if (!initialLoad.shows && newArr.length > shows.length) sendPushNotification("Nova Série Adicionada", "Tem série nova na lista de vocês!");
                 shows = newArr;
                 checkNotifications('tv');
                 renderGrid('tv');
@@ -1637,7 +1969,7 @@
             db.ref('finances').on('value', (snap) => {
                 const data = snap.val();
                 const newArr = data ? Object.values(data) : [];
-                if (!initialLoad.finances && newArr.length > finances.length) sendPushNotification("Nova Conta Adicionada 💸", "Uma despesa foi inserida nas contas.");
+                if (!initialLoad.finances && newArr.length > finances.length) sendPushNotification("Nova Conta Adicionada", "Uma despesa foi inserida nas contas.");
                 finances = newArr;
                 renderFinances();
                 initialLoad.finances = false;
@@ -1646,7 +1978,7 @@
             db.ref('events').on('value', (snap) => {
                 const data = snap.val();
                 const newArr = data ? Object.values(data) : [];
-                if (!initialLoad.events && newArr.length > agendaEvents.length) sendPushNotification("Novo Evento 🗓️", "Tem um novo compromisso na agenda!");
+                if (!initialLoad.events && newArr.length > agendaEvents.length) sendPushNotification("Novo Evento", "Tem um novo compromisso na agenda!");
                 agendaEvents = newArr;
                 renderCalendar();
                 renderUpcomingEvents();
@@ -1677,6 +2009,33 @@
             db.ref('spotify').on('value', (snap) => {
                 const data = snap.val();
                 if(data) spotifyData = data;
+            });
+
+            // Sincronização em Tempo Real: Spotify Auth Persistente (Conectar uma vez e nunca mais)
+            db.ref('spotify_auth').on('value', (snap) => {
+                const data = snap.val();
+                if(data) {
+                    spotifyAuthData = data;
+                    const u = (currentUser || 'luiz').toLowerCase();
+                    if (data[u]) {
+                        if (data[u].refreshToken) {
+                            localStorage.setItem('spotify_refresh_token_' + u, data[u].refreshToken);
+                            localStorage.setItem('spotify_refresh_token', data[u].refreshToken);
+                            spotifyRefreshToken = data[u].refreshToken;
+                        }
+                        if (data[u].accessToken && !spotifyAccessToken) {
+                            spotifyAccessToken = data[u].accessToken;
+                            localStorage.setItem('spotify_access_token', spotifyAccessToken);
+                            startSpotifyPolling();
+                        } else if (!spotifyAccessToken && spotifyRefreshToken) {
+                            if (typeof refreshSpotifyToken === 'function') {
+                                refreshSpotifyToken().then(ok => {
+                                    if (ok) startSpotifyPolling();
+                                });
+                            }
+                        }
+                    }
+                }
             });
             
             // Loop Front-end mágico: Renderiza a tela a cada segundo por conta própria para fluidez total!
@@ -2046,7 +2405,7 @@
             };
             db.ref('memories/' + mem.id).set(mem);
             closePanel();
-            showCustomMessage("Foto adicionada ao nosso diário! ❤️");
+            showCustomMessage("Foto adicionada ao nosso diário com sucesso!");
         });
 
         // ==========================================
@@ -2287,7 +2646,7 @@
         }
 
         // ==========================================
-        // 4. ENTRETENIMENTO E NOTIFICAÇÕES 🔔🍿📺
+        // 4. ENTRETENIMENTO E NOTIFICAÇÕES
         // ==========================================
         
         function openNotifications() {
@@ -2393,7 +2752,7 @@
             }
             
             const picked = wantList[Math.floor(Math.random() * wantList.length)];
-            showCustomMessage(`Sorteando... 🎲`, 1000);
+            showCustomMessage(`Sorteando...`, 1000);
             
             setTimeout(() => {
                 currentExploreType = type;
@@ -2404,7 +2763,7 @@
         function openExploreModal(type) {
             currentExploreType = type; 
             document.getElementById('exploreModal').classList.remove('hidden');
-            document.getElementById('exploreTitle').innerHTML = type === 'movie' ? 'Descobrir Filmes 🍿' : 'Descobrir Séries 📺';
+            document.getElementById('exploreTitle').innerHTML = type === 'movie' ? 'Descobrir Filmes <i class="fa-solid fa-popcorn text-brand ml-1"></i>' : 'Descobrir Séries <i class="fa-solid fa-tv text-brand ml-1"></i>';
             document.getElementById('apiSearchInput').value = '';
             document.getElementById('apiSearchInput').placeholder = type === 'movie' ? 'Buscar nome do filme...' : 'Buscar nome da série...';
             
@@ -2531,7 +2890,7 @@
                 const toDisplay = data.results.filter(apiItem => !watchedIds.includes(apiItem.id));
 
                 if(toDisplay.length === 0) {
-                    grid.innerHTML = '<div class="col-span-full text-center text-slate-500 py-10">Vocês já assistiram os melhores desta plataforma! 🤯</div>';
+                    grid.innerHTML = '<div class="col-span-full text-center text-slate-500 py-10">Vocês já assistiram os melhores desta plataforma!</div>';
                     return;
                 }
                 
@@ -2643,7 +3002,7 @@
                 const toDisplay = data.results.filter(apiItem => !watchedIds.includes(apiItem.id));
 
                 if(toDisplay.length === 0) {
-                    grid.innerHTML = '<div class="col-span-full text-center text-slate-500 py-10">Vocês já assistiram todos os sucessos do momento! 🤯</div>';
+                    grid.innerHTML = '<div class="col-span-full text-center text-slate-500 py-10">Vocês já assistiram todos os sucessos do momento!</div>';
                     return;
                 }
                 
@@ -2755,7 +3114,7 @@
 
                     let pendingBadge = '';
                     if (item.status === 'watched' && currentUser && (!item.ratings || !item.ratings[currentUser])) {
-                        pendingBadge = `<div class="absolute top-2 left-2 bg-rose-500/95 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md animate-pulse z-10 border border-white/20">🔴 AVALIAR</div>`;
+                        pendingBadge = `<div class="absolute top-2 left-2 bg-rose-500/95 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md animate-pulse z-10 border border-white/20 flex items-center gap-1"><i class="fa-solid fa-circle text-[7px]"></i> AVALIAR</div>`;
                     }
                     
                     let listBadge = item.listName ? `<div class="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-white/90 text-[9px] font-bold px-2 py-1 rounded-full z-10 border border-white/10 max-w-[80px] truncate"><i class="fa-solid fa-list mr-1"></i>${item.listName}</div>` : '';
@@ -2982,7 +3341,7 @@
 
             db.ref(`${dbNode}/${itemId}`).set(payload);
             closeSaveItemModal();
-            showCustomMessage("Guardado no acervo! 🍿");
+            showCustomMessage("Guardado no acervo!");
         }
 
         function setPendingRating(val) {
@@ -3007,7 +3366,7 @@
             db.ref(`${dbNode}/${currentViewingId}/ratings/${currentUser}`).set(pRating);
             if(reviewText) db.ref(`${dbNode}/${currentViewingId}/reviews/${currentUser}`).set(reviewText);
             
-            showCustomMessage("Avaliação salva! 🎉");
+            showCustomMessage("Avaliação salva com sucesso!");
             closeViewItemModal();
         }
 
@@ -3301,19 +3660,112 @@
         }
 
         // ==========================================
-        // 5. ABA: NOSSAS CONTAS 💸
+        // 5. ABA: NOSSAS CONTAS & CICLO DO CARTÃO
         // ==========================================
+        let currentSelectedInvoiceKey = 'auto'; // 'auto', 'all', ou chave como '2026-11'
+
+        function getInvoiceCycle(dateStr) {
+            let y, m, d;
+            if (dateStr && dateStr.includes('-')) {
+                const parts = dateStr.split('-').map(Number);
+                y = parts[0];
+                m = parts[1];
+                d = parts[2];
+            } else {
+                const now = new Date();
+                y = now.getFullYear();
+                m = now.getMonth() + 1;
+                d = now.getDate();
+            }
+
+            // Regra do Cartão: Vira dia 3, Vence dia 10.
+            // Compras até dia 3 fecham no dia 3 do mês atual e vencem dia 10 do mês atual.
+            // Compras a partir do dia 4 fecham no dia 3 do mês seguinte e vencem dia 10 do mês seguinte.
+            let invMonth = m;
+            let invYear = y;
+            if (d > 3) {
+                invMonth++;
+                if (invMonth > 12) {
+                    invMonth = 1;
+                    invYear++;
+                }
+            }
+
+            const monthNamesShort = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+            const monthNamesLong = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+
+            const key = `${invYear}-${String(invMonth).padStart(2, '0')}`;
+            const title = `Fatura ${monthNamesLong[invMonth - 1]} / ${invYear}`;
+            const shortTitle = `${monthNamesShort[invMonth - 1]}/${String(invYear).slice(-2)}`;
+            const closingDateFormatted = `03/${String(invMonth).padStart(2, '0')}/${invYear}`;
+            const dueDateFormatted = `10/${String(invMonth).padStart(2, '0')}/${invYear}`;
+
+            return {
+                key,
+                title,
+                shortTitle,
+                monthName: monthNamesLong[invMonth - 1],
+                year: invYear,
+                month: invMonth,
+                closingDateFormatted,
+                dueDateFormatted
+            };
+        }
+
+        function getActiveBillingCycles() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = now.getMonth() + 1;
+            const d = now.getDate();
+
+            // Se ainda não passou do dia 10, a fatura do mês atual é a que está vencendo agora
+            let currentInvMonth = (d <= 10) ? m : m + 1;
+            let currentInvYear = y;
+            if (currentInvMonth > 12) { currentInvMonth = 1; currentInvYear++; }
+
+            let nextInvMonth = currentInvMonth + 1;
+            let nextInvYear = currentInvYear;
+            if (nextInvMonth > 12) { nextInvMonth = 1; nextInvYear++; }
+
+            const keyCurrent = `${currentInvYear}-${String(currentInvMonth).padStart(2, '0')}`;
+            const keyNext = `${nextInvYear}-${String(nextInvMonth).padStart(2, '0')}`;
+
+            return {
+                currentKey: keyCurrent,
+                nextKey: keyNext,
+                currentCycle: getInvoiceCycle(`${currentInvYear}-${String(currentInvMonth).padStart(2, '0')}-01`),
+                nextCycle: getInvoiceCycle(`${nextInvYear}-${String(nextInvMonth).padStart(2, '0')}-01`)
+            };
+        }
+
+        function updateFinanceModalPreview() {
+            const dateVal = document.getElementById('fin-date').value;
+            const methodVal = document.getElementById('fin-method') ? document.getElementById('fin-method').value : 'credit';
+            const previewTxt = document.getElementById('fin-fatura-preview-txt');
+            if (!previewTxt) return;
+
+            if (methodVal === 'credit') {
+                const cycle = getInvoiceCycle(dateVal);
+                previewTxt.innerText = `Cai na Fatura ${cycle.shortTitle} • Vencimento: ${cycle.dueDateFormatted} (Vira ${cycle.closingDateFormatted})`;
+            } else {
+                previewTxt.innerText = `Lançamento à vista via Pix/Débito (Não entra no cartão)`;
+            }
+        }
+
         function openFinanceModal() {
             document.getElementById('fin-title').value = '';
             document.getElementById('fin-amount').value = '';
             document.getElementById('fin-payer').value = currentUser || 'Luiz';
             document.getElementById('fin-type').value = 'split';
             document.getElementById('fin-date').value = new Date().toISOString().split('T')[0];
+            if (document.getElementById('fin-method')) document.getElementById('fin-method').value = 'credit';
+            if (document.getElementById('fin-installments')) document.getElementById('fin-installments').value = '1';
             document.getElementById('fin-paid').checked = false;
             document.getElementById('finPhotoInput').value = '';
             currentFinCompressedImage = null;
             document.getElementById('finImagePreview').classList.add('hidden');
             document.getElementById('finUploadPlaceholder').classList.remove('hidden');
+            updateFinanceModalPreview();
             document.getElementById('financeModal').classList.remove('hidden');
         }
 
@@ -3332,24 +3784,63 @@
         function saveFinance() {
             const title = document.getElementById('fin-title').value.trim();
             const amount = parseFloat(document.getElementById('fin-amount').value);
-            if(!title || isNaN(amount)) { showCustomMessage("Preencha o título e o valor certinho!"); return; }
+            if(!title || isNaN(amount) || amount <= 0) { showCustomMessage("Preencha o título e o valor certinho!"); return; }
 
-            const id = 'fin_' + Date.now();
-            const data = {
-                id: id,
-                title: title,
-                amount: amount,
-                payer: document.getElementById('fin-payer').value,
-                type: document.getElementById('fin-type').value,
-                date: document.getElementById('fin-date').value,
-                paid: document.getElementById('fin-paid').checked,
-                receipt: currentFinCompressedImage,
-                timestamp: Date.now()
-            };
+            const baseDate = document.getElementById('fin-date').value || new Date().toISOString().split('T')[0];
+            const payer = document.getElementById('fin-payer').value;
+            const type = document.getElementById('fin-type').value;
+            const method = document.getElementById('fin-method') ? document.getElementById('fin-method').value : 'credit';
+            const installments = document.getElementById('fin-installments') ? parseInt(document.getElementById('fin-installments').value) || 1 : 1;
+            const isPaid = document.getElementById('fin-paid').checked;
 
-            db.ref('finances/' + id).set(data);
+            if (installments > 1 && method === 'credit') {
+                const partAmount = Math.round((amount / installments) * 100) / 100;
+                const parts = baseDate.split('-').map(Number);
+
+                for (let i = 0; i < installments; i++) {
+                    const instDateObj = new Date(parts[0], parts[1] - 1 + i, parts[2]);
+                    const instDateStr = instDateObj.toISOString().split('T')[0];
+                    const instCycle = getInvoiceCycle(instDateStr);
+                    const id = 'fin_' + Date.now() + '_' + i;
+
+                    const data = {
+                        id: id,
+                        title: `${title} (${i + 1}/${installments})`,
+                        amount: partAmount,
+                        payer: payer,
+                        type: type,
+                        method: method,
+                        date: instDateStr,
+                        invoiceKey: instCycle.key,
+                        paid: isPaid,
+                        receipt: currentFinCompressedImage,
+                        timestamp: Date.now() + i
+                    };
+                    db.ref('finances/' + id).set(data);
+                }
+                showCustomMessage(`Conta parcelada em ${installments}x adicionada!`);
+            } else {
+                const id = 'fin_' + Date.now();
+                const cycle = getInvoiceCycle(baseDate);
+                const data = {
+                    id: id,
+                    title: title,
+                    amount: amount,
+                    payer: payer,
+                    type: type,
+                    method: method,
+                    date: baseDate,
+                    invoiceKey: cycle.key,
+                    paid: isPaid,
+                    receipt: currentFinCompressedImage,
+                    timestamp: Date.now()
+                };
+                db.ref('finances/' + id).set(data);
+                showCustomMessage("Conta adicionada com sucesso!");
+            }
+
             closeFinanceModal();
-            showCustomMessage("Conta adicionada!");
+            renderFinances();
         }
 
         function setFinFilter(f) {
@@ -3357,10 +3848,50 @@
             const btns = { 'all': 'fin-filter-all', 'pending': 'fin-filter-pending', 'paid': 'fin-filter-paid' };
             for(let key in btns) {
                 const b = document.getElementById(btns[key]);
-                if(key === f) b.className = "px-4 py-2 rounded-full bg-brand text-white text-sm font-bold shadow-md whitespace-nowrap transition-colors";
-                else b.className = "px-4 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-sm font-bold whitespace-nowrap transition-colors";
+                if (b) {
+                    if(key === f) b.className = "px-4 py-1.5 rounded-full bg-brand text-white text-xs font-bold shadow-sm whitespace-nowrap transition-colors";
+                    else b.className = "px-4 py-1.5 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-bold whitespace-nowrap transition-colors";
+                }
             }
             renderFinances();
+        }
+
+        function setFinInvoiceKey(key) {
+            currentSelectedInvoiceKey = key;
+            const dropdown = document.getElementById('fin-faturas-dropdown');
+            if (dropdown) dropdown.classList.add('hidden');
+            renderFinances();
+        }
+
+        function toggleFaturasDropdown() {
+            const dropdown = document.getElementById('fin-faturas-dropdown');
+            if (dropdown) dropdown.classList.toggle('hidden');
+        }
+
+        function markCurrentInvoiceAllPaid() {
+            const cycles = getActiveBillingCycles();
+            const targetKey = (currentSelectedInvoiceKey === 'auto') ? cycles.currentKey : currentSelectedInvoiceKey;
+            
+            const toUpdate = finances.filter(f => {
+                if (f.paid) return false;
+                if (targetKey !== 'all') {
+                    const cycle = getInvoiceCycle(f.date);
+                    return cycle.key === targetKey;
+                }
+                return true;
+            });
+
+            if (toUpdate.length === 0) {
+                showCustomMessage("Todas as contas desta fatura já estão pagas!");
+                return;
+            }
+
+            if (confirm(`Marcar todas as ${toUpdate.length} conta(s) pendentes desta fatura como PAGAS?`)) {
+                toUpdate.forEach(f => {
+                    db.ref('finances/' + f.id + '/paid').set(true);
+                });
+                showCustomMessage("Fatura quitada com sucesso!");
+            }
         }
 
         function clearFinancesHistory() {
@@ -3370,74 +3901,226 @@
                         db.ref('finances/' + f.id).remove();
                     }
                 });
-                showCustomMessage("Histórico limpo!");
+                showCustomMessage("Histórico de contas pagas limpo!");
             }
         }
 
         function renderFinances() {
             const list = document.getElementById('financesList');
             const empty = document.getElementById('financesEmpty');
+            if (!list) return;
             list.innerHTML = '';
-            
-            let balance = 0; 
 
-            const filtered = finances.filter(f => {
-                if(!f.paid) {
-                    const payer = f.payer || (f.creditor || 'N/A');
-                    const isSplit = f.type === 'split';
+            const cycles = getActiveBillingCycles();
+            const activeKey = (currentSelectedInvoiceKey === 'auto') ? cycles.currentKey : currentSelectedInvoiceKey;
 
-                    if (payer === 'Matheus') balance += isSplit ? (f.amount / 2) : f.amount;
-                    else if (payer === 'Luiz') balance -= isSplit ? (f.amount / 2) : f.amount;
+            // Coleta todas as chaves de faturas existentes nas contas cadastradas
+            const invoiceMap = new Map();
+            // Sempre inclui a fatura atual e a próxima fatura
+            invoiceMap.set(cycles.currentKey, cycles.currentCycle);
+            invoiceMap.set(cycles.nextKey, cycles.nextCycle);
+
+            finances.forEach(f => {
+                if (f.date) {
+                    const c = getInvoiceCycle(f.date);
+                    if (!invoiceMap.has(c.key)) invoiceMap.set(c.key, c);
+                }
+            });
+
+            const sortedCycles = Array.from(invoiceMap.values()).sort((a,b) => b.key.localeCompare(a.key));
+
+            // Renderiza os botões de seleção de faturas (Pills)
+            const pillsContainer = document.getElementById('fin-faturas-pills');
+            const dropdown = document.getElementById('fin-faturas-dropdown');
+            if (pillsContainer) {
+                let pillsHtml = `
+                    <button onclick="setFinInvoiceKey('${cycles.currentKey}')" class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${activeKey === cycles.currentKey ? 'bg-blue-600 text-white shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'}">
+                        <i class="fa-solid fa-credit-card mr-1 text-[10px]"></i> Fatura Atual (${cycles.currentCycle.shortTitle})
+                    </button>
+                    <button onclick="setFinInvoiceKey('${cycles.nextKey}')" class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${activeKey === cycles.nextKey ? 'bg-blue-600 text-white shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'}">
+                        Próxima (${cycles.nextCycle.shortTitle})
+                    </button>
+                    <button onclick="setFinInvoiceKey('all')" class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${activeKey === 'all' ? 'bg-slate-800 dark:bg-white text-white dark:text-slate-900 shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'}">
+                        Todas
+                    </button>
+                `;
+                pillsContainer.innerHTML = pillsHtml;
+            }
+
+            if (dropdown) {
+                let dropHtml = '';
+                sortedCycles.forEach(c => {
+                    dropHtml += `
+                        <button onclick="setFinInvoiceKey('${c.key}')" class="text-left px-3 py-2 rounded-xl text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-700 flex justify-between items-center ${activeKey === c.key ? 'text-brand font-black' : 'text-slate-700 dark:text-slate-300'}">
+                            <span>${c.title} (Venc. ${c.dueDateFormatted})</span>
+                            <span class="text-[10px] text-slate-400">Vira dia 03</span>
+                        </button>
+                    `;
+                });
+                dropdown.innerHTML = dropHtml;
+            }
+
+            // Filtra contas pela fatura selecionada
+            let totalInvoiceAmount = 0;
+            let luizPaid = 0;
+            let matheusPaid = 0;
+            let luizPart = 0;
+            let matheusPart = 0;
+            let pendingCount = 0;
+
+            const invoiceFinances = finances.filter(f => {
+                if (activeKey !== 'all') {
+                    const c = getInvoiceCycle(f.date);
+                    if (c.key !== activeKey) return false;
                 }
 
-                if(currentFinFilter === 'paid' && !f.paid) return false;
-                if(currentFinFilter === 'pending' && f.paid) return false;
+                totalInvoiceAmount += (f.amount || 0);
+                const payer = f.payer || 'Luiz';
+                const isSplit = f.type === 'split';
+
+                if (payer === 'Luiz') luizPaid += f.amount;
+                else if (payer === 'Matheus') matheusPaid += f.amount;
+
+                if (isSplit) {
+                    luizPart += (f.amount / 2);
+                    matheusPart += (f.amount / 2);
+                } else {
+                    if (payer === 'Luiz') matheusPart += f.amount;
+                    else luizPart += f.amount;
+                }
+
+                if (!f.paid) pendingCount++;
+
+                if (currentFinFilter === 'paid' && !f.paid) return false;
+                if (currentFinFilter === 'pending' && f.paid) return false;
                 return true;
             });
 
-            const lblLuiz = document.getElementById('fin-luiz-owes');
-            const lblMatheus = document.getElementById('fin-matheus-owes');
-            
-            if (balance > 0) {
-                lblLuiz.innerText = `R$ ${balance.toFixed(2).replace('.',',')}`;
-                lblMatheus.innerText = `R$ 0,00`;
-            } else if (balance < 0) {
-                lblLuiz.innerText = `R$ 0,00`;
-                lblMatheus.innerText = `R$ ${Math.abs(balance).toFixed(2).replace('.',',')}`;
-            } else {
-                lblLuiz.innerText = `R$ 0,00`;
-                lblMatheus.innerText = `R$ 0,00`;
+            // Atualiza Card do Ciclo do Cartão
+            const selectedCycle = (activeKey === 'all') 
+                ? { title: 'Todas as Faturas e Despesas', shortTitle: 'Todas', closingDateFormatted: '03/--', dueDateFormatted: '10/--' }
+                : (invoiceMap.get(activeKey) || getInvoiceCycle(activeKey + '-01'));
+
+            const cycleTitleEl = document.getElementById('fin-cycle-status-title');
+            if (cycleTitleEl) cycleTitleEl.innerText = selectedCycle.title;
+
+            const totalEl = document.getElementById('fin-invoice-total');
+            if (totalEl) totalEl.innerText = `R$ ${totalInvoiceAmount.toFixed(2).replace('.', ',')}`;
+
+            const closeMonthEl = document.getElementById('fin-txt-close-month');
+            if (closeMonthEl) closeMonthEl.innerText = selectedCycle.month ? String(selectedCycle.month).padStart(2, '0') : '--';
+
+            const dueMonthEl = document.getElementById('fin-txt-due-month');
+            if (dueMonthEl) dueMonthEl.innerText = selectedCycle.month ? String(selectedCycle.month).padStart(2, '0') : '--';
+
+            const luizPaidEl = document.getElementById('fin-luiz-paid');
+            if (luizPaidEl) luizPaidEl.innerText = `R$ ${luizPaid.toFixed(2).replace('.', ',')}`;
+
+            const luizPartEl = document.getElementById('fin-luiz-part');
+            if (luizPartEl) luizPartEl.innerText = `R$ ${luizPart.toFixed(2).replace('.', ',')}`;
+
+            const matheusPaidEl = document.getElementById('fin-matheus-paid');
+            if (matheusPaidEl) matheusPaidEl.innerText = `R$ ${matheusPaid.toFixed(2).replace('.', ',')}`;
+
+            const matheusPartEl = document.getElementById('fin-matheus-part');
+            if (matheusPartEl) matheusPartEl.innerText = `R$ ${matheusPart.toFixed(2).replace('.', ',')}`;
+
+            // Status Badge
+            const cycleBadge = document.getElementById('fin-cycle-badge');
+            if (cycleBadge) {
+                if (pendingCount === 0 && totalInvoiceAmount > 0) {
+                    cycleBadge.className = "px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800";
+                    cycleBadge.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> Fatura Paga`;
+                } else if (activeKey === cycles.currentKey) {
+                    const todayDay = new Date().getDate();
+                    if (todayDay > 3 && todayDay <= 10) {
+                        cycleBadge.className = "px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800 animate-pulse";
+                        cycleBadge.innerHTML = `<i class="fa-solid fa-clock mr-1"></i> Fechada • Pagar até dia 10`;
+                    } else {
+                        cycleBadge.className = "px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800";
+                        cycleBadge.innerHTML = `<i class="fa-solid fa-lock-open mr-1"></i> Aberta (Vira dia 03)`;
+                    }
+                } else {
+                    cycleBadge.className = "px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600";
+                    cycleBadge.innerHTML = `<i class="fa-solid fa-credit-card mr-1"></i> ${pendingCount} pendente(s)`;
+                }
             }
 
-            if(filtered.length === 0) {
-                empty.classList.remove('hidden'); empty.classList.add('flex');
+            // Cálculo do Acerto Líquido (Compensação entre Luiz e Matheus)
+            const settlementBox = document.getElementById('fin-settlement-box');
+            const settlementDesc = document.getElementById('fin-settlement-desc');
+            const settlementAmount = document.getElementById('fin-settlement-amount');
+
+            // Saldo líquido: o que Luiz pagou menos a parte de Luiz
+            const luizNet = luizPaid - luizPart;
+
+            if (settlementDesc && settlementAmount) {
+                if (Math.abs(luizNet) < 0.01) {
+                    settlementDesc.innerText = "Tudo em dia! Ninguém deve nada nesta fatura.";
+                    settlementAmount.innerText = "R$ 0,00";
+                    if (settlementBox) settlementBox.className = "p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 flex items-center justify-between transition-all";
+                } else if (luizNet < 0) {
+                    const diff = Math.abs(luizNet);
+                    settlementDesc.innerHTML = `Luiz deve fazer um Pix para <b>Matheus</b>`;
+                    settlementAmount.innerText = `R$ ${diff.toFixed(2).replace('.', ',')}`;
+                    if (settlementBox) settlementBox.className = "p-3.5 rounded-2xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/50 flex items-center justify-between transition-all";
+                } else {
+                    settlementDesc.innerHTML = `Matheus deve fazer um Pix para <b>Luiz</b>`;
+                    settlementAmount.innerText = `R$ ${luizNet.toFixed(2).replace('.', ',')}`;
+                    if (settlementBox) settlementBox.className = "p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 flex items-center justify-between transition-all";
+                }
+            }
+
+            // Renderiza Lista de Contas
+            if (invoiceFinances.length === 0) {
+                if (empty) { empty.classList.remove('hidden'); empty.classList.add('flex'); }
             } else {
-                empty.classList.add('hidden'); empty.classList.remove('flex');
-                filtered.sort((a,b) => b.timestamp - a.timestamp).forEach(f => {
-                    let desc = f.type === 'split' ? `${f.payer} pagou e vai ser dividido 50/50` : `${f.payer} pagou e o outro deve valor total`;
-                    
-                    let statusBadge = f.paid 
-                        ? `<span class="bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider uppercase">Pago</span>`
-                        : `<span class="bg-red-100 text-red-600 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider uppercase">Pendente</span>`;
+                if (empty) { empty.classList.add('hidden'); empty.classList.remove('flex'); }
+                invoiceFinances.sort((a,b) => b.timestamp - a.timestamp).forEach(f => {
+                    const c = getInvoiceCycle(f.date);
+                    const isCard = f.method !== 'pix';
+                    const icon = isCard ? 'fa-credit-card' : 'fa-receipt';
+                    const iconColor = isCard ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300';
+                    const payerIcon = f.payer === 'Luiz' ? 'fa-user-astronaut text-blue-500' : 'fa-user-ninja text-emerald-500';
+
+                    const statusBadge = f.paid
+                        ? `<button onclick="event.stopPropagation(); toggleDirectPaid('${f.id}')" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 hover:scale-105 active:scale-95 transition-all"><i class="fa-solid fa-check mr-1"></i> Pago</button>`
+                        : `<button onclick="event.stopPropagation(); toggleDirectPaid('${f.id}')" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-300 border border-red-200 dark:border-red-800 hover:scale-105 active:scale-95 transition-all"><i class="fa-solid fa-clock mr-1"></i> Pendente</button>`;
 
                     const div = document.createElement('div');
-                    div.className = 'bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center gap-3 cursor-pointer hover:border-brand active:scale-[0.98] transition-all';
+                    div.className = 'bg-white dark:bg-slate-800 p-3.5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/80 flex items-center gap-3.5 hover:border-brand transition-all cursor-pointer group active:scale-[0.99]';
                     div.onclick = () => openViewFinance(f.id);
                     div.innerHTML = `
-                        <div class="w-10 h-10 rounded-full ${f.paid ? 'bg-emerald-50 text-emerald-500' : 'bg-blue-50 text-blue-500'} flex items-center justify-center shrink-0 text-lg">
-                            <i class="fa-solid ${f.type==='split' ? 'fa-divide' : 'fa-handshake'}"></i>
+                        <div class="w-11 h-11 rounded-2xl ${iconColor} flex items-center justify-center shrink-0 text-base shadow-sm group-hover:scale-105 transition-transform">
+                            <i class="fa-solid ${icon}"></i>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <h4 class="font-bold text-slate-800 dark:text-white text-sm truncate leading-tight">${f.title}</h4>
-                            <p class="text-[11px] text-slate-500 truncate">${desc}</p>
+                            <div class="flex items-center gap-2">
+                                <h4 class="font-bold text-slate-800 dark:text-white text-sm truncate">${f.title}</h4>
+                                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 shrink-0">Fatura ${c.shortTitle}</span>
+                            </div>
+                            <div class="flex items-center gap-2 mt-1 text-[11px] text-slate-400 dark:text-slate-500">
+                                <span class="flex items-center gap-1 font-semibold text-slate-600 dark:text-slate-300"><i class="fa-solid ${payerIcon}"></i> ${f.payer} pagou</span>
+                                <span>•</span>
+                                <span>${f.date ? formatDateBR(f.date) : ''}</span>
+                            </div>
                         </div>
-                        <div class="text-right shrink-0 flex flex-col items-end gap-1">
-                            <span class="font-bold text-slate-800 dark:text-white text-sm">R$ ${f.amount.toFixed(2).replace('.',',')}</span>
+                        <div class="text-right shrink-0 flex flex-col items-end gap-1.5">
+                            <span class="font-black text-slate-800 dark:text-white text-sm">R$ ${f.amount.toFixed(2).replace('.', ',')}</span>
                             ${statusBadge}
                         </div>
                     `;
                     list.appendChild(div);
                 });
+            }
+
+            renderHomeDashboard();
+        }
+
+        function toggleDirectPaid(id) {
+            const f = finances.find(x => x.id === id);
+            if (f) {
+                db.ref('finances/' + f.id + '/paid').set(!f.paid);
             }
         }
 
@@ -3449,8 +4132,9 @@
             document.getElementById('vf-title').innerText = f.title;
             
             const vDate = document.getElementById('vf-date');
+            const cycle = getInvoiceCycle(f.date);
             if(f.date) {
-                vDate.innerText = "Data: " + formatDateBR(f.date);
+                vDate.innerText = `Data: ${formatDateBR(f.date)} • Fatura Vencimento: ${cycle.dueDateFormatted} (Vira dia 03)`;
                 vDate.classList.remove('hidden');
             } else {
                 vDate.classList.add('hidden');
@@ -3459,8 +4143,8 @@
             document.getElementById('vf-amount').innerText = `R$ ${f.amount.toFixed(2).replace('.',',')}`;
             
             let explanation = f.type === 'split' 
-                ? `🫂 ${f.payer} pagou o total. O outro deve pagar R$ ${(f.amount/2).toFixed(2).replace('.',',')} (Metade)` 
-                : `👉 ${f.payer} pagou tudo. O outro deve R$ ${f.amount.toFixed(2).replace('.',',')} (Integral)`;
+                ? `${f.payer} pagou o total. O outro deve a metade: R$ ${(f.amount/2).toFixed(2).replace('.',',')}` 
+                : `${f.payer} pagou tudo. O outro deve o valor integral: R$ ${f.amount.toFixed(2).replace('.',',')}`;
 
             document.getElementById('vf-desc').innerText = explanation;
             
@@ -3507,7 +4191,7 @@
         }
 
         // ==========================================
-        // 6. ABA: AGENDA 📅 & RESUMO DO DIA
+        // 6. ABA: AGENDA & RESUMO DO DIA
         // ==========================================
         function changeMonth(dir) {
             currentCalMonth += dir;
@@ -3874,7 +4558,7 @@
             });
 
             input.value = '';
-            showCustomMessage("Adicionado à lista! 🛒");
+            showCustomMessage("Adicionado à lista com sucesso!");
         }
 
         function toggleShoppingItem(id, currentStatus) {
@@ -3926,11 +4610,13 @@
         }
 
         // ==========================================
-        // 9. LÓGICA DE API REAL DO SPOTIFY 🎵
+        // 9. LOGICA DE API REAL DO SPOTIFY
         // ==========================================
         let spotifyClientId = localStorage.getItem('spotify_client_id') || "";
         let spotifyAccessToken = localStorage.getItem('spotify_access_token') || "";
+        let spotifyRefreshToken = localStorage.getItem('spotify_refresh_token') || "";
         let spotifyPollingInterval = null;
+        let isRefreshingSpotifyToken = false;
 
         function toggleSpotifyConfig() {
             const area = document.getElementById('spotifyConfigArea');
@@ -3947,12 +4633,12 @@
             if(val) {
                 localStorage.setItem('spotify_client_id', val);
                 spotifyClientId = val;
-                showCustomMessage("Client ID do Spotify salvo! 🎧");
+                showCustomMessage("Client ID do Spotify salvo com sucesso!");
                 toggleSpotifyConfig();
             }
         }
 
-        // Helper functions para o novo padrão de segurança do Spotify (PKCE)
+        // Helper functions para o padrao de seguranca do Spotify (PKCE)
         function generateRandomString(length) {
             const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
             const values = crypto.getRandomValues(new Uint8Array(length));
@@ -3970,6 +4656,58 @@
                 .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
         }
 
+        async function refreshSpotifyToken() {
+            if (isRefreshingSpotifyToken) return false;
+            const u = (currentUser || 'luiz').toLowerCase();
+            const tokenToUse = spotifyRefreshToken || localStorage.getItem('spotify_refresh_token_' + u) || (window.spotifyAuthData && window.spotifyAuthData[u]?.refreshToken);
+            if (!tokenToUse || !spotifyClientId) {
+                return false;
+            }
+
+            isRefreshingSpotifyToken = true;
+            try {
+                const response = await fetch('https://accounts.spotify.com/api/token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        client_id: spotifyClientId,
+                        grant_type: 'refresh_token',
+                        refresh_token: tokenToUse
+                    })
+                });
+
+                if (!response.ok) {
+                    console.error("Falha ao renovar token Spotify:", response.status);
+                    isRefreshingSpotifyToken = false;
+                    return false;
+                }
+
+                const data = await response.json();
+                if (data.access_token) {
+                    spotifyAccessToken = data.access_token;
+                    localStorage.setItem('spotify_access_token', spotifyAccessToken);
+                    if (data.refresh_token) {
+                        spotifyRefreshToken = data.refresh_token;
+                        localStorage.setItem('spotify_refresh_token', spotifyRefreshToken);
+                        localStorage.setItem('spotify_refresh_token_' + u, spotifyRefreshToken);
+                    }
+                    if (window.db && currentUser) {
+                        db.ref('spotify_auth/' + u).update({
+                            accessToken: spotifyAccessToken,
+                            refreshToken: spotifyRefreshToken || tokenToUse,
+                            updatedAt: Date.now()
+                        });
+                    }
+                    isRefreshingSpotifyToken = false;
+                    return true;
+                }
+            } catch (err) {
+                console.error("Erro no refresh do Spotify:", err);
+            }
+            isRefreshingSpotifyToken = false;
+            return false;
+        }
+
         async function connectSpotify() {
             if(!spotifyClientId) {
                 showCustomMessage("Configure seu Client ID do Spotify na engrenagem primeiro!");
@@ -3983,7 +4721,6 @@
             const codeChallenge = base64encode(hashed);
 
             const redirectUri = window.location.origin + window.location.pathname;
-            // SCOPES ATUALIZADOS: ADICIONADA PERMISSÃO DE CONTROLE (MODIFY PLAYBACK STATE)
             const scopes = 'user-read-currently-playing user-read-recently-played user-top-read user-modify-playback-state';
             
             const authUrl = `https://accounts.spotify.com/authorize?client_id=${spotifyClientId}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&code_challenge_method=S256&code_challenge=${codeChallenge}`;
@@ -4025,7 +4762,24 @@
                     spotifyAccessToken = data.access_token;
                     localStorage.setItem('spotify_access_token', spotifyAccessToken);
                     
-                    showCustomMessage("Seu Spotify foi conectado! 🚀");
+                    if (data.refresh_token) {
+                        spotifyRefreshToken = data.refresh_token;
+                        localStorage.setItem('spotify_refresh_token', spotifyRefreshToken);
+                        if (currentUser) {
+                            localStorage.setItem('spotify_refresh_token_' + currentUser.toLowerCase(), spotifyRefreshToken);
+                        }
+                    }
+
+                    if (window.db && currentUser) {
+                        db.ref('spotify_auth/' + currentUser.toLowerCase()).set({
+                            accessToken: spotifyAccessToken,
+                            refreshToken: spotifyRefreshToken,
+                            user: currentUser,
+                            updatedAt: Date.now()
+                        });
+                    }
+                    
+                    showCustomMessage("Seu Spotify foi conectado com sucesso!");
                     startSpotifyPolling();
                 } catch (err) {
                     console.error("Erro no PKCE do Spotify:", err);
@@ -4033,11 +4787,29 @@
                 }
             } else if (spotifyAccessToken) {
                 startSpotifyPolling();
+            } else {
+                const u = (currentUser || 'luiz').toLowerCase();
+                const storedRefresh = spotifyRefreshToken || localStorage.getItem('spotify_refresh_token_' + u);
+                if (storedRefresh) {
+                    refreshSpotifyToken().then(ok => {
+                        if (ok) startSpotifyPolling();
+                    });
+                }
             }
         }
 
         function startSpotifyPolling() {
-            if(!currentUser || !spotifyAccessToken) return;
+            if(!currentUser) return;
+            const u = currentUser.toLowerCase();
+            if (!spotifyAccessToken) {
+                const storedRefresh = spotifyRefreshToken || localStorage.getItem('spotify_refresh_token_' + u);
+                if (storedRefresh) {
+                    refreshSpotifyToken().then(ok => {
+                        if (ok) startSpotifyPolling();
+                    });
+                }
+                return;
+            }
             
             const btn = document.getElementById('btn-connect-spotify');
             if(btn) {
@@ -4046,11 +4818,10 @@
             }
 
             fetchCurrentSong(); 
-            fetchSpotifyStats(); // Busca histórico logo na conexão
+            fetchSpotifyStats();
             
             if(spotifyPollingInterval) clearInterval(spotifyPollingInterval);
             
-            // Loop duplo: a cada 10s vê a música atual. A cada 6 execuções (60s) vê o histórico.
             let tick = 0;
             spotifyPollingInterval = setInterval(() => {
                 fetchCurrentSong();
@@ -4072,8 +4843,11 @@
 
         async function controlSpotify(action) {
             if(!spotifyAccessToken) {
-                showCustomMessage("Conecte seu Spotify primeiro!");
-                return;
+                const ok = await refreshSpotifyToken();
+                if(!ok) {
+                    showCustomMessage("Conecte seu Spotify primeiro!");
+                    return;
+                }
             }
             try {
                 let url = '';
@@ -4088,37 +4862,52 @@
                     url = currentState ? 'https://api.spotify.com/v1/me/player/pause' : 'https://api.spotify.com/v1/me/player/play';
                     method = 'PUT';
                     
-                    // Atualiza o botão instantaneamente para sensação de rapidez
                     const playIcon = document.getElementById(`spo-playpause-icon-${currentUser.toLowerCase()}`);
                     if(playIcon) playIcon.className = optimisticPlayState ? "fa-solid fa-pause text-xl" : "fa-solid fa-play text-xl ml-1";
                 }
 
-                const res = await fetch(url, { method: method, headers: { 'Authorization': 'Bearer ' + spotifyAccessToken } });
+                let res = await fetch(url, { method: method, headers: { 'Authorization': 'Bearer ' + spotifyAccessToken } });
                 
-                if(res.status === 403) showCustomMessage("O Spotify bloqueou. É preciso ter Premium para dar Play/Pause por aqui! 😢", 4000);
+                if(res.status === 401) {
+                    const ok = await refreshSpotifyToken();
+                    if(ok) {
+                        res = await fetch(url, { method: method, headers: { 'Authorization': 'Bearer ' + spotifyAccessToken } });
+                    }
+                }
+
+                if(res.status === 403) showCustomMessage("O Spotify bloqueou. É preciso ter Premium para controlar a música por aqui!", 4000);
                 else if (res.status === 404) showCustomMessage("Nenhum aparelho ativo! Abra o app do Spotify no celular ou PC primeiro.", 4000);
                 else setTimeout(fetchCurrentSong, 800); 
             } catch(e) { console.error(e); }
         }
+
         async function fetchCurrentSong() {
             try {
-                const res = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
+                let res = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
                     headers: { 'Authorization': 'Bearer ' + spotifyAccessToken }
                 });
 
+                if (res.status === 401) { 
+                    const ok = await refreshSpotifyToken();
+                    if (ok) {
+                        res = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
+                            headers: { 'Authorization': 'Bearer ' + spotifyAccessToken }
+                        });
+                    } else {
+                        clearInterval(spotifyPollingInterval);
+                        spotifyAccessToken = "";
+                        localStorage.removeItem('spotify_access_token');
+                        const btn = document.getElementById('btn-connect-spotify');
+                        if(btn) {
+                            btn.innerHTML = `<i class="fa-brands fa-spotify text-2xl"></i> Conectar Spotify`;
+                            btn.className = "relative z-10 w-full bg-[#1DB954] hover:bg-[#1ed760] text-black font-black py-4 rounded-2xl shadow-[0_0_30px_rgba(29,185,84,0.3)] transition-all flex items-center justify-center gap-3 mb-10 text-lg cursor-pointer";
+                        }
+                        return;
+                    }
+                }
+
                 if (res.status === 204) {
                     updateSpotifyDatabase(null, null, null, false, 0, 0, 0, null, 120, 0.5, 0.5); 
-                    return;
-                }
-                if (res.status === 401) { 
-                    clearInterval(spotifyPollingInterval);
-                    spotifyAccessToken = "";
-                    localStorage.removeItem('spotify_access_token');
-                    const btn = document.getElementById('btn-connect-spotify');
-                    if(btn) {
-                        btn.innerHTML = `<i class="fa-brands fa-spotify text-2xl"></i> Reconectar Spotify`;
-                        btn.className = "relative z-10 w-full bg-[#1DB954] hover:bg-[#1ed760] text-black font-black py-4 rounded-2xl shadow-[0_0_30px_rgba(29,185,84,0.3)] transition-all flex items-center justify-center gap-3 mb-10 text-lg";
-                    }
                     return;
                 }
 
@@ -4133,7 +4922,7 @@
                     const popularity = data.item.popularity || 0;
                     const trackId = data.item.id;
 
-                    // Busca o "Sentimento" (Audio Features) se a música for nova
+                    // Sentimento (Audio Features) se a musica for nova
                     let tempo = 120, energy = 0.5, valence = 0.5;
                     const currentData = spotifyData[currentUser.toLowerCase()];
                     
@@ -4157,24 +4946,58 @@
         }
 
         async function fetchSpotifyStats() {
-            if(!spotifyAccessToken || !currentUser) return;
+            if(!currentUser) return;
+            if(!spotifyAccessToken) {
+                const ok = await refreshSpotifyToken();
+                if (!ok) return;
+            }
             try {
-                const resHist = await fetch('https://api.spotify.com/v1/me/player/recently-played?limit=5', { headers: { 'Authorization': 'Bearer ' + spotifyAccessToken }});
-                const dataHist = resHist.ok ? await resHist.json() : {items:[]};
-
-                const resTracks = await fetch('https://api.spotify.com/v1/me/top/tracks?limit=5&time_range=short_term', { headers: { 'Authorization': 'Bearer ' + spotifyAccessToken }});
+                let resTracks = await fetch('https://api.spotify.com/v1/me/top/tracks?limit=25&time_range=short_term', { headers: { 'Authorization': 'Bearer ' + spotifyAccessToken }});
+                if (resTracks.status === 401) {
+                    const ok = await refreshSpotifyToken();
+                    if (ok) {
+                        resTracks = await fetch('https://api.spotify.com/v1/me/top/tracks?limit=25&time_range=short_term', { headers: { 'Authorization': 'Bearer ' + spotifyAccessToken }});
+                    }
+                }
                 const dataTracks = resTracks.ok ? await resTracks.json() : {items:[]};
 
-                const resArtists = await fetch('https://api.spotify.com/v1/me/top/artists?limit=5&time_range=short_term', { headers: { 'Authorization': 'Bearer ' + spotifyAccessToken }});
+                const resArtists = await fetch('https://api.spotify.com/v1/me/top/artists?limit=20&time_range=short_term', { headers: { 'Authorization': 'Bearer ' + spotifyAccessToken }});
                 const dataArtists = resArtists.ok ? await resArtists.json() : {items:[]};
 
+                const albumMap = new Map();
+                (dataTracks.items || []).forEach(t => {
+                    if (t.album && t.album.name) {
+                        const key = t.album.name.trim().toLowerCase();
+                        if (!albumMap.has(key)) {
+                            albumMap.set(key, {
+                                name: t.album.name,
+                                artist: t.album.artists ? t.album.artists.map(a => a.name).join(', ') : (t.artists?.[0]?.name || ''),
+                                img: t.album.images?.[0]?.url || ''
+                            });
+                        }
+                    }
+                });
+                const topAlbums = Array.from(albumMap.values()).slice(0, 15);
+
+                const topTracks = (dataTracks.items || []).map(t => ({
+                    name: t.name,
+                    artist: t.artists ? t.artists.map(a => a.name).join(', ') : '',
+                    albumName: t.album?.name || '',
+                    img: t.album?.images?.[0]?.url || ''
+                }));
+
+                const topArtists = (dataArtists.items || []).map(a => ({
+                    name: a.name,
+                    img: a.images?.[0]?.url || ''
+                }));
+
                 db.ref('spotify_stats/' + currentUser.toLowerCase()).set({
-                    history: dataHist.items ? dataHist.items.map(i => ({ name: i.track.name, artist: i.track.artists[0].name, img: i.track.album.images[0]?.url })) : [],
-                    topTracks: dataTracks.items ? dataTracks.items.map(t => ({ name: t.name, artist: t.artists[0].name, img: t.album.images[0]?.url })) : [],
-                    topArtists: dataArtists.items ? dataArtists.items.map(a => ({ name: a.name, img: a.images[0]?.url })) : [],
+                    topTracks: topTracks,
+                    topArtists: topArtists,
+                    topAlbums: topAlbums,
                     timestamp: Date.now()
                 });
-            } catch(e) { console.log("Erro Stats:", e); }
+            } catch(e) { console.log("Erro Stats Spotify:", e); }
         }
 
         function updateSpotifyDatabase(song, artist, albumArt, isPlaying = false, progress = 0, duration = 0, popularity = 0, trackId = null, tempo = 120, energy = 0.5, valence = 0.5) {
@@ -4286,56 +5109,141 @@
             });
         }
 
+        function normalizeSpotifyString(str) {
+            if(!str) return '';
+            return str.toLowerCase().replace(/\s*-\s*.*$/, '').replace(/[\(\)\[\]]/g, '').replace(/[^\w\s]/gi, '').trim();
+        }
+
         function renderSpotifyStatsUI() {
             const container = document.getElementById('spotify-stats-section');
             if(!container) return;
             container.innerHTML = '';
 
-            // --- LÓGICA DE MATCH MUSICAL 💖 ---
+            // --- LOGICA DE MATCH MUSICAL (MUSICAS, ARTISTAS E ALBUNS) ---
             const sLuiz = spotifyStatsData.luiz;
             const sMatheus = spotifyStatsData.matheus;
             let matchSection = '';
 
             if (sLuiz && sMatheus) {
-                const sharedTracks = (sLuiz.topTracks || []).filter(t1 => (sMatheus.topTracks || []).some(t2 => t2.name === t1.name));
-                const sharedArtists = (sLuiz.topArtists || []).filter(a1 => (sMatheus.topArtists || []).some(a2 => a2.name === a1.name));
+                const normTracksLuiz = (sLuiz.topTracks || []).map(t => ({ ...t, norm: normalizeSpotifyString(t.name) }));
+                const normTracksMatheus = (sMatheus.topTracks || []).map(t => ({ ...t, norm: normalizeSpotifyString(t.name) }));
+                const sharedTracks = normTracksLuiz.filter(t1 => normTracksMatheus.some(t2 => t2.norm && t2.norm === t1.norm));
 
-                if (sharedTracks.length > 0 || sharedArtists.length > 0) {
-                    const matchTracksHtml = sharedTracks.map(t => `
-                        <div class="flex items-center gap-2 bg-[#1DB954]/20 p-2 rounded-xl border border-[#1DB954]/30 shrink-0 w-48">
-                            <img src="${t.img}" class="w-10 h-10 rounded-lg object-cover shadow-md">
-                            <div class="flex-1 min-w-0">
-                                <p class="text-[10px] font-bold text-white truncate">${t.name}</p>
-                                <p class="text-[8px] text-[#1DB954] truncate">Ouvido por ambos</p>
+                const normArtistsLuiz = (sLuiz.topArtists || []).map(a => ({ ...a, norm: normalizeSpotifyString(a.name) }));
+                const normArtistsMatheus = (sMatheus.topArtists || []).map(a => ({ ...a, norm: normalizeSpotifyString(a.name) }));
+                const sharedArtists = normArtistsLuiz.filter(a1 => normArtistsMatheus.some(a2 => a2.norm && a2.norm === a1.norm));
+
+                const normAlbumsLuiz = (sLuiz.topAlbums || []).map(al => ({ ...al, norm: normalizeSpotifyString(al.name) }));
+                const normAlbumsMatheus = (sMatheus.topAlbums || []).map(al => ({ ...al, norm: normalizeSpotifyString(al.name) }));
+                const sharedAlbums = normAlbumsLuiz.filter(al1 => normAlbumsMatheus.some(al2 => al2.norm && al2.norm === al1.norm));
+
+                const totalMatches = sharedTracks.length + sharedArtists.length + sharedAlbums.length;
+                let matchPercentage = 25;
+                if (sLuiz.topTracks?.length && sMatheus.topTracks?.length) {
+                    const trackScore = Math.min(100, (sharedTracks.length / 5) * 100);
+                    const artistScore = Math.min(100, (sharedArtists.length / 4) * 100);
+                    const albumScore = Math.min(100, (sharedAlbums.length / 3) * 100);
+                    matchPercentage = Math.round((trackScore * 0.4) + (artistScore * 0.35) + (albumScore * 0.25));
+                    if (totalMatches > 0 && matchPercentage < 45) matchPercentage = 45 + Math.min(50, totalMatches * 10);
+                    if (totalMatches === 0) matchPercentage = 20;
+                }
+
+                const matchTracksHtml = sharedTracks.length > 0 ? sharedTracks.map(t => `
+                    <div class="flex items-center gap-3 bg-[#1DB954]/15 hover:bg-[#1DB954]/25 p-2.5 rounded-2xl border border-[#1DB954]/30 shrink-0 w-60 transition-colors shadow-sm">
+                        <img src="${t.img || 'https://placehold.co/100'}" class="w-12 h-12 rounded-xl object-cover shadow-md shrink-0">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-bold text-white truncate">${t.name}</p>
+                            <p class="text-[10px] text-slate-300 truncate">${t.artist}</p>
+                            <span class="inline-flex items-center gap-1 text-[9px] font-black text-[#1DB954] mt-0.5">
+                                <i class="fa-solid fa-heart text-[8px]"></i> Em comum
+                            </span>
+                        </div>
+                    </div>
+                `).join('') : '';
+
+                const matchArtistsHtml = sharedArtists.length > 0 ? sharedArtists.map(a => `
+                    <div class="flex flex-col items-center gap-1.5 shrink-0 w-20 group">
+                        <img src="${a.img || 'https://placehold.co/100'}" class="w-16 h-16 rounded-full object-cover border-2 border-[#1DB954] shadow-[0_0_15px_rgba(29,185,84,0.4)] group-hover:scale-105 transition-transform duration-300">
+                        <p class="text-[10px] font-bold text-white truncate w-full text-center leading-tight">${a.name}</p>
+                        <span class="text-[8px] font-black text-[#1DB954] uppercase tracking-wider">Artista Par</span>
+                    </div>
+                `).join('') : '';
+
+                const matchAlbumsHtml = sharedAlbums.length > 0 ? sharedAlbums.map(al => `
+                    <div class="flex items-center gap-3 bg-white/5 hover:bg-white/10 p-2.5 rounded-2xl border border-white/10 shrink-0 w-60 transition-colors shadow-sm">
+                        <img src="${al.img || 'https://placehold.co/100'}" class="w-12 h-12 rounded-xl object-cover shadow-md shrink-0">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-bold text-white truncate">${al.name}</p>
+                            <p class="text-[10px] text-slate-400 truncate">${al.artist || 'Vários'}</p>
+                            <span class="inline-flex items-center gap-1 text-[9px] font-black text-purple-400 mt-0.5">
+                                <i class="fa-solid fa-compact-disc text-[8px]"></i> Álbum em comum
+                            </span>
+                        </div>
+                    </div>
+                `).join('') : '';
+
+                matchSection = `
+                    <div class="bg-gradient-to-br from-[#1DB954]/20 via-slate-900/90 to-black/80 backdrop-blur-2xl rounded-3xl p-6 border border-[#1DB954]/30 shadow-2xl flex flex-col gap-5 relative overflow-hidden mb-2">
+                        <div class="absolute -right-6 -top-6 text-[#1DB954]/10 text-9xl rotate-12 pointer-events-none"><i class="fa-solid fa-headphones"></i></div>
+                        
+                        <div class="flex flex-wrap items-center justify-between gap-3 relative z-10 border-b border-white/10 pb-4">
+                            <div>
+                                <h3 class="text-xl font-black text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-heart text-[#1DB954] animate-pulse"></i> Match Musical do Casal
+                                </h3>
+                                <p class="text-xs text-slate-300 mt-0.5">Músicas, artistas e álbuns mais ouvidos em perfeita sintonia</p>
+                            </div>
+                            <div class="flex items-center gap-2 bg-[#1DB954] text-black font-black text-xs px-3.5 py-1.5 rounded-full shadow-lg">
+                                <i class="fa-solid fa-bolt"></i>
+                                <span>${matchPercentage}% Sintonia</span>
                             </div>
                         </div>
-                    `).join('');
 
-                    const matchArtistsHtml = sharedArtists.map(a => `
-                        <div class="flex flex-col items-center gap-1 shrink-0 w-16">
-                            <img src="${a.img}" class="w-12 h-12 rounded-full object-cover border-2 border-[#1DB954] shadow-[0_0_10px_rgba(29,185,84,0.5)]">
-                            <p class="text-[9px] font-bold text-white truncate w-full text-center">${a.name}</p>
-                        </div>
-                    `).join('');
+                        ${sharedTracks.length > 0 ? `
+                            <div class="relative z-10">
+                                <h4 class="text-[10px] font-black text-[#1DB954] uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-music"></i> Músicas em Comum (${sharedTracks.length})
+                                </h4>
+                                <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2">${matchTracksHtml}</div>
+                            </div>
+                        ` : ''}
 
+                        ${sharedArtists.length > 0 ? `
+                            <div class="relative z-10">
+                                <h4 class="text-[10px] font-black text-[#1DB954] uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-users"></i> Artistas em Comum (${sharedArtists.length})
+                                </h4>
+                                <div class="flex gap-4 overflow-x-auto no-scrollbar pb-2">${matchArtistsHtml}</div>
+                            </div>
+                        ` : ''}
+
+                        ${sharedAlbums.length > 0 ? `
+                            <div class="relative z-10">
+                                <h4 class="text-[10px] font-black text-[#1DB954] uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-compact-disc"></i> Álbuns em Comum (${sharedAlbums.length})
+                                </h4>
+                                <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2">${matchAlbumsHtml}</div>
+                            </div>
+                        ` : ''}
+
+                        ${totalMatches === 0 ? `
+                            <div class="text-center py-6 px-4 bg-white/5 rounded-2xl border border-white/5 relative z-10">
+                                <i class="fa-solid fa-radio text-3xl text-slate-400 mb-2"></i>
+                                <h4 class="text-sm font-bold text-white mb-1">Frequências Diferentes Este Mês</h4>
+                                <p class="text-xs text-slate-400 max-w-md mx-auto">Luiz e Matheus estão curtindo estilos únicos no momento. Conforme continuarem ouvindo músicas no Spotify, os matches de faixas, artistas e álbuns aparecerão aqui automaticamente!</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            } else {
+                const connectedUser = sLuiz ? 'Luiz' : (sMatheus ? 'Matheus' : null);
+                const pendingUser = sLuiz ? 'Matheus' : 'Luiz';
+                if (connectedUser) {
                     matchSection = `
-                        <div class="bg-gradient-to-r from-[#1DB954]/20 to-black/40 backdrop-blur-xl rounded-3xl p-5 border border-[#1DB954]/30 shadow-2xl flex flex-col gap-4 relative overflow-hidden mb-2">
-                            <div class="absolute -right-4 -top-4 text-[#1DB954]/10 text-7xl rotate-12 pointer-events-none"><i class="fa-solid fa-heart-pulse"></i></div>
-                            <h3 class="text-lg font-black text-white flex items-center gap-2 relative z-10"><i class="fa-solid fa-heart text-[#1DB954] animate-pulse"></i> Matches Musicais</h3>
-                            
-                            ${sharedTracks.length > 0 ? `
-                                <div class="relative z-10">
-                                    <h4 class="text-[9px] font-bold text-white/50 uppercase tracking-widest mb-2">Músicas em Comum</h4>
-                                    <div class="flex gap-3 overflow-x-auto no-scrollbar pb-1">${matchTracksHtml}</div>
-                                </div>
-                            ` : ''}
-
-                            ${sharedArtists.length > 0 ? `
-                                <div class="relative z-10 mt-2">
-                                    <h4 class="text-[9px] font-bold text-white/50 uppercase tracking-widest mb-2">Artistas em Comum</h4>
-                                    <div class="flex gap-4 overflow-x-auto no-scrollbar pb-1">${matchArtistsHtml}</div>
-                                </div>
-                            ` : ''}
+                        <div class="bg-black/40 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-2xl flex flex-col items-center text-center gap-3 relative overflow-hidden mb-2">
+                            <i class="fa-solid fa-circle-nodes text-3xl text-[#1DB954]"></i>
+                            <h3 class="text-lg font-black text-white">Quase lá! Conecte o outro Spotify</h3>
+                            <p class="text-xs text-slate-400 max-w-sm">${connectedUser} já está com o Spotify conectado. Quando ${pendingUser} entrar e conectar o seu Spotify, o match de faixas, artistas e álbuns será calculado instantaneamente!</p>
                         </div>
                     `;
                 }
@@ -4350,39 +5258,37 @@
                 const name = user.charAt(0).toUpperCase() + user.slice(1);
                 
                 const tracksHtml = (stats.topTracks && stats.topTracks.length > 0) ? stats.topTracks.map(t => `
-                    <div class="w-28 shrink-0 flex flex-col gap-2 group cursor-pointer">
-                        <img src="${t.img || 'https://placehold.co/100'}" class="w-28 h-28 rounded-2xl object-cover shadow-lg border border-white/5 group-hover:scale-105 transition-transform duration-300">
+                    <div class="w-32 shrink-0 flex flex-col gap-2 group cursor-pointer">
+                        <img src="${t.img || 'https://placehold.co/100'}" class="w-32 h-32 rounded-2xl object-cover shadow-lg border border-white/5 group-hover:scale-105 transition-transform duration-300">
                         <div>
-                            <p class="text-[11px] font-bold text-white truncate w-full leading-tight">${t.name}</p>
-                            <p class="text-[9px] text-slate-400 truncate w-full">${t.artist}</p>
+                            <p class="text-xs font-bold text-white truncate w-full leading-tight">${t.name}</p>
+                            <p class="text-[10px] text-slate-400 truncate w-full">${t.artist}</p>
                         </div>
                     </div>
-                `).join('') : '<p class="text-xs text-slate-500 italic">Nada para mostrar ainda.</p>';
+                `).join('') : '<p class="text-xs text-slate-500 italic">Nenhuma música computada ainda.</p>';
 
                 const artistsHtml = (stats.topArtists && stats.topArtists.length > 0) ? stats.topArtists.map(a => `
                     <div class="w-20 shrink-0 flex flex-col items-center gap-2 group cursor-pointer">
                         <img src="${a.img || 'https://placehold.co/100'}" class="w-20 h-20 rounded-full object-cover shadow-lg border border-[#1DB954]/20 group-hover:border-[#1DB954] transition-colors duration-300">
                         <p class="text-[10px] font-bold text-white text-center truncate w-full">${a.name}</p>
                     </div>
-                `).join('') : '<p class="text-xs text-slate-500 italic">Nada para mostrar ainda.</p>';
+                `).join('') : '<p class="text-xs text-slate-500 italic">Nenhum artista computado ainda.</p>';
 
-                const historyHtml = (stats.history && stats.history.length > 0) ? stats.history.slice(0,5).map((h, i) => `
-                    <div class="flex items-center gap-3 bg-white/5 hover:bg-white/10 p-2.5 rounded-xl border border-white/5 transition-colors cursor-pointer">
-                        <span class="text-[10px] font-black text-slate-600 w-3 text-center">${i+1}</span>
-                        <img src="${h.img || 'https://placehold.co/50'}" class="w-10 h-10 rounded-md object-cover shadow-sm">
-                        <div class="flex-1 min-w-0">
-                            <p class="text-xs font-bold text-white truncate">${h.name}</p>
-                            <p class="text-[9px] text-slate-400 truncate">${h.artist}</p>
+                const albumsHtml = (stats.topAlbums && stats.topAlbums.length > 0) ? stats.topAlbums.map(al => `
+                    <div class="w-28 shrink-0 flex flex-col gap-2 group cursor-pointer">
+                        <img src="${al.img || 'https://placehold.co/100'}" class="w-28 h-28 rounded-2xl object-cover shadow-lg border border-white/5 group-hover:scale-105 transition-transform duration-300">
+                        <div>
+                            <p class="text-xs font-bold text-white truncate w-full leading-tight">${al.name}</p>
+                            <p class="text-[10px] text-slate-400 truncate w-full">${al.artist || 'Vários'}</p>
                         </div>
-                        <i class="fa-brands fa-spotify text-slate-600 text-xs"></i>
                     </div>
-                `).join('') : '<p class="text-xs text-slate-500 italic">Nenhum histórico.</p>';
+                `).join('') : '<p class="text-xs text-slate-500 italic">Nenhum álbum computado ainda.</p>';
 
                 container.innerHTML += `
                     <div class="bg-black/30 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-2xl flex flex-col gap-6 relative overflow-hidden mt-4">
                         <div class="absolute -right-4 -top-4 text-white/5 text-7xl rotate-12 pointer-events-none"><i class="fa-solid fa-headphones"></i></div>
                         
-                        <h3 class="text-xl font-black text-white flex items-center gap-2 relative z-10"><i class="fa-solid fa-circle-user text-[#1DB954]"></i> O que ${name} curte</h3>
+                        <h3 class="text-xl font-black text-white flex items-center gap-2 relative z-10"><i class="fa-solid fa-circle-user text-[#1DB954]"></i> O que ${name} mais ouve</h3>
 
                         <div class="relative z-10">
                             <h4 class="text-[10px] font-black text-white/40 uppercase tracking-widest mb-3 flex items-center gap-1.5"><i class="fa-solid fa-fire text-orange-500"></i> Top Músicas (Mês)</h4>
@@ -4395,8 +5301,8 @@
                         </div>
 
                         <div class="relative z-10">
-                            <h4 class="text-[10px] font-black text-white/40 uppercase tracking-widest mb-3 flex items-center gap-1.5"><i class="fa-solid fa-clock-rotate-left text-blue-400"></i> Últimas Tocadas</h4>
-                            <div class="flex flex-col gap-2">${historyHtml}</div>
+                            <h4 class="text-[10px] font-black text-white/40 uppercase tracking-widest mb-3 flex items-center gap-1.5"><i class="fa-solid fa-compact-disc text-emerald-400"></i> Top Álbuns (Mês)</h4>
+                            <div class="flex gap-4 overflow-x-auto no-scrollbar pb-2">${albumsHtml}</div>
                         </div>
                     </div>
                 `;
