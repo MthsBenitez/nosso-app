@@ -22,6 +22,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
+    <!-- SheetJS (Exportação Completa para Excel .xlsx) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
     <script>
         const savedTheme = localStorage.getItem('couple_app_theme') || 'rosa';
         const isDark = localStorage.getItem('couple_app_dark') === 'true';
@@ -196,7 +199,7 @@
                         </div>
                         <div>
                             <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Cartão do Mês</span>
-                            <h3 class="text-sm font-black text-slate-800 dark:text-white" id="home-card-summary">Vira dia 3 • Vence dia 10</h3>
+                            <h3 class="text-sm font-black text-slate-800 dark:text-white" id="home-card-summary">Vira dia 02 • Vence dia 09</h3>
                         </div>
                     </div>
                     <i class="fa-solid fa-chevron-right text-xs text-blue-500/60 group-hover:translate-x-1 transition-transform"></i>
@@ -228,7 +231,7 @@
                     </div>
                     <div>
                         <h4 class="font-bold text-sm text-slate-800 dark:text-white">Contas</h4>
-                        <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5" id="home-stat-finances">Vira dia 3 • Vence dia 10</p>
+                        <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5" id="home-stat-finances">Vira dia 02 • Vence dia 09</p>
                     </div>
                 </button>
 
@@ -462,7 +465,7 @@
                         <h1 class="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-2 tracking-tight">
                             Contas & Cartão <i class="fa-solid fa-credit-card text-brand text-xl"></i>
                         </h1>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Ciclo mensal: Vira dia 03 • Vence dia 10</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Ciclo mensal: Vira dia 02 • Vence dia 09</p>
                     </div>
                 </div>
 
@@ -473,6 +476,9 @@
                     </button>
                     <button onclick="toggleFinanceSearch()" id="btn-toggle-fin-search" class="bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 py-3 px-3.5 rounded-2xl shadow-sm flex items-center justify-center hover:text-brand active:scale-95 transition-all text-xs font-bold gap-1.5 touch-manipulation" title="Pesquisar Contas">
                         <i class="fa-solid fa-magnifying-glass text-sm"></i> <span class="hidden sm:inline">Buscar</span>
+                    </button>
+                    <button onclick="openExportFinancesModal()" class="bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 border border-slate-200 dark:border-slate-700 py-3 px-3.5 rounded-2xl shadow-sm flex items-center justify-center hover:bg-emerald-50 dark:hover:bg-emerald-950/40 active:scale-95 transition-all text-xs font-bold gap-1.5 touch-manipulation" title="Exportar Tudo para Excel">
+                        <i class="fa-solid fa-file-excel text-sm text-emerald-600 dark:text-emerald-400"></i> <span class="hidden sm:inline">Excel</span>
                     </button>
                     <button onclick="clearFinancesHistory()" class="bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 py-3 px-3.5 rounded-2xl shadow-sm flex items-center justify-center hover:text-red-500 active:scale-95 transition-all text-xs font-bold gap-1.5 touch-manipulation" title="Limpar Pagas">
                         <i class="fa-solid fa-broom text-sm"></i> <span class="hidden sm:inline">Limpar Pagas</span>
@@ -495,9 +501,9 @@
                     </div>
                     <div class="flex items-center gap-2 flex-wrap">
                         <div class="flex items-center gap-2 text-[11px] font-semibold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/60 px-2.5 py-1 rounded-xl border border-slate-100 dark:border-slate-700/60">
-                            <span>Vira: <b>03/<span id="fin-txt-close-month">--</span></b></span>
+                            <span>Vira: <b>02/<span id="fin-txt-close-month">--</span></b></span>
                             <span class="text-slate-300 dark:text-slate-600">•</span>
-                            <span>Vence: <b>10/<span id="fin-txt-due-month">--</span></b></span>
+                            <span>Vence: <b>09/<span id="fin-txt-due-month">--</span></b></span>
                         </div>
                         <span id="fin-cycle-badge" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800 inline-block">Aberta</span>
                     </div>
@@ -575,6 +581,9 @@
                 <div class="flex items-center gap-1.5">
                     <button onclick="toggleFinanceSearch()" class="px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-all touch-manipulation" title="Pesquisar">
                         <i class="fa-solid fa-magnifying-glass text-brand text-[11px]"></i> Buscar
+                    </button>
+                    <button onclick="openExportFinancesModal()" class="px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-all touch-manipulation" title="Exportar Tudo para Excel">
+                        <i class="fa-solid fa-file-excel text-emerald-600 dark:text-emerald-400 text-xs"></i> Excel
                     </button>
                     <button onclick="markCurrentInvoiceAllPaid()" class="text-xs font-bold text-slate-500 hover:text-emerald-500 dark:text-slate-400 transition-colors flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 active:scale-95 touch-manipulation">
                         <i class="fa-solid fa-check-double text-emerald-500"></i> Quitar Fatura
@@ -1499,7 +1508,7 @@
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Forma de Pagamento</label>
                     <select id="fin-method" onchange="updateFinanceModalPreview()" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-brand text-sm font-bold">
-                        <option value="credit">Cartão de Crédito (Vira dia 3, Vence dia 10)</option>
+                        <option value="credit">Cartão de Crédito (Vira dia 02, Vence dia 09)</option>
                         <option value="pix">Pix / Débito / Dinheiro</option>
                     </select>
                 </div>
@@ -1513,8 +1522,8 @@
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Tipo de Divisão</label>
                     <select id="fin-type" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-brand text-sm font-bold">
+                        <option value="full">Pagou inteiro (O outro deve o total)</option>
                         <option value="split">Dividir valor (50/50)</option>
-                        <option value="full">O outro deve o valor total</option>
                     </select>
                 </div>
                 <div>
@@ -1524,7 +1533,7 @@
                 
                 <div id="fin-fatura-preview" class="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 text-xs font-bold text-blue-700 dark:text-blue-300 flex items-center gap-2">
                     <i class="fa-solid fa-credit-card text-brand"></i>
-                    <span id="fin-fatura-preview-txt">Previsão: Vence dia 10/...</span>
+                    <span id="fin-fatura-preview-txt">Previsão: Vence dia 09/...</span>
                 </div>
 
                 <div>
@@ -1584,6 +1593,93 @@
         </div>
     </div>
 
+    <!-- POPUP DE NOTIFICAÇÃO NO CELULAR: INCLUSÕES DO PARCEIRO -->
+    <div id="partnerActivityPopup" class="fixed top-4 left-3 right-3 sm:left-auto sm:right-6 sm:w-96 z-[9999] pointer-events-none opacity-0 -translate-y-8 transition-all duration-300 ease-out">
+        <div class="pointer-events-auto bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-2xl p-4 shadow-[0_12px_36px_rgba(0,0,0,0.18)] dark:shadow-[0_12px_36px_rgba(0,0,0,0.6)] border border-brand/30 flex flex-col gap-2.5 relative overflow-hidden">
+            <div class="flex items-start gap-3">
+                <div id="pap-icon-box" class="w-10 h-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center text-lg shrink-0">
+                    <i class="fa-solid fa-bell" id="pap-icon"></i>
+                </div>
+                <div class="flex-1 min-w-0 pr-6">
+                    <div class="flex items-center gap-1.5 mb-0.5">
+                        <span class="inline-block w-2 h-2 rounded-full bg-brand animate-pulse"></span>
+                        <span class="text-[10px] font-black uppercase tracking-wider text-brand" id="pap-author-tag">Luiz Adicionou Agora</span>
+                    </div>
+                    <h4 class="text-xs font-bold text-slate-800 dark:text-white truncate" id="pap-title">Nova Inclusão</h4>
+                    <p class="text-[11px] text-slate-600 dark:text-slate-300 font-medium line-clamp-2 leading-relaxed" id="pap-desc">Detalhes da novidade...</p>
+                </div>
+                <button onclick="dismissPartnerActivityPopup()" class="absolute top-3 right-3 w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-700/80 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center text-xs transition-colors" title="Fechar Notificação">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-slate-700/60">
+                <span class="text-[10px] text-slate-400 font-semibold" id="pap-time">Agora mesmo</span>
+                <div class="flex items-center gap-1.5">
+                    <button id="pap-action-btn" onclick="openPartnerActivityTarget()" class="px-3 py-1 rounded-xl bg-brand hover:bg-brand-dark text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1 active:scale-95 touch-manipulation">
+                        <span>Ver agora</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Barra de tempo para fechamento automático -->
+            <div class="absolute bottom-0 left-0 right-0 h-1 bg-slate-100 dark:bg-slate-700/40">
+                <div id="pap-progress-bar" class="h-full bg-brand transition-all duration-linear w-full"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE EXPORTAÇÃO COMPLETA PARA EXCEL -->
+    <div id="financeExportModal" class="hidden fixed inset-0 z-[1050] flex flex-col justify-end md:justify-center items-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeExportFinancesModal()"></div>
+        <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl flex flex-col slide-up shadow-2xl p-6 border border-slate-800 max-h-[90vh] overflow-y-auto no-scrollbar pb-safe">
+            <div class="flex justify-between items-center mb-5">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-solid fa-file-excel"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-black text-slate-800 dark:text-white">Exportar para Excel</h2>
+                        <p class="text-xs text-slate-400 font-medium">Planilha detalhada e completa (.xlsx)</p>
+                    </div>
+                </div>
+                <button onclick="closeExportFinancesModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Métricas dos Dados que serão extraídos -->
+            <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/60 flex flex-col gap-2.5 mb-5">
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Resumo da Extração</span>
+                <div class="grid grid-cols-3 gap-2 text-center">
+                    <div class="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700">
+                        <span class="text-[10px] text-slate-400 block font-semibold">Total Contas</span>
+                        <b class="text-sm text-slate-800 dark:text-white" id="exp-total-count">0</b>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700">
+                        <span class="text-[10px] text-slate-400 block font-semibold">Total Valor</span>
+                        <b class="text-sm text-slate-800 dark:text-white" id="exp-total-amount">R$ 0</b>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700">
+                        <span class="text-[10px] text-slate-400 block font-semibold">Faturas</span>
+                        <b class="text-sm text-slate-800 dark:text-white" id="exp-total-invoices">0</b>
+                    </div>
+                </div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200/50 dark:border-slate-700/50 leading-relaxed">
+                    Inclui duas abas completas no arquivo Excel: <b>Despesas Detalhadas</b> (todas as compras com data, quem pagou, parcelas, divisão 50/50 ou integral, cotas de Luiz e Matheus, acerto Pix e status) e <b>Resumo por Fatura</b> (fechamento dia 02, vencimento dia 09, totais e acertos).
+                </p>
+            </div>
+
+            <!-- Botões de Ação para Download -->
+            <div class="flex flex-col gap-2.5">
+                <button onclick="executeExportFinances('all')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-2xl shadow-md flex items-center justify-center gap-2 text-sm active:scale-[0.98] transition-all touch-manipulation">
+                    <i class="fa-solid fa-file-arrow-down text-base"></i> Exportar TUDO Completo (Histórico Total)
+                </button>
+                <button onclick="executeExportFinances('current')" class="w-full bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-white font-bold py-3 px-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-center gap-2 text-xs active:scale-[0.98] transition-all touch-manipulation">
+                    <i class="fa-solid fa-calendar-day text-brand"></i> <span id="exp-current-cycle-btn-txt">Exportar Apenas Fatura Selecionada</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
 
     <!-- JAVASCRIPT CORE -->
     <script>
@@ -1595,7 +1691,11 @@
         let partnerLastSeen = null;
 
         // Flags para notificações Push (evita notificar ao carregar a página inicialmente)
-        let initialLoad = { movies: true, shows: true, finances: true, events: true, memories: true };
+        let initialLoad = { movies: true, shows: true, finances: true, events: true, memories: true, places: true, shopping: true };
+        let partnerActivityTimer = null;
+        let currentPopupMeta = null;
+        const notifiedActivityKeys = new Set();
+        const sessionStartTime = Date.now() - 30000;
 
         // Map & Album
         let map;
@@ -1676,11 +1776,150 @@
 
         function sendPushNotification(title, body) {
             if ("Notification" in window && Notification.permission === "granted") {
-                // Só envia notificação se a aba/app não estiver em foco no exato momento
-                if (document.visibilityState !== "visible") {
-                    new Notification(title, { body: body, icon: 'https://cdn-icons-png.flaticon.com/512/833/833472.png' });
+                try {
+                    new Notification(title, {
+                        body: body,
+                        icon: 'https://cdn-icons-png.flaticon.com/512/833/833472.png',
+                        badge: 'https://cdn-icons-png.flaticon.com/512/833/833472.png'
+                    });
+                } catch (e) {
+                    if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+                        navigator.serviceWorker.ready.then(reg => {
+                            reg.showNotification(title, { body: body, icon: 'https://cdn-icons-png.flaticon.com/512/833/833472.png' });
+                        }).catch(() => {});
+                    }
                 }
             }
+        }
+
+        function playNotificationChime() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.type = 'sine';
+                const now = ctx.currentTime;
+                osc.frequency.setValueAtTime(587.33, now);
+                osc.frequency.setValueAtTime(880, now + 0.1);
+                gain.gain.setValueAtTime(0.18, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+                osc.start(now);
+                osc.stop(now + 0.45);
+            } catch (e) {}
+        }
+
+        function broadcastPartnerActivity(category, title, description, meta = {}) {
+            try {
+                const author = currentUser || 'Luiz';
+                const id = 'act_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+                const payload = {
+                    id: id,
+                    category: category,
+                    title: title,
+                    description: description,
+                    author: author,
+                    meta: meta,
+                    timestamp: Date.now()
+                };
+                db.ref('partner_activities/' + id).set(payload);
+            } catch (err) {
+                console.error("Erro ao registrar atividade do parceiro:", err);
+            }
+        }
+
+        function showPartnerActivityPopup(data) {
+            if (!data) return;
+
+            const dedupeKey = data.id || `${data.category}_${data.title}_${data.description}`;
+            if (notifiedActivityKeys.has(dedupeKey)) return;
+            notifiedActivityKeys.add(dedupeKey);
+
+            const popup = document.getElementById('partnerActivityPopup');
+            if (!popup) return;
+
+            currentPopupMeta = data.meta || null;
+
+            const iconEl = document.getElementById('pap-icon');
+            const authorTag = document.getElementById('pap-author-tag');
+            const titleEl = document.getElementById('pap-title');
+            const descEl = document.getElementById('pap-desc');
+            const progressBar = document.getElementById('pap-progress-bar');
+
+            const authorName = data.author || (currentUser === 'Luiz' ? 'Matheus' : 'Luiz');
+            if (authorTag) authorTag.innerText = `${authorName} Adicionou Agora`;
+            if (titleEl) titleEl.innerText = data.title || "Nova Inclusão";
+            if (descEl) descEl.innerText = data.description || "Uma nova inclusão foi realizada no site.";
+
+            let iconClass = "fa-solid fa-bell";
+            if (data.category === 'finance') iconClass = "fa-solid fa-credit-card";
+            else if (data.category === 'photo' || data.category === 'memory') iconClass = "fa-solid fa-camera-retro";
+            else if (data.category === 'place') iconClass = "fa-solid fa-map-pin";
+            else if (data.category === 'movie') iconClass = "fa-solid fa-film";
+            else if (data.category === 'show') iconClass = "fa-solid fa-tv";
+            else if (data.category === 'review') iconClass = "fa-solid fa-star";
+            else if (data.category === 'event') iconClass = "fa-solid fa-calendar-check";
+            else if (data.category === 'shopping') iconClass = "fa-solid fa-basket-shopping";
+            else if (data.category === 'dates') iconClass = "fa-solid fa-heart";
+            else if (data.category === 'spotify') iconClass = "fa-brands fa-spotify";
+
+            if (iconEl) iconEl.className = iconClass;
+
+            playNotificationChime();
+            if (navigator.vibrate) {
+                try { navigator.vibrate([120, 80, 150]); } catch (e) {}
+            }
+
+            sendPushNotification(data.title || `Inclusão de ${authorName}`, data.description || "Toque para abrir e ver.");
+
+            popup.classList.remove('opacity-0', '-translate-y-8', 'pointer-events-none');
+            popup.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+
+            if (progressBar) {
+                progressBar.style.transition = 'none';
+                progressBar.style.width = '100%';
+                setTimeout(() => {
+                    progressBar.style.transition = 'width 8s linear';
+                    progressBar.style.width = '0%';
+                }, 50);
+            }
+
+            if (partnerActivityTimer) clearTimeout(partnerActivityTimer);
+            partnerActivityTimer = setTimeout(() => {
+                dismissPartnerActivityPopup();
+            }, 8000);
+        }
+
+        function dismissPartnerActivityPopup() {
+            const popup = document.getElementById('partnerActivityPopup');
+            if (!popup) return;
+            popup.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+            popup.classList.add('opacity-0', '-translate-y-8', 'pointer-events-none');
+            if (partnerActivityTimer) clearTimeout(partnerActivityTimer);
+        }
+
+        function openPartnerActivityTarget() {
+            dismissPartnerActivityPopup();
+            if (currentPopupMeta && currentPopupMeta.tab) {
+                switchTab(currentPopupMeta.tab);
+            }
+        }
+
+        function initPartnerActivityListener() {
+            db.ref('partner_activities')
+                .orderByChild('timestamp')
+                .startAt(sessionStartTime)
+                .on('child_added', (snap) => {
+                    const act = snap.val();
+                    if (!act || !act.timestamp) return;
+                    const partner = currentUser === 'Luiz' ? 'Matheus' : 'Luiz';
+                    if (act.author === partner || (act.author !== currentUser && currentUser)) {
+                        showPartnerActivityPopup(act);
+                    }
+                });
         }
 
 
@@ -1782,7 +2021,7 @@
             if (cardSummary) {
                 const now = new Date();
                 const cycle = typeof getInvoiceCycle === 'function' ? getInvoiceCycle(now.toISOString().split('T')[0]) : null;
-                if (cycle) cardSummary.innerText = `Fatura ${cycle.shortTitle} (Venc. 10/${String(cycle.month).padStart(2,'0')})`;
+                if (cycle) cardSummary.innerText = `Fatura ${cycle.shortTitle} (Venc. 09/${String(cycle.month).padStart(2,'0')})`;
             }
 
             // Contadores dos Cards
@@ -1790,7 +2029,7 @@
             if (statMap && typeof memories !== 'undefined') statMap.innerText = `${memories.filter(m => !m.isHidden).length} memórias salvas`;
 
             const statFin = document.getElementById('home-stat-finances');
-            if (statFin) statFin.innerText = `Vira dia 03 • Vence dia 10`;
+            if (statFin) statFin.innerText = `Vira dia 02 • Vence dia 09`;
 
             const statMov = document.getElementById('home-stat-movies');
             if (statMov && typeof movies !== 'undefined') statMov.innerText = `${movies.length} filmes na lista`;
@@ -1817,6 +2056,7 @@
             initMap();
             setupFirebaseSync();
             setupPresence();
+            initPartnerActivityListener();
             
             // Força a renderização inicial para as abas não ficarem em branco
             renderShoppingList();
@@ -2013,7 +2253,22 @@
             db.ref('memories').on('value', (snap) => {
                 const data = snap.val();
                 const newMemories = data ? Object.values(data) : [];
-                if (!initialLoad.memories && newMemories.length > memories.length) sendPushNotification("Novo Momento", "Uma nova foto foi adicionada no álbum!");
+                if (!initialLoad.memories && newMemories.length > memories.length) {
+                    const partner = currentUser === 'Luiz' ? 'Matheus' : 'Luiz';
+                    const added = newMemories.filter(nm => !memories.some(om => om.id === nm.id));
+                    added.forEach(item => {
+                        if (item.addedBy === partner || (item.addedBy !== currentUser && currentUser)) {
+                            showPartnerActivityPopup({
+                                id: item.id,
+                                category: 'photo',
+                                title: 'Novo Momento no Álbum',
+                                description: `${partner} adicionou a foto "${item.title || 'Novo Momento'}"`,
+                                author: partner,
+                                meta: { tab: 'map', id: item.id }
+                            });
+                        }
+                    });
+                }
                 memories = newMemories;
                 
                 // Atualiza o contador de corações no mapa
@@ -2029,14 +2284,47 @@
             // NOVO: LISTA DE DESEJOS DE LUGARES
             db.ref('places').on('value', (snap) => {
                 const data = snap.val();
-                places = data ? Object.values(data) : [];
+                const newPlaces = data ? Object.values(data) : [];
+                if (!initialLoad.places && newPlaces.length > places.length) {
+                    const partner = currentUser === 'Luiz' ? 'Matheus' : 'Luiz';
+                    const added = newPlaces.filter(np => !places.some(op => op.id === np.id));
+                    added.forEach(item => {
+                        if (item.addedBy === partner || (item.addedBy !== currentUser && currentUser)) {
+                            showPartnerActivityPopup({
+                                id: item.id,
+                                category: 'place',
+                                title: 'Novo Lugar Desejado',
+                                description: `${partner} adicionou "${item.name}" aos lugares para visitar!`,
+                                author: partner,
+                                meta: { tab: 'map', id: item.id }
+                            });
+                        }
+                    });
+                }
+                places = newPlaces;
                 renderWishlist();
+                initialLoad.places = false;
             });
 
             db.ref('movies').on('value', (snap) => {
                 const data = snap.val();
                 const newArr = data ? Object.entries(data).map(([key, val]) => ({...val, id: val.id || key})) : [];
-                if (!initialLoad.movies && newArr.length > movies.length) sendPushNotification("Novo Filme Adicionado", "Tem filme novo na lista de vocês!");
+                if (!initialLoad.movies && newArr.length > movies.length) {
+                    const partner = currentUser === 'Luiz' ? 'Matheus' : 'Luiz';
+                    const added = newArr.filter(nm => !movies.some(om => om.id === nm.id));
+                    added.forEach(item => {
+                        if (item.addedBy === partner || (item.addedBy !== currentUser && currentUser)) {
+                            showPartnerActivityPopup({
+                                id: item.id,
+                                category: 'movie',
+                                title: 'Novo Filme na Lista',
+                                description: `${partner} adicionou "${item.title}" aos filmes!`,
+                                author: partner,
+                                meta: { tab: 'movies', id: item.id }
+                            });
+                        }
+                    });
+                }
                 movies = newArr;
                 checkNotifications('movie');
                 renderGrid('movie');
@@ -2046,7 +2334,22 @@
             db.ref('shows').on('value', (snap) => {
                 const data = snap.val();
                 const newArr = data ? Object.entries(data).map(([key, val]) => ({...val, id: val.id || key})) : [];
-                if (!initialLoad.shows && newArr.length > shows.length) sendPushNotification("Nova Série Adicionada", "Tem série nova na lista de vocês!");
+                if (!initialLoad.shows && newArr.length > shows.length) {
+                    const partner = currentUser === 'Luiz' ? 'Matheus' : 'Luiz';
+                    const added = newArr.filter(ns => !shows.some(os => os.id === ns.id));
+                    added.forEach(item => {
+                        if (item.addedBy === partner || (item.addedBy !== currentUser && currentUser)) {
+                            showPartnerActivityPopup({
+                                id: item.id,
+                                category: 'show',
+                                title: 'Nova Série na Lista',
+                                description: `${partner} adicionou "${item.title}" às séries!`,
+                                author: partner,
+                                meta: { tab: 'shows', id: item.id }
+                            });
+                        }
+                    });
+                }
                 shows = newArr;
                 checkNotifications('tv');
                 renderGrid('tv');
@@ -2056,7 +2359,23 @@
             db.ref('finances').on('value', (snap) => {
                 const data = snap.val();
                 const newArr = data ? Object.entries(data).map(([key, val]) => ({...val, id: val.id || key})) : [];
-                if (!initialLoad.finances && newArr.length > finances.length) sendPushNotification("Nova Conta Adicionada", "Uma despesa foi inserida nas contas.");
+                if (!initialLoad.finances && newArr.length > finances.length) {
+                    const partner = currentUser === 'Luiz' ? 'Matheus' : 'Luiz';
+                    const added = newArr.filter(nf => !finances.some(of => of.id === nf.id));
+                    added.forEach(item => {
+                        if (item.addedBy === partner || item.payer === partner || (item.addedBy !== currentUser && currentUser)) {
+                            const amt = parseFloat(item.amount) || 0;
+                            showPartnerActivityPopup({
+                                id: item.id,
+                                category: 'finance',
+                                title: 'Nova Conta no Cartão',
+                                description: `${partner} cadastrou "${item.title}" no valor de R$ ${amt.toFixed(2).replace('.', ',')}`,
+                                author: partner,
+                                meta: { tab: 'finances', id: item.id }
+                            });
+                        }
+                    });
+                }
                 finances = newArr;
                 renderFinances();
                 initialLoad.finances = false;
@@ -2065,7 +2384,22 @@
             db.ref('events').on('value', (snap) => {
                 const data = snap.val();
                 const newArr = data ? Object.values(data) : [];
-                if (!initialLoad.events && newArr.length > agendaEvents.length) sendPushNotification("Novo Evento", "Tem um novo compromisso na agenda!");
+                if (!initialLoad.events && newArr.length > agendaEvents.length) {
+                    const partner = currentUser === 'Luiz' ? 'Matheus' : 'Luiz';
+                    const added = newArr.filter(ne => !agendaEvents.some(oe => oe.id === ne.id));
+                    added.forEach(item => {
+                        if (item.addedBy === partner || (item.addedBy !== currentUser && currentUser)) {
+                            showPartnerActivityPopup({
+                                id: item.id,
+                                category: 'event',
+                                title: 'Novo Evento na Agenda',
+                                description: `${partner} marcou "${item.title}" para ${item.date ? formatDateBR(item.date) : 'breve'}`,
+                                author: partner,
+                                meta: { tab: 'calendar', id: item.id }
+                            });
+                        }
+                    });
+                }
                 agendaEvents = newArr;
                 renderCalendar();
                 renderUpcomingEvents();
@@ -2098,8 +2432,26 @@
             // Sincronização em Tempo Real: Lista de Compras
             db.ref('shopping').on('value', (snap) => {
                 const data = snap.val();
-                shoppingItems = data ? Object.values(data) : [];
+                const newShop = data ? Object.values(data) : [];
+                if (!initialLoad.shopping && newShop.length > shoppingItems.length) {
+                    const partner = currentUser === 'Luiz' ? 'Matheus' : 'Luiz';
+                    const added = newShop.filter(ns => !shoppingItems.some(os => os.id === ns.id));
+                    added.forEach(item => {
+                        if (item.addedBy === partner || (item.addedBy !== currentUser && currentUser)) {
+                            showPartnerActivityPopup({
+                                id: item.id,
+                                category: 'shopping',
+                                title: 'Novo Item de Compras',
+                                description: `${partner} adicionou "${item.name}" à lista de compras`,
+                                author: partner,
+                                meta: { tab: 'shopping', id: item.id }
+                            });
+                        }
+                    });
+                }
+                shoppingItems = newShop;
                 renderShoppingList();
+                initialLoad.shopping = false;
             });
 
             // Sincronização em Tempo Real: Spotify Atual
@@ -2490,17 +2842,22 @@
 
         document.getElementById('memoryForm').addEventListener('submit', (e) => {
             e.preventDefault();
+            const memId = 'mem_' + Date.now();
+            const memTitle = document.getElementById('placeName').value;
+            const author = currentUser || 'Luiz';
             const mem = {
-                id: 'mem_' + Date.now(),
+                id: memId,
                 lat: parseFloat(document.getElementById('latInput').value),
                 lng: parseFloat(document.getElementById('lngInput').value),
-                title: document.getElementById('placeName').value,
+                title: memTitle,
                 date: document.getElementById('dateInput').value,
                 notes: document.getElementById('notesInput').value,
                 image: currentCompressedMapImage,
+                addedBy: author,
                 timestamp: Date.now()
             };
             db.ref('memories/' + mem.id).set(mem);
+            broadcastPartnerActivity('photo', 'Novo Momento no Álbum', `${author} adicionou a foto "${memTitle}"`, { tab: 'map', id: memId });
             closePanel();
             showCustomMessage("Foto adicionada ao nosso diário com sucesso!");
         });
@@ -2677,14 +3034,17 @@
 
         function addPlaceToWishlist(name, lat, lng) {
             const id = 'pl_' + Date.now();
+            const author = currentUser || 'Luiz';
             db.ref('places/' + id).set({
                 id: id,
                 name: name,
                 lat: parseFloat(lat),
                 lng: parseFloat(lng),
                 status: 'want',
+                addedBy: author,
                 timestamp: Date.now()
             });
+            broadcastPartnerActivity('place', 'Novo Lugar nos Desejos', `${author} adicionou "${name}" aos lugares para visitar!`, { tab: 'map', id: id });
             document.getElementById('placeSearchResults').innerHTML = '';
             document.getElementById('searchPlaceInput').value = '';
             showCustomMessage("Adicionado à lista de desejos!");
@@ -3416,6 +3776,7 @@
             const dbNode = tempItemData.type === 'movie' ? 'movies' : 'shows';
             const itemId = `${tempItemData.type}_${tempItemData.id}`;
             const listInput = document.getElementById('smList');
+            const author = currentUser || 'Luiz';
             
             const payload = {
                 id: itemId,
@@ -3426,6 +3787,7 @@
                 genres: tempItemData.genres || [],
                 listName: listInput ? listInput.value.trim() : "",
                 status: smStatus,
+                addedBy: author,
                 timestamp: Date.now()
             };
 
@@ -3437,6 +3799,8 @@
             }
 
             db.ref(`${dbNode}/${itemId}`).set(payload);
+            const isMovie = tempItemData.type === 'movie';
+            broadcastPartnerActivity(isMovie ? 'movie' : 'show', isMovie ? 'Novo Filme na Lista' : 'Nova Série na Lista', `${author} adicionou "${tempItemData.title}" à lista!`, { tab: isMovie ? 'movies' : 'shows', id: itemId });
             closeSaveItemModal();
             showCustomMessage("Guardado no acervo!");
         }
@@ -3463,6 +3827,7 @@
             db.ref(`${dbNode}/${currentViewingId}/ratings/${currentUser}`).set(pRating);
             if(reviewText) db.ref(`${dbNode}/${currentViewingId}/reviews/${currentUser}`).set(reviewText);
             
+            broadcastPartnerActivity('review', 'Nova Avaliação Cine', `${currentUser} avaliou um título com ${pRating} estrelas!`, { tab: currentExploreType === 'movie' ? 'movies' : 'shows', id: currentViewingId });
             showCustomMessage("Avaliação salva com sucesso!");
             closeViewItemModal();
         }
@@ -3775,12 +4140,12 @@
                 d = now.getDate();
             }
 
-            // Regra do Cartão: Vira dia 3, Vence dia 10.
-            // Compras até dia 3 fecham no dia 3 do mês atual e vencem dia 10 do mês atual.
-            // Compras a partir do dia 4 fecham no dia 3 do mês seguinte e vencem dia 10 do mês seguinte.
+            // Regra do Cartão: Vira dia 2, Vence dia 09.
+            // Compras até dia 2 fecham no dia 2 do mês atual e vencem dia 09 do mês atual.
+            // Compras a partir do dia 3 fecham no dia 2 do mês seguinte e vencem dia 09 do mês seguinte.
             let invMonth = m;
             let invYear = y;
-            if (d > 3) {
+            if (d > 2) {
                 invMonth++;
                 if (invMonth > 12) {
                     invMonth = 1;
@@ -3794,8 +4159,8 @@
             const key = `${invYear}-${String(invMonth).padStart(2, '0')}`;
             const title = `Fatura ${monthNamesLong[invMonth - 1]} / ${invYear}`;
             const shortTitle = `${monthNamesShort[invMonth - 1]}/${String(invYear).slice(-2)}`;
-            const closingDateFormatted = `03/${String(invMonth).padStart(2, '0')}/${invYear}`;
-            const dueDateFormatted = `10/${String(invMonth).padStart(2, '0')}/${invYear}`;
+            const closingDateFormatted = `02/${String(invMonth).padStart(2, '0')}/${invYear}`;
+            const dueDateFormatted = `09/${String(invMonth).padStart(2, '0')}/${invYear}`;
 
             return {
                 key,
@@ -3815,8 +4180,8 @@
             const m = now.getMonth() + 1;
             const d = now.getDate();
 
-            // Se ainda não passou do dia 10, a fatura do mês atual é a que está vencendo agora
-            let currentInvMonth = (d <= 10) ? m : m + 1;
+            // Se ainda não passou do dia 09, a fatura do mês atual é a que está vencendo agora
+            let currentInvMonth = (d <= 9) ? m : m + 1;
             let currentInvYear = y;
             if (currentInvMonth > 12) { currentInvMonth = 1; currentInvYear++; }
 
@@ -3853,7 +4218,7 @@
             document.getElementById('fin-title').value = '';
             document.getElementById('fin-amount').value = '';
             document.getElementById('fin-payer').value = currentUser || 'Luiz';
-            document.getElementById('fin-type').value = 'split';
+            document.getElementById('fin-type').value = 'full';
             document.getElementById('fin-date').value = new Date().toISOString().split('T')[0];
             if (document.getElementById('fin-method')) document.getElementById('fin-method').value = 'credit';
             if (document.getElementById('fin-installments')) document.getElementById('fin-installments').value = '1';
@@ -3893,6 +4258,7 @@
             if (installments > 1 && method === 'credit') {
                 const partAmount = Math.round((amount / installments) * 100) / 100;
                 const parts = baseDate.split('-').map(Number);
+                const author = currentUser || payer || 'Luiz';
 
                 for (let i = 0; i < installments; i++) {
                     const instDateObj = new Date(parts[0], parts[1] - 1 + i, parts[2]);
@@ -3911,14 +4277,17 @@
                         invoiceKey: instCycle.key,
                         paid: isPaid,
                         receipt: currentFinCompressedImage,
+                        addedBy: author,
                         timestamp: Date.now() + i
                     };
                     db.ref('finances/' + id).set(data);
                 }
+                broadcastPartnerActivity('finance', 'Nova Conta Parcelada', `${author} adicionou "${title}" (${installments}x de R$ ${partAmount.toFixed(2).replace('.', ',')})`, { tab: 'finances' });
                 showCustomMessage(`Conta parcelada em ${installments}x adicionada!`);
             } else {
                 const id = 'fin_' + Date.now();
                 const cycle = getInvoiceCycle(baseDate);
+                const author = currentUser || payer || 'Luiz';
                 const data = {
                     id: id,
                     title: title,
@@ -3930,9 +4299,11 @@
                     invoiceKey: cycle.key,
                     paid: isPaid,
                     receipt: currentFinCompressedImage,
+                    addedBy: author,
                     timestamp: Date.now()
                 };
                 db.ref('finances/' + id).set(data);
+                broadcastPartnerActivity('finance', 'Nova Conta no Cartão', `${author} adicionou "${title}" no valor de R$ ${amount.toFixed(2).replace('.', ',')}`, { tab: 'finances', id: id });
                 showCustomMessage("Conta adicionada com sucesso!");
             }
 
@@ -3999,6 +4370,280 @@
                     }
                 });
                 showCustomMessage("Histórico de contas pagas limpo!");
+            }
+        }
+
+        function openExportFinancesModal() {
+            const totalCount = finances.length;
+            const totalAmount = finances.reduce((acc, f) => acc + (parseFloat(f.amount) || 0), 0);
+            
+            const invoiceKeys = new Set(finances.map(f => {
+                const c = getInvoiceCycle(f.date);
+                return c ? c.key : 'outros';
+            }));
+            
+            const countEl = document.getElementById('exp-total-count');
+            if (countEl) countEl.innerText = totalCount;
+            
+            const amountEl = document.getElementById('exp-total-amount');
+            if (amountEl) amountEl.innerText = `R$ ${totalAmount.toFixed(2).replace('.', ',')}`;
+            
+            const invEl = document.getElementById('exp-total-invoices');
+            if (invEl) invEl.innerText = invoiceKeys.size;
+            
+            const activeCycle = (currentSelectedInvoiceKey === 'all')
+                ? null
+                : (currentSelectedInvoiceKey === 'auto'
+                    ? getActiveBillingCycles().currentCycle
+                    : getInvoiceCycle(currentSelectedInvoiceKey + '-01'));
+                    
+            const curTxt = document.getElementById('exp-current-cycle-btn-txt');
+            if (curTxt) {
+                if (activeCycle) {
+                    curTxt.innerText = `Exportar Fatura Atual (${activeCycle.shortTitle})`;
+                } else {
+                    curTxt.innerText = `Exportar Fatura Selecionada`;
+                }
+            }
+            
+            document.getElementById('financeExportModal').classList.remove('hidden');
+        }
+
+        function closeExportFinancesModal() {
+            const modal = document.getElementById('financeExportModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function executeExportFinances(scope) {
+            closeExportFinancesModal();
+            if (!finances || finances.length === 0) {
+                showCustomMessage("Nenhuma conta para exportar!");
+                return;
+            }
+
+            let itemsToExport = [];
+            let scopeName = "Completo_Todas_Faturas";
+
+            if (scope === 'current') {
+                const activeKey = (currentSelectedInvoiceKey === 'auto')
+                    ? getActiveBillingCycles().currentKey
+                    : currentSelectedInvoiceKey;
+
+                if (activeKey !== 'all') {
+                    itemsToExport = finances.filter(f => {
+                        const c = getInvoiceCycle(f.date);
+                        return c && c.key === activeKey;
+                    });
+                    scopeName = `Fatura_${activeKey}`;
+                } else {
+                    itemsToExport = [...finances];
+                }
+            } else {
+                itemsToExport = [...finances];
+            }
+
+            if (itemsToExport.length === 0) {
+                showCustomMessage("Nenhuma conta encontrada para o filtro selecionado.");
+                return;
+            }
+
+            itemsToExport.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+
+            const rowsDetails = itemsToExport.map(f => {
+                const amt = parseFloat(f.amount) || 0;
+                const cycle = getInvoiceCycle(f.date);
+                const isSplit = f.type === 'split';
+                const payer = f.payer || 'Luiz';
+
+                let luizPart = 0;
+                let matheusPart = 0;
+                let whoOwes = "Ninguém deve";
+                let settlementAmount = 0;
+
+                if (isSplit) {
+                    luizPart = amt / 2;
+                    matheusPart = amt / 2;
+                    if (payer === 'Luiz') {
+                        whoOwes = "Matheus deve a Luiz";
+                        settlementAmount = amt / 2;
+                    } else {
+                        whoOwes = "Luiz deve a Matheus";
+                        settlementAmount = amt / 2;
+                    }
+                } else {
+                    if (payer === 'Luiz') {
+                        luizPart = 0;
+                        matheusPart = amt;
+                        whoOwes = "Matheus deve a Luiz";
+                        settlementAmount = amt;
+                    } else {
+                        luizPart = amt;
+                        matheusPart = 0;
+                        whoOwes = "Luiz deve a Matheus";
+                        settlementAmount = amt;
+                    }
+                }
+
+                const methodMap = {
+                    'credit': 'Cartão de Crédito',
+                    'pix': 'Pix',
+                    'debit': 'Cartão de Débito',
+                    'dinheiro': 'Dinheiro em Espécie'
+                };
+                const methodStr = methodMap[f.method] || (f.method ? f.method.toUpperCase() : 'Cartão de Crédito');
+
+                return {
+                    "ID da Transação": f.id || '-',
+                    "Data da Compra": f.date ? formatDateBR(f.date) : '-',
+                    "Fatura de Referência": cycle ? cycle.title : '-',
+                    "Fechamento da Fatura (Dia 02)": cycle ? cycle.closingDateFormatted : '-',
+                    "Vencimento da Fatura (Dia 09)": cycle ? cycle.dueDateFormatted : '-',
+                    "Descrição / Título": f.title || '-',
+                    "Forma de Pagamento": methodStr,
+                    "Quem Pagou": payer,
+                    "Tipo de Divisão": isSplit ? "Dividido (50/50)" : "Pagou Inteiro (O outro deve tudo)",
+                    "Valor Total (R$)": amt,
+                    "Cota Luiz (R$)": luizPart,
+                    "Cota Matheus (R$)": matheusPart,
+                    "Quem Deve no Acerto": f.paid ? "Já Quitado" : whoOwes,
+                    "Valor do Acerto (R$)": f.paid ? 0 : settlementAmount,
+                    "Status do Pagamento": f.paid ? "Pago / Quitado" : "Pendente",
+                    "Possui Comprovante Anexo": f.receipt ? "Sim (Anexo no App)" : "Não",
+                    "Lançado Por": f.addedBy || payer,
+                    "Data de Registro": f.timestamp ? new Date(f.timestamp).toLocaleString('pt-BR') : '-'
+                };
+            });
+
+            const invoiceSummaryMap = new Map();
+            itemsToExport.forEach(f => {
+                const amt = parseFloat(f.amount) || 0;
+                const cycle = getInvoiceCycle(f.date);
+                const key = cycle ? cycle.key : 'outros';
+                const isSplit = f.type === 'split';
+                const payer = f.payer || 'Luiz';
+
+                if (!invoiceSummaryMap.has(key)) {
+                    invoiceSummaryMap.set(key, {
+                        title: cycle ? cycle.title : 'Outras Despesas',
+                        closing: cycle ? cycle.closingDateFormatted : '-',
+                        due: cycle ? cycle.dueDateFormatted : '-',
+                        count: 0,
+                        total: 0,
+                        paidTotal: 0,
+                        pendingTotal: 0,
+                        luizPaid: 0,
+                        luizPart: 0,
+                        matheusPaid: 0,
+                        matheusPart: 0,
+                        pendingCount: 0
+                    });
+                }
+
+                const inv = invoiceSummaryMap.get(key);
+                inv.count++;
+                inv.total += amt;
+
+                if (f.paid) {
+                    inv.paidTotal += amt;
+                } else {
+                    inv.pendingTotal += amt;
+                    inv.pendingCount++;
+                }
+
+                if (payer === 'Luiz') inv.luizPaid += amt;
+                else inv.matheusPaid += amt;
+
+                if (isSplit) {
+                    inv.luizPart += (amt / 2);
+                    inv.matheusPart += (amt / 2);
+                } else {
+                    if (payer === 'Luiz') inv.matheusPart += amt;
+                    else inv.luizPart += amt;
+                }
+            });
+
+            const rowsSummary = [];
+            invoiceSummaryMap.forEach((inv) => {
+                let acertoTxt = "Tudo quitado / Em dia";
+                const netDiff = inv.luizPaid - inv.luizPart;
+                if (Math.abs(netDiff) >= 0.01) {
+                    if (netDiff > 0) {
+                        acertoTxt = `Matheus transfere R$ ${netDiff.toFixed(2).replace('.', ',')} para Luiz via Pix`;
+                    } else {
+                        acertoTxt = `Luiz transfere R$ ${Math.abs(netDiff).toFixed(2).replace('.', ',')} para Matheus via Pix`;
+                    }
+                }
+
+                rowsSummary.push({
+                    "Fatura (Ciclo)": inv.title,
+                    "Fechamento (Dia 02)": inv.closing,
+                    "Vencimento (Dia 09)": inv.due,
+                    "Qtd. de Contas": inv.count,
+                    "Total Geral (R$)": Math.round(inv.total * 100) / 100,
+                    "Total Quitado (R$)": Math.round(inv.paidTotal * 100) / 100,
+                    "Total Pendente (R$)": Math.round(inv.pendingTotal * 100) / 100,
+                    "Total Pago pelo Luiz (R$)": Math.round(inv.luizPaid * 100) / 100,
+                    "Cota do Luiz (R$)": Math.round(inv.luizPart * 100) / 100,
+                    "Total Pago pelo Matheus (R$)": Math.round(inv.matheusPaid * 100) / 100,
+                    "Cota do Matheus (R$)": Math.round(inv.matheusPart * 100) / 100,
+                    "Acerto da Fatura via Pix": acertoTxt,
+                    "Status da Fatura": inv.pendingCount === 0 ? "Totalmente Paga" : `${inv.pendingCount} pendente(s)`
+                });
+            });
+
+            if (typeof XLSX !== 'undefined') {
+                const wb = XLSX.utils.book_new();
+
+                const wsDetails = XLSX.utils.json_to_sheet(rowsDetails);
+                const wsSummary = XLSX.utils.json_to_sheet(rowsSummary);
+
+                wsDetails['!cols'] = [
+                    { wch: 18 }, { wch: 14 }, { wch: 26 }, { wch: 14 }, { wch: 14 },
+                    { wch: 32 }, { wch: 20 }, { wch: 12 }, { wch: 30 }, { wch: 16 },
+                    { wch: 14 }, { wch: 14 }, { wch: 22 }, { wch: 18 }, { wch: 16 },
+                    { wch: 16 }, { wch: 14 }, { wch: 20 }
+                ];
+
+                wsSummary['!cols'] = [
+                    { wch: 28 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 16 },
+                    { wch: 16 }, { wch: 16 }, { wch: 18 }, { wch: 16 }, { wch: 18 },
+                    { wch: 16 }, { wch: 45 }, { wch: 18 }
+                ];
+
+                XLSX.utils.book_append_sheet(wb, wsDetails, "Despesas Detalhadas");
+                XLSX.utils.book_append_sheet(wb, wsSummary, "Resumo por Fatura");
+
+                const todayStr = new Date().toISOString().split('T')[0];
+                const filename = `Contas_Cartao_${scopeName}_${todayStr}.xlsx`;
+                XLSX.writeFile(wb, filename);
+                showCustomMessage(`Planilha Excel baixada com sucesso! (${itemsToExport.length} contas)`);
+            } else {
+                let csvContent = "";
+                const headers = Object.keys(rowsDetails[0]);
+                csvContent += headers.map(h => `"${h.replace(/"/g, '""')}"`).join(";") + "\r\n";
+
+                rowsDetails.forEach(row => {
+                    const line = headers.map(h => {
+                        const val = row[h];
+                        if (typeof val === 'number') {
+                            return `"${val.toFixed(2).replace('.', ',')}"`;
+                        }
+                        return `"${String(val || '').replace(/"/g, '""')}"`;
+                    }).join(";");
+                    csvContent += line + "\r\n";
+                });
+
+                const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                const todayStr = new Date().toISOString().split('T')[0];
+                a.href = url;
+                a.download = `Contas_Cartao_${scopeName}_${todayStr}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showCustomMessage(`Arquivo CSV para Excel baixado com sucesso! (${itemsToExport.length} contas)`);
             }
         }
 
@@ -4091,7 +4736,7 @@
                     dropHtml += `
                         <button onclick="setFinInvoiceKey('${c.key}')" class="text-left px-3.5 py-2.5 rounded-xl text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-700 flex justify-between items-center transition-colors touch-manipulation ${activeKey === c.key ? 'text-brand font-black' : 'text-slate-700 dark:text-slate-300'}">
                             <span>${c.title} (Venc. ${c.dueDateFormatted})</span>
-                            <span class="text-[10px] text-slate-400">Vira dia 03</span>
+                            <span class="text-[10px] text-slate-400">Vira dia 02</span>
                         </button>
                     `;
                 });
@@ -4183,7 +4828,7 @@
 
             // Atualiza Card do Ciclo do Cartão
             const selectedCycle = (activeKey === 'all') 
-                ? { title: 'Todas as Faturas e Despesas', shortTitle: 'Todas', closingDateFormatted: '03/--', dueDateFormatted: '10/--' }
+                ? { title: 'Todas as Faturas e Despesas', shortTitle: 'Todas', closingDateFormatted: '02/--', dueDateFormatted: '09/--' }
                 : (invoiceMap.get(activeKey) || getInvoiceCycle(activeKey + '-01'));
 
             const cycleTitleEl = document.getElementById('fin-cycle-status-title');
@@ -4223,12 +4868,12 @@
                     cycleBadge.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> Fatura Paga`;
                 } else if (activeKey === cycles.currentKey) {
                     const todayDay = new Date().getDate();
-                    if (todayDay > 3 && todayDay <= 10) {
+                    if (todayDay > 2 && todayDay <= 9) {
                         cycleBadge.className = "px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800 animate-pulse";
-                        cycleBadge.innerHTML = `<i class="fa-solid fa-clock mr-1"></i> Fechada • Pagar até dia 10`;
+                        cycleBadge.innerHTML = `<i class="fa-solid fa-clock mr-1"></i> Fechada • Pagar até dia 09`;
                     } else {
                         cycleBadge.className = "px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800";
-                        cycleBadge.innerHTML = `<i class="fa-solid fa-lock-open mr-1"></i> Aberta (Vira dia 03)`;
+                        cycleBadge.innerHTML = `<i class="fa-solid fa-lock-open mr-1"></i> Aberta (Vira dia 02)`;
                     }
                 } else {
                     cycleBadge.className = "px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600";
@@ -4438,7 +5083,7 @@
             const vDate = document.getElementById('vf-date');
             const cycle = getInvoiceCycle(f.date);
             if(f.date) {
-                vDate.innerText = `Data: ${formatDateBR(f.date)} • Fatura Vencimento: ${cycle.dueDateFormatted} (Vira dia 03)`;
+                vDate.innerText = `Data: ${formatDateBR(f.date)} • Fatura Vencimento: ${cycle.dueDateFormatted} (Vira dia 02)`;
                 vDate.classList.remove('hidden');
             } else {
                 vDate.classList.add('hidden');
@@ -4603,6 +5248,7 @@
             if(!title || !date) { showCustomMessage("Preencha o título e a data!"); return; }
 
             const id = 'ev_' + Date.now();
+            const author = currentUser || 'Luiz';
             db.ref('events/' + id).set({
                 id: id,
                 title: title,
@@ -4611,8 +5257,10 @@
                 location: document.getElementById('ev-location').value.trim(),
                 description: document.getElementById('ev-desc').value.trim(),
                 color: document.getElementById('ev-color').value,
+                addedBy: author,
                 timestamp: Date.now()
             });
+            broadcastPartnerActivity('event', 'Novo Evento na Agenda', `${author} marcou "${title}" para ${formatDateBR(date)}`, { tab: 'calendar', id: id });
             closeEventModal();
             showCustomMessage("Agendado!");
         }
@@ -4716,10 +5364,14 @@
         function closeTimeSettings() { document.getElementById('timeSettingsModal').classList.add('hidden'); }
 
         function saveTimeSettings() {
+            const author = currentUser || 'Luiz';
             db.ref('settings/dates').set({
                 conhecemos: document.getElementById('ts-conhecemos').value,
-                namoro: document.getElementById('ts-namoro').value
+                namoro: document.getElementById('ts-namoro').value,
+                updatedBy: author,
+                timestamp: Date.now()
             });
+            broadcastPartnerActivity('dates', 'Datas Especiais Atualizadas', `${author} atualizou as datas especiais de vocês!`, { tab: 'time' });
             closeTimeSettings();
         }
 
@@ -4852,14 +5504,16 @@
             if(!text) return;
 
             const id = 'shop_' + Date.now();
+            const author = currentUser || 'Luiz';
             db.ref('shopping/' + id).set({
                 id: id,
                 name: text,
                 category: cat,
                 checked: false,
-                addedBy: currentUser || 'Desconhecido',
+                addedBy: author,
                 timestamp: Date.now()
             });
+            broadcastPartnerActivity('shopping', 'Novo Item de Compras', `${author} adicionou "${text}" à lista de compras`, { tab: 'shopping', id: id });
 
             input.value = '';
             showCustomMessage("Adicionado à lista com sucesso!");
@@ -5491,6 +6145,7 @@
                     topAlbums: topAlbums,
                     timestamp: Date.now()
                 });
+                broadcastPartnerActivity('spotify', 'Spotify Sincronizado', `${currentUser || 'Luiz'} sincronizou suas músicas do Spotify!`, { tab: 'spotify' });
             } catch(e) { console.log("Erro Stats Spotify:", e); }
         }
 
